@@ -28,6 +28,7 @@
 |---|---|
 | `index.html` | **整個遊戲**。單一檔案、純前端、不需建置，約 1650 行。不載入任何外部 CSS、JS 或字型。 |
 | `tools/screenshot.py` | Playwright 截圖檢查：三種身分各跑一次桌機版，再跑一次手機橫向；輸出到 `shots/`（已列入 .gitignore）。 |
+| `tools/sync-to-github.sh` | 從雲端硬碟資料夾同步到 GitHub（見第 8 節）。 |
 | `docs/handoff/CLAUDE-原始交接.md` | 原始交接文件，內容不改寫。 |
 | `AGENTS.md` | 本檔，共用規則。 |
 | `CLAUDE.md` | 只有一行 `@AGENTS.md`。 |
@@ -118,7 +119,7 @@
 - 官網、Matterport、學生手冊網址都擋爬蟲。資料以老師提供的檔案為準，不要自行上網補資料。
 
 ## 7. 不可做的事
-- 不可在 Google 雲端硬碟同步區裡建立或操作 git repo。工作資料夾固定在本機 `~/Projects/nanshan-panther-game`。
+- 不可在 Google 雲端硬碟同步區裡建立或操作 git repo。Git repo 固定在本機 `~/Projects/nanshan-panther-game`；平常修改雲端硬碟資料夾，再用 `tools/sync-to-github.sh` 同步。
 - 不可把金鑰、token、密碼寫進程式碼或 commit；金鑰一律放 Apps Script「指令碼屬性」。
 - 不可把學生資料（姓名、班級座號、成績、作答紀錄）放進 repo。
 - 不可加回組長姓名，也不可自行補寫校歌歌詞。
@@ -129,6 +130,15 @@
 ## 8. 多工具輪流修改的固定流程
 這個專案會在 Mac mini（主機）、MacBook Pro、iPhone 遠端之間，以及 Claude Code、Gemini Antigravity、ChatGPT 之間**錯開**修改，不會同時改。
 
+### 主要做法（2026-11-03 起，老師指定）：在雲端硬碟資料夾修改，再用腳本同步
+- **主檔位置**：Google 雲端硬碟的 `我的雲端硬碟/Chiue's Google/多元選修/115 AI導入數位教學示範學校/我的校園生活就是這麼自強不息/`。直接改這裡的 `index.html`。
+- **同步**：改完並驗證後，在該資料夾執行 `bash tools/sync-to-github.sh "這次改了什麼"`。
+  - 腳本會把檔案複製到 `~/Projects/nanshan-panther-game`，commit 到 `claude` 分支，再合併到 `main` 並推送。GitHub Pages 約 1 分鐘後更新。
+  - GitHub 上的 `index.html` 在上次同步後被別處改過時，腳本會停下來；變更中疑似有金鑰時也會停下來，不會 commit。
+- **不要直接改這個 repo 裡的 `index.html`**，下次同步會被雲端硬碟版本蓋掉。如果真的在 repo 改了，請先把檔案複製回雲端硬碟資料夾。
+- 雲端硬碟資料夾裡不可以執行 `git init`。
+
+### 進階做法：直接在 repo 用分支開發
 **開工前**
 1. `git checkout <自己的分支>`。Claude Code 用 `claude`，Gemini Antigravity 用 `gemini`，ChatGPT 用 `chatgpt`。
 2. `git pull`，並把 `main` 的最新內容合併進來：`git merge origin/main`。

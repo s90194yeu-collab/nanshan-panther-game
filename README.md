@@ -27,7 +27,17 @@
 - 目前：claude.ai artifact（僅作者可見）。
 - 預計：開發完成後建立 Google Apps Script 專案，用 clasp 管理。目前還沒有建立。
 
-## 開工／收工流程
+## 平常怎麼改（最簡單的做法）
+1. 直接修改 Google 雲端硬碟資料夾 `我的校園生活就是這麼自強不息/` 裡的 `index.html`（主檔）。
+2. 改完後，在那個資料夾執行：
+   ```bash
+   bash tools/sync-to-github.sh "這次改了什麼"
+   ```
+3. 大約 1 分鐘後，遊戲網址會更新：https://s90194yeu-collab.github.io/nanshan-panther-game/
+
+不要直接改這個 repo 裡的 `index.html`，下次同步時會被雲端硬碟版本蓋掉。
+
+## 開工／收工流程（進階：直接在 repo 用分支開發）
 本專案會在不同電腦（Mac mini、MacBook Pro、iPhone 遠端）和不同 AI 工具（Claude Code、Gemini Antigravity、ChatGPT）之間**錯開**修改。每個工具使用自己的分支：
 
 | 工具 | 分支 |
