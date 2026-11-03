@@ -93,6 +93,13 @@ html,body{margin:0;height:100%;overflow:hidden;background:#8db57a;font-family:"P
 .flist small{color:#6b5a8a;margin-left:4px}
 .cardimg{width:100%;border-radius:12px;border:3px solid #2a2a38;display:block}
 .gl b{color:#2f6b5a}
+.box.wide{max-width:min(94vw,920px)}
+#bigmap{width:100%;max-width:calc((86vh - 150px)*1.667);margin:0 auto;border-radius:12px;border:3px solid #2a2a38;display:block;cursor:pointer;touch-action:manipulation}
+.badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 10px}
+.badge{border:2px solid #2a2a38;border-radius:12px;padding:8px 4px;text-align:center;font-size:13px;line-height:1.4;background:#f3ecdc;opacity:.45}
+.badge.on{opacity:1;background:#fff3c4}.badge b{display:block;font-size:24px}
+.tl{border-left:4px solid #8c3b2e;padding-left:12px;margin:4px 0 10px}.tl div{margin-bottom:8px;line-height:1.6}.tl b{color:#8c3b2e}
+#map{cursor:pointer}
 </style>
 </head>
 <body>
@@ -181,25 +188,26 @@ function charShapes(c,d,f){
   const fur='#2d2c3e',fur2='#43425c',skin=c.skin||'#f6d2b0',limb=isP?fur:skin;
   const top=c.suit||c.shirt||'#fbfbf8',bottom=c.bottom||'#27304d';
   const skirt=c.sex==='f'&&!c.suit;
-  const shoe=c.suit?'#1e1e24':(skirt?'#2a2a30':'#f4f4f4');
+  const shoe=isP?fur:c.suit?'#1e1e24':(skirt?'#2a2a30':'#f4f4f4');
+  const socks=skirt&&!isP;
   const tr=c.trim||'#2f5fb5';
   // 尾巴（前、側）
   if(isP&&front)S.push(LN('M20 33Q27.5 34 27.6 27Q27.8 23 25.2 21.8',fur,2.7),LN('M26.4 23.2Q25.9 22.2 25.2 21.8',fur2,2.7));
   if(isP&&side)S.push(LN('M12 32Q4 33 4.4 25.5Q4.8 21.4 7.4 20.6',fur,2.7));
   // 腿
-  const legC=skirt?limb:bottom;
+  const legC=(skirt||c.shorts)?limb:bottom;
   if(!side){
     const lL=sw>0?1.4:0,lR=sw<0?1.4:0;
     S.push(CAP(13.2,32,13.2,43.4-lL,2.15,legC),CAP(18.8,32,18.8,43.4-lR,2.15,legC));
-    if(skirt)S.push(CAP(13.2,39.6,13.2,43.4-lL,2.05,'#ffffff',OL,.6),CAP(18.8,39.6,18.8,43.4-lR,2.05,'#ffffff',OL,.6));
+    if(socks)S.push(CAP(13.2,39.6,13.2,43.4-lL,2.05,'#ffffff',OL,.6),CAP(18.8,39.6,18.8,43.4-lR,2.05,'#ffffff',OL,.6));
     S.push(EL(13.2,45-lL,2.9,1.6,shoe),EL(18.8,45-lR,2.9,1.6,shoe));
   }else{
     const a=sw*3.2;
     S.push(CAP(16,32,16+a,43.4,2.1,shade(legC,.72)));
-    if(skirt)S.push(CAP(16+a*.7,39.6,16+a,43.3,2,'#dcdcdc',OL,.6));
+    if(socks)S.push(CAP(16+a*.7,39.6,16+a,43.3,2,'#dcdcdc',OL,.6));
     S.push(EL(17+a,45,3,1.5,shade(shoe,.8)));
     S.push(CAP(16,32,16-a,43.4,2.15,legC));
-    if(skirt)S.push(CAP(16-a*.7,39.6,16-a,43.3,2.05,'#ffffff',OL,.6));
+    if(socks)S.push(CAP(16-a*.7,39.6,16-a,43.3,2.05,'#ffffff',OL,.6));
     S.push(EL(17-a,45,3,1.55,shoe));
   }
   // 身體
@@ -209,12 +217,22 @@ function charShapes(c,d,f){
   S.push(PT(side?`M${bx+bw-3} 21.4Q${bx+bw} 21.6 ${bx+bw} 25V30Q${bx+bw} 34 ${bx+bw-3} 34Z`:'M19.5 21.4Q22.5 21.6 22.5 25V30Q22.5 34 19.5 34Z','rgba(40,40,80,.10)',null));
   if(skirt)S.push(PT(side?'M10.5 29.5H21.5L23.6 36.6Q16 38.2 8.4 36.6Z':'M9.5 29.5H22.5L25 36.6Q16 38.4 7 36.6Z',bottom),
                   LN(side?'M13.5 30.5L12.7 36.8M17 30.5V37.2M20 30.5L20.9 36.9':'M12.5 30.5L11.4 36.9M16 30.5V37.4M19.5 30.5L20.6 36.9','rgba(0,0,0,.35)',.55));
+  else if(c.shorts)S.push(RR(bx+.2,29.6,bw-.4,5.4,1.6,bottom),LN(side?'':'M16 30.4V35','rgba(0,0,0,.25)',.5));
   else if(!c.suit)S.push(RR(bx,30.4,bw,2.2,.8,'#22222c',null));
+  // 南山豹制服背心（酒紅色、胸前三色三角校徽）
+  if(c.vest){
+    if(front){
+      S.push(PT('M9.5 25Q9.5 21.3 12.2 21.2L16 26.8L19.8 21.2Q22.5 21.3 22.5 25V31.6Q16 33.4 9.5 31.6Z',c.vest));
+      if(c.sex==='m')S.push(PT('M12.4 21.1L16 23.3L14.5 24.5Z',shade(top,1.15),OL,.4),PT('M19.6 21.1L16 23.3L17.5 24.5Z',shade(top,1.15),OL,.4),PT('M15.25 22.8H16.75L17.2 26.4L16 27.6L14.8 26.4Z','#22305e',OL,.45));
+      else S.push(PT('M12.2 21.1Q12 23.8 14.6 23.7Q15.9 23.4 16 22.2Z','#fde3ea',OL,.45),PT('M19.8 21.1Q20 23.8 17.4 23.7Q16.1 23.4 16 22.2Z','#fde3ea',OL,.45));
+      S.push(PT('M17.9 28.4L18.45 27.4L19 28.4Z','#3aa655',null),PT('M19 28.4L19.55 27.4L20.1 28.4Z','#e0453c',null),PT('M20.1 28.4L20.65 27.4L21.2 28.4Z','#3f6fd1',null));
+    }else S.push(RR(bx,21.4,bw,10.8,3.2,c.vest));
+  }
   if(c.suit&&!back){
     if(side)S.push(PT('M17.5 21.4L20.6 21.4L19 27Z','#ffffff',null),PT('M18.6 22.4H19.6L19.8 28L19.1 29L18.4 28Z',c.tie||'#d8343f',null));
     else S.push(PT('M13.4 21.2L18.6 21.2L16 28.4Z','#ffffff',null),PT('M15.3 22.2H16.7L17.2 28.5L16 30L14.8 28.5Z',c.tie||'#d8343f',null),LN('M13.4 21.3L15.6 29.5M18.6 21.3L16.4 29.5','rgba(0,0,0,.35)',.6));
   }
-  if(!c.suit&&!back){
+  if(!c.suit&&!back&&!c.vest){
     if(side)S.push(LN('M17 21.5L20 23.6',tr,1.4));
     else{
       S.push(LN('M12.8 21.3L16 24.6L19.2 21.3',tr,1.4));
@@ -239,29 +257,25 @@ function charShapes(c,d,f){
   if(isP&&back)S.push(LN('M16 32Q16.5 39.5 21.5 37.6Q26 35.6 25 29.4',fur,2.9),LN('M25.3 30.6Q25.2 29.8 25 29.4',fur2,2.9));
   // 頭
   if(isP){
+    const inner='#8f8b98',muz='#f8f4ea',iris='#f2a91e';
     if(!side){
-      S.push(PT('M6.6 11Q6 3 8.6 1.6Q11.4 3 14 6.4Z',fur),PT('M25.4 11Q26 3 23.4 1.6Q20.6 3 18 6.4Z',fur));
-      if(front)S.push(PT('M8.2 8Q8 4.2 9 3.4Q10.8 4.6 12 6.6Z','#ff98b0',null),PT('M23.8 8Q24 4.2 23 3.4Q21.2 4.6 20 6.6Z','#ff98b0',null));
-      S.push(EL(16,13,10.6,9,fur));
-      S.push(EL(9.5,9.8,1.2,.9,fur2,null),EL(22.6,9.4,1.1,.85,fur2,null),EL(16,6.2,1.3,.8,fur2,null),EL(11.6,6.8,.9,.7,fur2,null),EL(20.6,6.6,.9,.7,fur2,null));
-      S.push(EL(12.6,8.4,4.4,2.4,'rgba(255,255,255,.08)',null));
+      S.push(EL(8.3,5.4,3.6,3.6,fur),EL(23.7,5.4,3.6,3.6,fur));
+      if(front)S.push(EL(8.4,5.6,2.1,2.1,inner,null),EL(23.6,5.6,2.1,2.1,inner,null));
+      S.push(EL(16,13,11.2,9.6,fur),EL(12.4,8.2,4.6,2.3,'rgba(255,255,255,.07)',null));
       if(front){
-        S.push(EL(16,17.4,4.8,3.1,'#f4efe4',null));
-        S.push(PT('M14.6 15.4H17.4Q17.2 16.9 16 17.3Q14.8 16.9 14.6 15.4Z','#ff8fab',null));
-        S.push(LN('M16 17.3V18.2M14.4 18.5Q15.2 19.3 16 18.2Q16.8 19.3 17.6 18.5',OL,.55));
-        [11.6,20.4].forEach(x=>{S.push(EL(x,12.6,2.75,3,'#ffd23f',OL,.7),EL(x+.15,12.9,1.35,2.25,'#141418',null),EL(x+.75,11.6,.75,.75,'#ffffff',null),EL(x-.5,14,.35,.35,'#ffffff',null));});
-        S.push(EL(7.8,16.4,1.5,.9,'rgba(255,140,170,.55)',null),EL(24.2,16.4,1.5,.9,'rgba(255,140,170,.55)',null));
-        S.push(LN('M3.5 16.6L9.6 17.2M3.8 18.8L9.6 18.2M28.5 16.6L22.4 17.2M28.2 18.8L22.4 18.2','rgba(255,255,255,.85)',.45));
+        S.push(EL(11.2,7.4,1,.65,inner,null),EL(20.8,7.4,1,.65,inner,null));
+        [11.3,20.7].forEach(x=>S.push(EL(x,12.7,3.55,3.55,'#f3ead8',OL,.8),EL(x,12.8,2.85,2.85,iris,null),EL(x,13,1.75,1.75,'#1a1410',null),EL(x-.95,11.8,.8,.8,'#ffffff',null),EL(x+.9,13.9,.35,.35,'#ffffff',null)));
+        S.push(EL(13.5,17.7,3.4,2.7,muz,null),EL(18.5,17.7,3.4,2.7,muz,null),EL(16,19.4,2.5,1.7,muz,null));
+        S.push(PT('M13.2 15Q16 14.2 18.8 15Q18.5 17 16 17.7Q13.5 17 13.2 15Z','#f07b2c',OL,.6));
+        S.push(PT('M13.9 18.7Q16 18.3 18.1 18.7Q17.7 21.3 16 21.5Q14.3 21.3 13.9 18.7Z','#d93a3f',OL,.55),EL(16,20.6,1.1,.6,'#ff8a8f',null));
       }
     }else{
-      S.push(PT('M12.4 10Q12.6 2.4 15 1.4Q18 3 19.6 6.8Z',fur),PT('M14 8Q14.4 4.2 15.2 3.4Q16.8 4.8 17.6 6.8Z','#ff98b0',null));
-      S.push(EL(17,13,9.8,8.8,fur));
-      S.push(EL(12,9,1.2,.9,fur2,null),EL(15.5,6.4,1,.7,fur2,null),EL(14,8.4,4,2.2,'rgba(255,255,255,.08)',null));
-      S.push(EL(23.8,16.8,3.8,2.7,'#f4efe4',null),PT('M25.8 15.2H27.6Q27.5 16.4 26.6 16.7Q26 16.3 25.8 15.2Z','#ff8fab',null));
-      S.push(EL(21.2,12.6,2.2,2.8,'#ffd23f',OL,.7),EL(21.8,12.9,1.1,2.1,'#141418',null),EL(22.2,11.7,.6,.6,'#ffffff',null));
-      S.push(EL(20.4,16.4,1.3,.8,'rgba(255,140,170,.55)',null),LN('M22.5 18L28.6 18.6M22.5 19.2L28.2 20','rgba(255,255,255,.85)',.45));
+      S.push(EL(15,5.2,3.4,3.4,fur),EL(15.1,5.4,1.9,1.9,inner,null));
+      S.push(EL(17,13,10.4,9.4,fur),EL(14,8.4,4,2.2,'rgba(255,255,255,.07)',null));
+      S.push(EL(21.4,12.6,2.9,2.9,'#f3ead8',OL,.75),EL(21.7,12.7,2.25,2.25,iris,null),EL(22,12.9,1.35,1.35,'#1a1410',null),EL(21.3,11.9,.65,.65,'#ffffff',null));
+      S.push(EL(24.2,17.4,3.6,2.8,muz,null),PT('M25.4 14.9Q27.7 14.5 28 15.4Q27.5 17 26.2 17.1Q25.3 16.3 25.4 14.9Z','#f07b2c',OL,.55));
+      S.push(PT('M24.2 18.7Q26.5 18.5 27 18.9Q26.4 20.6 25 20.4Z','#d93a3f',OL,.5));
     }
-    if(c.sex==='f')S.push(PT(side?'M14.4 3.6L17.8 1.6L17.6 5.6ZM21.2 3.6L17.8 1.6L17.6 5.6Z':'M20.6 4.6L24 2.6L23.8 6.6ZM27.2 4.4L24 2.6L23.8 6.6Z',tr,OL,.5));
   }else{
     const hair=c.hair||'#1a1a1a';
     if(!side){
@@ -271,8 +285,8 @@ function charShapes(c,d,f){
       else{
         S.push(PT('M8.3 14Q7.8 5 16 5Q24.2 5 23.7 14Q22.6 9.8 19 9.4Q17.6 10.8 13.6 10.4Q10.4 10.4 8.3 14Z',hair));
         if(c.sex==='f')S.push(PT('M8.3 13Q7 19 8.6 22.6L10.4 22Q9.6 17 10 12.6Z',hair),PT('M23.7 13Q25 19 23.4 22.6L21.6 22Q22.4 17 22 12.6Z',hair));
-        S.push(EL(12.9,15,1.05,1.4,'#2a2220',null),EL(19.1,15,1.05,1.4,'#2a2220',null),EL(13.2,14.5,.35,.35,'#ffffff',null),EL(19.4,14.5,.35,.35,'#ffffff',null));
-        S.push(EL(11.2,17.4,1.2,.7,'rgba(255,140,140,.35)',null),EL(20.8,17.4,1.2,.7,'rgba(255,140,140,.35)',null));
+        S.push(EL(12.9,15.2,1.35,1.7,'#2a2220',null),EL(19.1,15.2,1.35,1.7,'#2a2220',null),EL(13.35,14.5,.55,.55,'#ffffff',null),EL(19.55,14.5,.55,.55,'#ffffff',null),EL(12.5,15.9,.25,.25,'#ffffff',null),EL(18.7,15.9,.25,.25,'#ffffff',null));
+        S.push(EL(11,17.6,1.4,.8,'rgba(255,130,140,.5)',null),EL(21,17.6,1.4,.8,'rgba(255,130,140,.5)',null));
         S.push(LN('M14.6 18.8Q16 19.8 17.4 18.8','#a0522d',.7));
         if(c.glasses)S.push(LN('M10.8 13.3h4v3.3h-4zM17.2 13.3h4v3.3h-4zM14.8 14.8h2.4','#333333',.6));
       }
@@ -280,7 +294,7 @@ function charShapes(c,d,f){
       S.push(EL(17,14,7.2,8.1,skin),EL(14.4,14.8,1.3,1.7,skin));
       S.push(PT('M9.8 15Q9.2 5 17 5Q24.5 5.4 24.2 11.4Q20 9 16.4 10.4Q13.2 11.6 13.4 16Z',hair));
       if(c.sex==='f')S.push(PT('M9.8 14Q9.2 21 11 23.4H14Q13 19 13.4 15Z',hair));
-      S.push(EL(21,15,.95,1.35,'#2a2220',null),LN('M21.6 19Q22.8 19.2 23.4 18.6','#a0522d',.6));
+      S.push(EL(21,15.1,1.2,1.6,'#2a2220',null),EL(21.4,14.5,.45,.45,'#ffffff',null),LN('M21.6 19Q22.8 19.2 23.4 18.6','#a0522d',.6));
       if(c.glasses)S.push(LN('M19.2 13.3h3.8v3.3h-3.8z','#333333',.6));
     }
   }
@@ -300,7 +314,8 @@ function svgMarkup(S,vb='0 0 32 48',size=88){
 }
 const portrait=cfg=>svgMarkup(charShapes(cfg,'front',0),'3 0 26 26');
 const UNI={m:{trim:'#2f5fb5'},f:{trim:'#d8343f'}};
-const pantherCfg=sex=>({species:'panther',sex,shirt:'#fbfbf8',trim:UNI[sex].trim,bottom:'#27304d',bag:true});
+// 南山豹：依學校吉祥物——男生淺藍襯衫＋深藍領帶＋灰短褲，女生粉紅襯衫＋粉紅裙，都穿酒紅背心
+const pantherCfg=sex=>({species:'panther',sex,shirt:sex==='m'?'#a9c8ea':'#f6bfd0',vest:'#8f2130',trim:UNI[sex].trim,bottom:sex==='m'?'#9da1a8':'#ef6aa6',shorts:sex==='m'});
 const hex=n=>typeof n==='number'?'#'+n.toString(16).padStart(6,'0'):n;
 function makeChar(cfg,h=3.2){return {cfg,h,cache:{},dir:'front',f:0};}
 function charFrame(C,dir,f){const key=dir+f;let cv=C.cache[key];if(cv)return cv;
@@ -481,7 +496,7 @@ building('崇智樓',59.4,14.4,13,42,21,'#f4ead0','#5f8a5a',{rot:-.05,labAt:[59.
 // 圍牆與校門（廣福門、南工門）
 const PTS=[[-70.8,-12],[-15.6,-43.2],[3.6,-45.6],[21.6,-11.4],[73.2,-9.6],[72,38.4],[55.2,39.6],[54,22.8],[-69.6,22.8]];
 const PTSK=PTS.map(([x,z])=>[x*K,z*K]);
-const GATES=[{seg:0,t:.1,w:8,name:'廣福門'},{seg:4,t:.75,w:8,name:'南工門'}];
+const GATES=[{seg:0,t:.2,w:8,name:'廣福門'},{seg:4,t:.75,w:8,name:'南工門'}]; // 廣福門在廣福路（正門），南工門在東側南工路
 (function(){
   const piece=(ax,az,bx,bz)=>{const dx=bx-ax,dz=bz-az,L=Math.hypot(dx,dz);if(L<.2)return;const rot=-Math.atan2(dz,dx);
     building('',(ax+bx)/2,(az+bz)/2,L,.8,2.2,'#d8c9a8','#b9a37f',{rot,nowin:1,nomap:1});};
@@ -501,6 +516,17 @@ const GATES=[{seg:0,t:.1,w:8,name:'廣福門'},{seg:4,t:.75,w:8,name:'南工門'
         x.fillStyle='#ffe9a8';x.font=`bold ${PPU*.95}px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText('南山中學・'+g.name,(a[0]+b[0])/2,(a[1]+b[1])/2-th/2);}});
   });
 })();
+// 南山藝廊：廣福門西側、緊鄰廣福路（由原福利社改建，社區民眾也能看展）
+building('南山藝廊',-67.6,-9.2,4.5,3.5,6,'#f6f1e7','#5d6b7a',{rot:TH,colw:2,win:'#f3d9a0',labAt:[-67.6,-9.2]});
+// 廣福門警衛室：鏤空圓頂（Nanshan Campus），在大門西側
+{const g=GATES[0],L=Math.hypot(55.2,31.2),ux=55.2/L,uz=-31.2/L,cx=g.x/K-ux*6.2-uz*2.6,cz=g.z/K-uz*6.2+ux*2.6;
+ const B=finishB({name:'',pts:[...Array(12)].map((_,i)=>[cx*K+1.5*K*Math.cos(i/12*Math.PI*2),cz*K+1.5*K*Math.sin(i/12*Math.PI*2)]),h:4.2,wall:'#efe6d2',roof:'#d9d3c4',win:'#7fb2d6',o:{},cx:cx*K,cz:cz*K,r:1.5*K,extraTop:6,
+  draw:(x,B)=>{drawCyl(x,B);const X=PX(B.cx),Y=PY(B.cz,B.h),rx=B.r*PPU*1.05,ry=rx*TILT;
+   x.strokeStyle='rgba(255,255,255,.95)';x.lineWidth=Math.max(1,PPU*.09);
+   for(let i=0;i<=6;i++){const a=Math.PI*i/6;x.beginPath();x.ellipse(X,Y,rx*Math.abs(Math.cos(a)),rx*1.05,0,Math.PI,2*Math.PI);x.stroke();}
+   for(let k=1;k<4;k++){const yy=Y-rx*1.05*k/4,ww=rx*Math.sqrt(1-(k/4)**2);x.beginPath();x.ellipse(X,yy,ww,ww*TILT*.5,0,0,7);x.stroke();}
+   plate(x,'Nanshan Campus',X,Y+PPU*.6,Math.max(7,PPU*.42),'rgba(80,80,90,.88)','#ffffff','rgba(255,255,255,.6)');}});
+ addBox(cx*K,cz*K,2.6*K,2.6*K);mapB.push({x:cx*K,z:cz*K,circle:1.5*K,name:'警衛室',color:'#efe6d2'});}
 // 校外街區（灰色低樓層，填滿畫面邊緣）
 (function(){
   const cols=['#d9d4cc','#c7ccd4','#e3dccf','#bfc6c9','#d6cfc4'],rf=['#8f8a84','#7f8790','#a19a8e','#7d8589'];
@@ -524,11 +550,12 @@ const THEATRE={x:44*K,z:9*K,r:9*K};
 const GTEXT=[['廣福路 Guangfu Rd.',...ROAD1.lab,'rgba(60,60,70,.85)'],['南工路 Nangong Rd.',...ROAD2.lab,'rgba(60,60,70,.85)'],['漳和國中第二校區',-38*K,32*K,'rgba(60,60,70,.8)'],['籃球場（C 集合場）',18*K,30*K,'rgba(60,60,70,.8)'],
   ['Ｐ 停車場',-84*K,4*K,'rgba(47,95,181,.9)'],['中庭・全國最大圍棋圖案',-54*K,(4.8+6.6)*K,'rgba(60,60,70,.8)'],['天馬劇場・美術教室',44*K,(9+10)*K,'rgba(60,60,70,.8)'],['大草坪（A 集合場）',-20*K,-12.4*K,'rgba(47,107,90,.85)']];
 /* --- 樹 --- */
-const KEEP=[[-59,-10.5,6],[-16.2,-22.7,3],[22,1,3],[4,1,3],[-54,4.8,7],[-8.4,-12,5],[-12,-6,5],[13,1,8],[44,9,11],[14,4,6],[24,4,6],[34,4,6],[50.5,10,5],[-26,-17,9],[-14,0,5],[-30,0,5],[-41,0,4],[-46,-10,7],[5,-20,4],[-2,-12,4],[-62,-14,4],[-57,-12,4],[-50,19.5,4],[-10,-24,3],[12,-22,3],[-14,-15.6,4],[-63,-11,4],
+const KEEP=[[-63.5,-10.2,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-22,-14,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],
+  [-59,-10.5,6],[-16.2,-22.7,3],[22,1,3],[4,1,3],[-54,4.8,7],[-8.4,-12,5],[-12,-6,5],[13,1,8],[44,9,11],[14,4,6],[24,4,6],[34,4,6],[50.5,10,5],[-26,-17,9],[-14,0,5],[-30,0,5],[-41,0,4],[-46,-10,7],[5,-20,4],[-2,-12,4],[-62,-14,4],[-57,-12,4],[-50,19.5,4],[-10,-24,3],[12,-22,3],[-14,-15.6,4],[-63,-11,4],
   [-52,-10.5,3],[-35.6,-12.3,3],[-26.8,-17,3],[-31.2,-14.7,3],[-23,-1.5,3],[-41,13,3],[-8,-1.5,3],[-19.7,-20.8,3],[-23.2,-18.9,3],[50.5,0,3],[-41,24,3],[-41,34,3],[-46,-59,3],[-59,13,3],[-10.5,1,3],[24,1,3],
   [-25,-10,2],[32,6,2],[-48,-12,2],[46,20,2],[-30,-4,2],[-46,20,2],[0,16,2],[35,15,2],[48,18,2],[-66,-14,2],[-50,1,2],[-36,-6,2],[39,5,3],[5,-20,3],[-4,-1.5,3],[-2,-12,3],
   [-36,-6,3],[26,.5,3],[-39,-3,3],[44,1,3],[-34,-8,3],[8,-15,3],[-26,-3,3],[30,1,3],[-37,-3,3],[-16,-12,3],[38,1,3],[-20,-8,3],[6,-10,3],[-4,-10,3]];
-function freeSpot(x,z,m){for(const b of boxes)if(hitBox(b,x,z,m))return false;for(const [kx,kz,r] of KEEP)if(Math.hypot(x-kx*K,z-kz*K)<r*K)return false;
+function freeSpot(x,z,m){for(const b of boxes)if(hitBox(b,x,z,m))return false;for(const g of GATES)if(Math.hypot(x-g.x,z-g.z)<7*K)return false;for(const [kx,kz,r] of KEEP)if(Math.hypot(x-kx*K,z-kz*K)<r*K)return false;
   if(x>-31*K&&x<14*K&&z>-15*K&&z<7*K)return false;return inPoly(x,z,PTSK);}
 function tree(x,z,s=1,box=true){TREES.push({x,z,s,v:Math.floor(rnd()*4)});if(box)addBox(x,z,.9*s,.9*s);}
 PTS.forEach((p,i)=>{const q=PTS[(i+1)%PTS.length];const L=Math.hypot(q[0]-p[0],q[1]-p[1]);const n=Math.floor(L*K/7);
@@ -537,7 +564,7 @@ PTS.forEach((p,i)=>{const q=PTS[(i+1)%PTS.length];const L=Math.hypot(q[0]-p[0],q
 for(let i=0;i<90;i++){const x=(-31+rnd()*45)*K,z=(-30+rnd()*14)*K;if(freeSpot(x,z,2.4))tree(x,z,.85+rnd()*.4);}
 for(let i=0;i<60;i++){const x=(-70+rnd()*140)*K,z=(-40+rnd()*78)*K;if(freeSpot(x,z,3.2))tree(x,z,.8+rnd()*.35);}
 {const p0=[-70.8,-12],ux=.8705,uz=-.4921,nx=-.4921,nz=-.8705;for(let t=-40;t<34;t+=5.5)tree((p0[0]+ux*t+nx*1.4)*K,(p0[1]+uz*t+nz*1.4)*K,.75,false);}
-for(let z=-55;z<75;z+=6)tree(74.6*K,z*K,.75,false);
+for(let z=-55;z<75;z+=6)if(Math.abs(z*K-GATES[1].z)>6*K)tree(74.6*K,z*K,.75,false);
 let treeCv=[];
 function renderTrees(){
   const pal=[['#a8e07f','#5fae4a','#2f6b33'],['#b5e38a','#6bb34f','#356f35'],['#c9e889','#79b84e','#3d7434'],['#9fd88a','#4f9e45','#285e30']];
@@ -560,85 +587,86 @@ const GRADE=()=>G==='j'?'國一':'高一';
 let VISIT=false; // 小六參觀：走國中部（國一）路線
 const J=(a,b)=>()=>G==='j'?a:b;
 // NPC 站位
-const SP={A:[-2,-12],B:[-4,-1.5],C:[4,1],D:[-50,19.5],E:[39,5],F:[5,-20]};
+// 站位：A 大草坪、B 自強大樓前、C 行健樓前、D 熊祥南側、E 大中至正樓前（高一二）、F 草坪北側、G 曹俊大樓前（高三、國三外考）、H 熊祥大樓前（國一）、I 崇智樓前（國二、國三直升）、J 正德大樓前
+const SP={A:[-2,-12],B:[-4,-1.5],C:[4,1],D:[-50,19.5],E:[39,5],F:[5,-20],G:[-38,-9.5],H:[-52,-10.5],I:[50.5,19],J:[-22,-14]};
 const MONTHS=[
  {name:'7–8 月・新生入學',sky:0x9fd8ff,
   desc:J('7/31 國一新生入學輔導！國二學長姐會帶你認識校園。8/10–8/15 還有國一新生美語營、童軍探索體驗營。','7/27 高一新生入學輔導！拍大頭照、制服繡學號，7/27 起還有高一暑期複習增廣課。'),
   others:[
-   {who:'國二輔導學長姐',at:'A',text:'7/31 國一新生入學輔導，我們負責帶路！'},
-   {who:'高三學長姐',at:'E',text:'暑假也在上複習增廣課，學測倒數中……'},
+   {who:'國二輔導學長姐',at:'H',text:'7/31 國一新生入學輔導，我們負責帶路！'},
+   {who:'高三學長姐',at:'G',text:'暑假也在上複習增廣課，學測倒數中……'},
    {who:'高中社團幹部',at:'B',text:'8/22–23 社團幹部訓練，開學要招新血！'},
-   {who:'國三學長姐',at:'F',text:'畢聯會開始上畢冊編輯課程了。'}]},
+   {who:'國三學長姐',at:'I',text:'畢聯會開始上畢冊編輯課程了。'}]},
  {name:'9 月・開學',sky:0x9fd8ff,
   desc:()=>'8/31 開學典禮！9/2–9/4 新生體檢，9/23 教師節敬師活動。社團多到選不完：國中 63 個、高中 46 個。',
   others:[
-   {who:'高三學長姐',at:'C',text:'9/4 學測暨統測誓師大會，衝啊！'},
+   {who:'高三學長姐',at:'G',text:'9/4 學測暨統測誓師大會，衝啊！'},
    {who:'班聯會',at:'B',text:'9/17 班聯會正副主席票選，記得投票！'},
    {who:'糾察隊',at:'A',text:'9/21 9:21 全國防災演練：趴下、掩護、穩住！'},
-   {who:'國三學長姐',at:'F',text:'9/21–25 國三的抽考週，祝我們順利。'}]},
+   {who:'國三學長姐',at:'I',text:'9/21–25 國三的抽考週，祝我們順利。'}]},
  {name:'10 月・80 週年校慶',sky:0xa8dcff,
   desc:()=>'10 月中第一次段考，接著是 10/29–10/31 創校 80 週年校慶！校慶運動競賽、國高一才藝合唱競賽，10/31 校慶典禮與大隊接力。',
   others:[
    {who:'國二同學',at:'C',text:'10/29 國二陸上龍舟在行健籃球場，划起來！'},
    {who:'體育股長',at:'A',text:'10/31 大隊接力在漳和國中操場，老師也組隊參賽！'},
-   {who:'高三學長姐',at:'E',text:'10/30 校慶捐血活動，滿 17 歲就能挽袖。'},
-   {who:'德國交換生',at:'B',text:'Guten Tag！我們來自德國夏洛特女王中學，住在南山寄宿家庭。'}]},
+   {who:'高三學長姐',at:'G',text:'10/30 校慶捐血活動，滿 17 歲就能挽袖。'},
+   {who:'德國交換生',at:'H',text:'Guten Tag！我們來自德國夏洛特女王中學，住在南山寄宿家庭。'}]},
  {name:'11 月・校慶之後',sky:0xaed6f5,
   desc:()=>'校慶熱鬧落幕，到校史館看看南山 80 年的故事。11/6 全校流感疫苗接種，國際交流也很熱絡。',
   others:[
-   {who:'國三學長姐',at:'F',text:'11/4–11/6 拍畢業個人照，要帥要美！'},
-   {who:'國三直升班',at:'A',text:'11/20 鐵人單車＋競走，先通過自行車測驗才行。'},
+   {who:'國三學長姐',at:'G',text:'11/4–11/6 拍畢業個人照，要帥要美！'},
+   {who:'國三直升班',at:'I',text:'11/20 鐵人單車＋競走，先通過自行車測驗才行。'},
    {who:'高中部學長姐',at:'E',text:'11/1–11/7 日本關西教育旅行，帶伴手禮回來！'},
-   {who:'外語中心',at:'B',text:'11/18 新加坡華僑中學來訪，歡迎！'}]},
+   {who:'外語中心',at:'H',text:'11/18 新加坡華僑中學來訪，歡迎！'}]},
  {name:'12 月・第二次段考',sky:0xb8cfe2,
   desc:J('12/1–12/2 第二次段考。12/15–12/16 國一藝文參訪，12/30 國一年級週會要演品德話劇！','12/1–12/2 第二次段考。12/18 高一、高二週班會時段有交通安全宣導講座。'),
   others:[
-   {who:'國二同學',at:'C',text:'12/23 國二年級週會，班級品德話劇上場！'},
-   {who:'籃球隊',at:'E',text:'12/18–12/29 HBL 男女準決賽在屏東，加油！'},
-   {who:'模聯社',at:'B',text:'12/12 EMUN winter 模擬聯合國，Honorable delegates……'},
-   {who:'國三直升班',at:'F',text:'12/23–12/24 直升草山探險隊出發！'}]},
+   {who:'國二同學',at:'B',text:'12/23 國二年級週會，班級品德話劇上場！'},
+   {who:'籃球隊',at:'C',text:'12/18–12/29 HBL 男女準決賽在屏東，加油！'},
+   {who:'模聯社',at:'A',text:'12/12 EMUN winter 模擬聯合國，Honorable delegates……'},
+   {who:'國三直升班',at:'I',text:'12/23–12/24 直升草山探險隊出發！'}]},
  {name:'1 月・民俗季與期末',sky:0xbccbd9,
   desc:()=>'1/7 民俗季點燈儀式，校園掛滿燈籠！1/18–1/20 期末考，1/27 休業式。',
   others:[
-   {who:'高三學長姐',at:'E',text:'1/15 學測祈福活動，學測要上榜！'},
+   {who:'高三學長姐',at:'G',text:'1/15 學測祈福活動，學測要上榜！'},
    {who:'模聯社',at:'B',text:'1/25–1/27 南山模擬聯合國會議 NSMUN。'},
    {who:'志工媽媽',at:'A',text:'寒假寫書法贈春聯（暫定 1/25），歡迎來拿！'},
-   {who:'國三學長姐',at:'F',text:'期末考完就是寒假，會考倒數開始……'}]},
+   {who:'國三學長姐',at:'J',text:'期末考完就是寒假，會考倒數開始……'}]},
  {name:'2 月・下學期開學',sky:0xc4cfdc,note:true,
   desc:()=>'2/11 下學期開學始業式。HBL 男子組準決賽在新北，圍棋公開賽也在南山舉行。',
   others:[
    {who:'應援團',at:'C',text:'HBL 準決賽，全校一起去加油！'},
-   {who:'高三學長姐',at:'E',text:'學測放榜！南山 115 學測冠新北，4 人拿到 60 滿級分。'},
+   {who:'高三學長姐',at:'G',text:'學測放榜！南山 115 學測冠新北，4 人拿到 60 滿級分。'},
    {who:'國文老師',at:'B',text:'南山文學獎收件中，有作品快投稿！'},
-   {who:'國二同學',at:'F',text:'下學期有隔宿露營，好期待！'}]},
+   {who:'國二同學',at:'I',text:'下學期有隔宿露營，好期待！'}]},
  {name:'3 月・學藝與書展',sky:0xa8d8f2,note:true,
   desc:J('圖書館文藝季書展開跑（3/2–3/14），3/14 南山盃學藝競賽。3/4 晚上是國一的學校日。','圖書館文藝季書展開跑（3/2–3/14），3/14 南山盃學藝競賽。3/6 晚上是高一的學校日。'),
   others:[
    {who:'應援團',at:'C',text:'HBL 總決賽在台北小巨蛋，南山加油！'},
-   {who:'國二同學',at:'F',text:'國二隔宿露營分兩梯出發！'},
-   {who:'高三學長姐',at:'E',text:'繁星推薦選填志願中，好緊張。'},
+   {who:'國二同學',at:'I',text:'國二隔宿露營分兩梯出發！'},
+   {who:'高三學長姐',at:'G',text:'繁星推薦選填志願中，好緊張。'},
    {who:'志工團',at:'A',text:'3/29 北北基特教《小王子》星願園遊會在南山舉辦。'}]},
  {name:'4 月・孝悌與戶外',sky:0x9fd8ff,note:true,
   desc:J('4/8 國一烘爐地徒步旅行！4/25 母親節孝悌楷模表揚與無塑環保園遊會。','4/11 國高一班際羽球賽！4/25 母親節孝悌楷模表揚與無塑環保園遊會。'),
   others:[
-   {who:'國二同學',at:'C',text:'4/11 國高二班際籃球賽，我們班要拿冠軍！'},
-   {who:'語文競賽選手',at:'B',text:'4/14 國中部、4/17 高中部語文競賽，朗讀練習中。'},
-   {who:'高三學長姐',at:'E',text:'4/28–4/29 普三期末考，最後一次段考了。'},
-   {who:'國三學長姐',at:'F',text:'4/24 國三綜合活動：聯盟競技場！'}]},
+   {who:'國二同學',at:'I',text:'4/11 國高二班際籃球賽，我們班要拿冠軍！'},
+   {who:'語文競賽選手',at:'A',text:'4/14 國中部、4/17 高中部語文競賽，朗讀練習中。'},
+   {who:'高三學長姐',at:'G',text:'4/28–4/29 普三期末考，最後一次段考了。'},
+   {who:'國三學長姐',at:'J',text:'4/24 國三綜合活動：聯盟競技場！'}]},
  {name:'5 月・文藝季',sky:0x9fdcff,note:true,
   desc:J('5/13–5/14 第二次段考。5/30 國高中社團動態成果發表，文藝季的舞台輪到你！','5/8 高一二自主學習分享會，5/13–5/14 第二次段考，5/30 社團動態成果發表。'),
   others:[
-   {who:'國三學長姐',at:'F',text:'5/16–5/17 國中教育會考，拚了！'},
+   {who:'國三學長姐',at:'J',text:'5/16–5/17 國中教育會考，拚了！'},
    {who:'管樂團',at:'A',text:'80 週年校慶音樂會在新北藝文中心演出！'},
-   {who:'國三同學',at:'C',text:'5/8 國三自行車旅行，風好舒服。'},
-   {who:'高三學長姐',at:'E',text:'大學個人申請第二階段面試中……'}]},
+   {who:'國三同學',at:'I',text:'5/8 國三自行車旅行，風好舒服。'},
+   {who:'高三學長姐',at:'G',text:'大學個人申請第二階段面試中……'}]},
  {name:'6 月・畢業與結業',sky:0x96d6ff,note:true,
   desc:J('6/2 國中畢業典禮，歡送學長姐。6/18 國一二英語之夜，期末考後 6/30 休業式。','6/1 高中畢業典禮，歡送學長姐。期末考後 6/30 休業式。'),
   others:[
    {who:'籃球隊',at:'C',text:'第六屆南山盃男子籃球邀請賽開打！'},
-   {who:'國三學長姐',at:'F',text:'國中畢業旅行，畢業快樂！'},
-   {who:'高三學長姐',at:'E',text:'大學榜單出爐：台大正取 39 人次，我們做到了！'},
-   {who:'高二學長姐',at:'D',text:'6/22–6/25 高中畢業旅行，玩到不想回家。'},
+   {who:'國三學長姐',at:'I',text:'國中畢業旅行，畢業快樂！'},
+   {who:'高三學長姐',at:'G',text:'大學榜單出爐：台大正取 39 人次，我們做到了！'},
+   {who:'高二學長姐',at:'E',text:'6/22–6/25 高中畢業旅行，玩到不想回家。'},
    {who:'國中部同學',at:'B',text:'6/15–6/17 國中鐵人挑戰營，練體力！'}]},
 ];
 let month=0;
@@ -664,7 +692,7 @@ const TASKS=[
  // 9 月
  {m:1,id:'class',name:J('找到熊祥大樓的教室','找到大中至正樓的教室'),x:J(-41,24),z:J(0,4),type:'mg',title:'🏫 認識校園',
   intro:J('國二學長姐：國一教室在熊祥大樓！先考考你記不記得各棟大樓有什麼？','學長姐：高中部班級在大中至正樓！先考考你記不記得各棟大樓有什麼？'),
-  mg:{kind:'memory',title:'🃏 校園大樓配對',prompt:'把大樓和裡面的重要空間配成一對。',pairs:[['熊祥大樓','學務處'],['自強大樓','數位圖書館'],['行健館','室內籃球館'],['大中至正樓','鹿鳴書屋'],['曹俊大樓','校史館']]},
+  mg:{kind:'memory',title:'🃏 校園大樓配對',prompt:'把大樓和裡面的重要空間配成一對。',pairs:[['崇智樓','學務處'],['自強大樓','數位圖書館'],['行健館','室內籃球館'],['大中至正樓','鹿鳴書屋'],['曹俊大樓','校史館']]},
   win:'全對！你已經是南山校園通了。'},
  {m:1,id:'lib',name:'自強大樓圖書館',x:-30,z:-1,type:'quiz',title:'📚 自強大樓七樓・數位圖書館',
   q:J('管理員：辦借書證前考一題！《論語》「學而時習之，不亦說乎」的「說」是什麼意思？','管理員：答對才借你《左傳》！〈燭之武退秦師〉裡，燭之武夜裡出城，說服的是哪一國的國君？'),
@@ -698,7 +726,7 @@ const TASKS=[
   opts:['風向計','雨量筒','溫度計','濕度計'],ans:1,ex:'雨量筒收集落下的雨水，以毫米（mm）記錄降雨量。抬頭看，風速計正在轉！'},
  {m:4,id:'dec',name:J('12/30 國一品德話劇','12/18 交通安全講座'),x:J(13,24),z:J(1,4),type:'mg',title:J('🎭 國一年級週會・品德話劇','🚦 高一週班會・交通安全宣導'),
   intro:J('導師：我們班的品德話劇主題是「誠實」！劇本被風吹亂了，幫忙把場次排回正確順序。','講師：交通安全小測驗！把安全過馬路的步驟排出正確順序。'),
-  mg:J({kind:'order',title:'🎭 排出劇本順序',prompt:'依劇情發展點選場次。',items:['在走廊撿到一個錢包','心裡猶豫：要不要偷偷留下？','想起班級公約的「誠實」','把錢包送到熊祥一樓學務處','失主來班上道謝']},
+  mg:J({kind:'order',title:'🎭 排出劇本順序',prompt:'依劇情發展點選場次。',items:['在走廊撿到一個錢包','心裡猶豫：要不要偷偷留下？','想起班級公約的「誠實」','把錢包送到崇智樓一樓學務處','失主來班上道謝']},
        {kind:'order',title:'🚦 安全過馬路',prompt:'依正確順序點選步驟。',items:['在路口停下腳步','看清楚行人號誌','左右察看有沒有來車','綠燈時走斑馬線','專心快步通過，不滑手機']}),
   win:J('演出成功，掌聲如雷！誠實的故事最動人。','全對！平安上學，平安回家。')},
  // 1 月
@@ -736,7 +764,7 @@ const TASKS=[
   q:'主持人：母親節快到了！「入則孝，出則弟」出自哪一部書？',
   opts:['《論語》','《孟子》','《禮記》','《孝經》'],ans:0,ex:'出自《論語・學而》：「弟子入則孝，出則弟，謹而信，汎愛眾，而親仁。」'},
  // 5 月
- {m:9,id:'gallery',name:'南山藝廊看展',x:-62,z:-14.5,type:'quiz',title:'🎨 南山藝廊',
+ {m:9,id:'gallery',name:'南山藝廊看展',x:-63.5,z:-10.2,type:'quiz',title:'🎨 南山藝廊',
   q:'導覽同學：南山藝廊 1999 年建立，大門開在廣福路旁，附近居民也能來看展。室內展場是由什麼空間改建的？',
   opts:['原本的福利社','原本的游泳池','原本的停車場','原本的禮堂'],ans:0,ex:'藝廊把原本的福利社改建成室內展場與服務中心，也展出鄰近國小學生的作品。'},
  {m:9,id:'club',name:'5/30 社團動態成果發表',x:13,z:1,type:'mg',title:'🎸 社團動態成果發表',
@@ -868,7 +896,7 @@ const LEADERS=[
  {title:'校長',name:'蔡銘城',at:[-14,0.6],suit:'#1f2a44',tie:'#d8343f',help:'歡迎來到南山！校訓「自強不息」，祝你學得開心、長得茁壯。'},
 ];
 const OFFICES=[
- {name:'學務處',dir:'吳崑助主任',at:[-52,-10.5],where:'熊祥大樓一樓、崇智樓一樓',help:'請假與生活輔導、失物招領、社團與班聯會、健康中心（體檢、急救、生理用品）、獎懲與銷過。',
+ {name:'學務處',dir:'吳崑助主任',at:[51.5,12],where:'崇智樓一樓',help:'請假與生活輔導、失物招領、社團與班聯會、健康中心（體檢、急救、生理用品）、獎懲與銷過。',
   chiefs:['生輔組','生輔組副組長','高中訓育組','國中訓育組','衛生組','體育組','社團活動組','社團活動組副組長']},
  {name:'教務處',dir:'陳炳霖主任',at:[-35.6,-12.3],where:'曹俊大樓二樓',help:'課表與考試、夜間選修選課、自強不息獎學金與新生入學獎勵、資優與亮點計畫、科展、縮短修業年限。',
   chiefs:['高中教學組','國中教學組','註冊組','資優教育組','課務組','實驗設備組']},
@@ -934,6 +962,7 @@ function chiefCard(unit,i){
   return `<div class="chief">${svgMarkup(charShapes(suitCfg('#5a6577','#2f6b5a',{sex,hair:sex==='f'?'#3a2a22':'#231c18'}),'front',0),'3 0 26 26',46)}<div><b>${u}</b>　${vice?'副組長':'組長'}${c?`<br><span>${c.help}</span>`:''}</div></div>`;
 }
 function openOffice(n){
+  TALKED.add(n.kind==='leader'?n.d.title:n.d.name);
   if(n.kind==='leader'){dialog({title:`${n.d.title}　${n.d.name}`,por:portrait(n.C.cfg),text:n.d.help,btn:'謝謝！'});return;}
   const o=n.d;
   dialog({title:`🏢 ${o.name}　${o.dir}`,por:portrait(n.C.cfg),
@@ -994,7 +1023,7 @@ function dialog({title,text,html,opts,ans,ex,btn='好！',onDone,onClose,por}){
   }else{B.textContent=btn;B.onclick=()=>{close();onDone&&onDone();};}
   $('dlg').classList.remove('hidden');
 }
-function close(){$('dlg').classList.add('hidden');paused=false;canvas.focus();}
+function close(){$('dlg').classList.add('hidden');$('dlg').querySelector('.box').classList.remove('wide');paused=false;canvas.focus();}
 
 /* ---------- 小遊戲挑戰：排序、時機、連打、翻牌 ---------- */
 let mgOn=null,mgRAF=0;
@@ -1138,18 +1167,20 @@ function trigger(t){
 const BINFO=[
  {name:'曹俊大樓',at:[-32.5,-15.1],floors:[['7F','校史館・高三'],['6F','高三'],['5F','空中花園・閱覽室・高三・國三'],['2–4F','教務處（2F）・國三（外考班）'],['1F','服務中心'],['B1','停車場・資源回收'],['西側','精宏館・圓弧梯']]},
  {name:'正德大樓',at:[-24.6,-19.3],floors:[['4F','電腦教室 401／402・信息中心'],['3F','電腦教室 301／302・導師室'],['2F','E化教室・導師室・輔導處・應三'],['1F','總務處・輔導處・川堂']]},
- {name:'熊祥大樓',at:[-43,-9],floors:[['2–3F','國一'],['1F','學務處・健康中心・外語教室 A–E・社團教室・陶藝教室・跑班教室'],['中庭','全國最大圍棋圖案']]},
+ {name:'熊祥大樓',at:[-43,-9],floors:[['2–3F','國一'],['1F','健康中心・外語教室 A–E・社團教室・陶藝教室・跑班教室'],['中庭','全國最大圍棋圖案']]},
  {name:'自強大樓',at:[-21.6,-.5],floors:[['8F','大閱覽室'],['7F','圖書館・教學資源中心'],['6F','校長室・秘書室・人事室・會計室'],['5F','第二閱覽室・國二'],['4F','第一閱覽室・國二'],['3F','專任辦公室・國一'],['2F','大講堂・國一']]},
  {name:'行健樓',at:[13.2,1],floors:[['','室內體育館・韻律教室・舞蹈教室・健身房'],['B1','羽球・桌球場']]},
  {name:'大中至正樓',at:[20,3],floors:[['10F','生物實驗室 ×2・研究室'],['9F','化學實驗室・理化實驗室・研究室'],['8F','物理實驗室・地科實驗室・研究室'],['7F','實驗設備組辦公室・電子電路實習工廠・數位專題實習工廠'],['4–6F','高二'],['2–4F','高一'],['1F','鹿鳴書屋・社團教室']]},
  {name:'崇智樓',at:[51,6],floors:[['頂樓','地科教室・氣象觀測站・仙人掌溫室'],['6F','人文講堂'],['5F','創意教室 B／C・生活科技教室・創意庫・數理專科教室'],['3–4F','國三（直升班）・國二・專任辦公室'],['1–2F','學務處（1F）・電氣室・國二']]},
  {name:'幼保樓',at:[2,-23],floors:[['','南山幼兒園・幼兒游泳池']]},
  {name:'天馬劇場',at:[40,4.5],floors:[['','戶外劇場・美術教室']]},
+ {name:'南山藝廊',at:[-66,-6.5],floors:[['','藝術展覽（1999 年由原福利社改建）・廣福路旁，社區民眾也能看展']]},
 ];
 function binfoHTML(B){return `<b>📍 ${B.name}</b>`+B.floors.map(([f,t])=>`<div class="bf">${f?`<span>${f}</span>`:''}${t}</div>`).join('');}
 let binfoCur=null;
 function updateBinfo(){
   let best=null,bd=12;BINFO.forEach(B=>{const d=Math.hypot(pos.x-B.at[0]*K,pos.z-B.at[1]*K);if(d<bd){bd=d;best=B;}});
+  if(best)VISITED.add(best.name);
   if(best!==binfoCur){binfoCur=best;const el=$('binfo');el.style.top=($('hud').getBoundingClientRect().bottom+8)+'px';if(best){el.innerHTML=binfoHTML(best);el.style.display='block';}else el.style.display='none';}
 }
 function floorGuide(){
@@ -1179,7 +1210,7 @@ $('songbtn').addEventListener('click',()=>{if(!paused)showAnthem();});
 
 /* ---------- 角色 ---------- */
 let SEX='m',P=makeChar(pantherCfg(SEX),3.2);
-const pos={x:-63*K,y:0,z:-11*K};
+const pos={x:-60*K,y:0,z:-13*K};
 let vy=0,onGround=true,face=Math.PI,phase=0,moving=0,nearTalk=null;
 const R=.7;
 function blocked(x,z){for(const b of boxes)if(hitBox(b,x,z,R))return true;return false;}
@@ -1206,6 +1237,7 @@ function drawMap(){
   {const [x,z]=toMap(ANTHEM.x,ANTHEM.z);mc.fillStyle='#2f6b5a';mc.font='bold 11px sans-serif';mc.textAlign='center';mc.textBaseline='middle';mc.fillText('♪',x,z);}
   NPCS.forEach(n=>{if(!n.vis)return;const [x,z]=toMap(n.x,n.z);mc.fillStyle='#2f8a4a';mc.beginPath();mc.arc(x,z,4,0,7);mc.fill();});
   if(run)run.set.forEach(f=>{if(f.got)return;const [x,z]=toMap(f.x,f.z);mc.fillStyle='#d8343f';mc.beginPath();mc.arc(x,z,5,0,7);mc.fill();});
+  GATES.forEach(g=>{const [x,z]=toMap(g.x,g.z);mc.fillStyle='#2f6b5a';mc.strokeStyle='#ffe9a8';mc.lineWidth=2;rr(mc,x-7,z-5,14,10,3);mc.fill();mc.stroke();});
   HOOK.map.forEach(f=>f(toMap));
   const [px,pz]=toMap(pos.x,pos.z);mc.save();mc.translate(px,pz);mc.rotate(-face+Math.PI);
   mc.fillStyle='#fff';mc.strokeStyle='#2a2a38';mc.lineWidth=2.5;mc.beginPath();mc.moveTo(0,-10);mc.lineTo(7,8);mc.lineTo(0,4);mc.lineTo(-7,8);mc.closePath();mc.fill();mc.stroke();mc.restore();
@@ -1286,6 +1318,8 @@ function drawFlagpole(){const x=-8.4*K,z=-15.6*K,X=PX(x),Y=PY(z),rx=2.9*K*PPU,ry
   ctx.beginPath();const fw=PPU*3.2,fh=PPU*2;for(let i=0;i<=12;i++){const t=i/12;ctx.lineTo(X+t*fw,top+PPU*.2+Math.sin(clock*4-t*5)*PPU*.25*t);}for(let i=12;i>=0;i--){const t=i/12;ctx.lineTo(X+t*fw,top+PPU*.2+fh+Math.sin(clock*4-t*5)*PPU*.25*t);}ctx.closePath();
   const fg=ctx.createLinearGradient(X,0,X+fw,0);fg.addColorStop(0,'#2f6b5a');fg.addColorStop(1,'#3f8a72');ctx.fillStyle=fg;ctx.fill();ctx.fillStyle='#ffe9a8';ctx.font=`bold ${PPU*.85}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('南山',X+fw/2,top+PPU*.2+fh/2+Math.sin(clock*4-2.5)*PPU*.12);}
 function drawArch(){const cx=-2*K,z=-6*K,X=PX(cx),Y=PY(z),half=3.4*K*PPU,h=PPU*3.4*1.25;
+  [[1.25,'#b9b2a4'],[1.05,'#cfc8b9'],[.85,'#e2dccf']].forEach(([s,c],i)=>{const rx=half*s,ht=PPU*.35*(i+1);ctx.fillStyle=shade(c,.85);ctx.beginPath();ctx.ellipse(X,Y-ht+PPU*.35,rx,rx*TILT,0,0,Math.PI);ctx.lineTo(X-rx,Y-ht);ctx.ellipse(X,Y-ht,rx,rx*TILT,0,Math.PI,0,true);ctx.closePath();ctx.fill();ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(X,Y-ht,rx,rx*TILT,0,0,7);ctx.fill();});
+  ctx.lineCap='round';ctx.strokeStyle='rgba(246,246,242,.75)';ctx.lineWidth=PPU*.4;ctx.beginPath();ctx.ellipse(X,Y-h*.75,half*.72,half*1.05,0,Math.PI*1.02,Math.PI*1.98);ctx.stroke();
   ctx.lineCap='round';[['rgba(30,30,60,.25)',PPU*.7,PPU*.18],['#f6f6f2',PPU*.55,0]].forEach(([c,w,o])=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(X-half+o,Y+o*.5);ctx.lineTo(X-half+o,Y-h);ctx.ellipse(X+o,Y-h,half,half*.8,0,Math.PI,0);ctx.lineTo(X+half+o,Y+o*.5);ctx.stroke();});
   ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=PPU*.15;ctx.beginPath();ctx.ellipse(X-PPU*.1,Y-h-PPU*.1,half,half*.8,0,Math.PI*1.1,Math.PI*1.6);ctx.stroke();}
 function drawAnthem(){const X=PX(ANTHEM.x),Y=PY(ANTHEM.z),w=PPU*2.6,h=PPU*2.4;
@@ -1436,18 +1470,20 @@ let mapT=0;
 function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;update(dt);render(dt);mapT+=dt;if(mapT>.1){mapT=0;drawMap();}requestAnimationFrame(loop);}
 /* ================= 擴充功能：集章冊與紀念卡、找地點、時段與天氣、社團博覽會、存檔 ================= */
 let VISIT_RUN=null,CLUB='',STARS=0,NICK='',NAV=null,TOD=0,RAIN=false;
+const ACH=new Set(),VISITED=new Set(),HIST=new Set(),TALKED=new Set(); // 成就、走訪過的大樓、時光碑、對話過的主任
 const STAMPS=Array(MONTHS.length).fill(0),QDONE=new Set();
 const STAMP_ICON=['🏫','📚','🎉','🏛️','🎭','🏮','🏀','📖','🥾','🎺','🎓'];
 
 /* ---------- 存檔（瀏覽器本機） ---------- */
 const SAVE_KEY='nanshan-panther-save-v1';
-function saveGame(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({G,SEX,VISIT,month,done:TASKS.filter(t=>t.done).map(t=>t.id),hon:honorsGot,stamps:STAMPS,stars:STARS,club:CLUB,q:[...QDONE],nick:NICK}));}catch(e){}}
+function saveGame(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({G,SEX,VISIT,month,done:TASKS.filter(t=>t.done).map(t=>t.id),hon:honorsGot,stamps:STAMPS,stars:STARS,club:CLUB,q:[...QDONE],nick:NICK,ach:[...ACH],vis:[...VISITED],hist:[...HIST],talk:[...TALKED]}));}catch(e){}}
 function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return s&&typeof s.month==='number'?s:null;}catch(e){return null;}}
 function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
 function applySave(s){
   TASKS.forEach(t=>{if(s.done.includes(t.id))t.done=true;});
   (s.hon||[]).forEach(i=>{if(coins[i]&&!coins[i].got){coins[i].got=true;honorsGot.push(i);}});
   (s.stamps||[]).forEach((v,i)=>STAMPS[i]=v);STARS=s.stars||0;CLUB=s.club||'';NICK=s.nick||'';(s.q||[]).forEach(q=>QDONE.add(q));
+  [[s.ach,ACH],[s.vis,VISITED],[s.hist,HIST],[s.talk,TALKED]].forEach(([a,S])=>(a||[]).forEach(v=>S.add(v)));
 }
 
 /* ---------- 時段（依本月完成度：早晨→中午→傍晚）與天氣 ---------- */
@@ -1556,7 +1592,7 @@ const FIND=(()=>{const L=[],seen=new Set();const push=(label,where,x,z,kw='')=>{
   OFFICES.forEach(o=>push(o.name,o.where,o.at[0],o.at[1]+1.5,o.dir));
   push('校長室','自強大樓 6F',-14,0.6,'蔡銘城');push('升旗台（司令台）','大草坪南側',-8.4,-12.4);push('校歌碑','升旗台西側',-14.5,-13.6);
   push('大草坪（A 集合場）','校園中央',-10,-6);push('廣福門（正門）','廣福路',GATES[0].x/K,GATES[0].z/K+3);push('南工門（側門）','南工路',GATES[1].x/K-3,GATES[1].z/K);
-  push('全國最大圍棋圖案','熊祥大樓中庭',-54,4.8);push('天馬劇場','大中至正樓南側',44,9);
+  push('全國最大圍棋圖案','熊祥大樓中庭',-54,4.8);push('白色拱門舞台','大草坪',-2,-4);push('天馬劇場','大中至正樓南側',44,9);
   return L;})();
 function findPlace(){
   if(paused)return;
@@ -1624,16 +1660,96 @@ function showCard(){
   };
 }
 
+
+/* ---------- 校史時光碑（全年都可以收集；只用學校提供的校史年表） ---------- */
+const HISTORY=[
+ {y:'1946',x:-27,z:-12,t:'南山中學創立於上海',d:'1946 年，南山中學在上海創立，這是南山故事的起點。'},
+ {y:'1957',x:-56,z:-11,t:'在中和復校',d:'1957 年，南山在中和復校，展開在新北的新篇章。'},
+ {y:'1995',x:47,z:15.5,t:'崇智樓完工',d:'1995 年崇智樓完工。現在學務處、國二和國三直升班都在這裡，頂樓還有氣象觀測站和仙人掌溫室。'},
+ {y:'2013',x:21,z:-14.5,t:'大中至正樓啟用',d:'2013 年大中至正樓啟用：外牆有紅、黃、藍、綠彩色線條的高樓。高一、高二教室和各科實驗室都在這裡。'},
+ {y:'2026',x:-4,z:-16,t:'創校 80 週年',d:'2026 年，南山創校 80 週年！10 月有校慶運動競賽、校慶典禮和大隊接力，全校一起慶生。'},
+];
+const ICON_HIST='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="88" height="88"><path d="M6 28h20v-3H6Z" fill="#8a7b5e" stroke="#1a1a24"/><path d="M9 25V9q7-6 14 0v16Z" fill="#b5651d" stroke="#1a1a24"/><path d="M12 14h8M12 18h8M12 22h5" stroke="#ffe9a8" stroke-width="1.6" stroke-linecap="round"/></svg>';
+function drawStele(h){const X=PX(h.x*K),Y=PY(h.z*K),got=HIST.has(h.y),w=PPU*1.7,ht=PPU*2.3,b=Math.sin(clock*2.5+h.x)*PPU*.15;
+  ctx.fillStyle='rgba(28,30,72,.22)';ctx.beginPath();ctx.ellipse(X+PPU*.3,Y,w*.75,PPU*.4,0,0,7);ctx.fill();
+  if(!got){const g=ctx.createRadialGradient(X,Y-ht*.5,0,X,Y-ht*.5,PPU*2.6);g.addColorStop(0,'rgba(255,214,120,.45)');g.addColorStop(1,'rgba(255,214,120,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(X,Y-ht*.5,PPU*2.6,0,7);ctx.fill();}
+  const g=ctx.createLinearGradient(X-w/2,0,X+w/2,0);g.addColorStop(0,got?'#9c6b4a':'#c27a3a');g.addColorStop(1,got?'#6e4a33':'#8a4e22');ctx.fillStyle=g;
+  ctx.beginPath();ctx.moveTo(X-w/2,Y);ctx.lineTo(X-w/2,Y-ht+w/2);ctx.arc(X,Y-ht+w/2,w/2,Math.PI,0);ctx.lineTo(X+w/2,Y);ctx.closePath();ctx.fill();ctx.strokeStyle='#ffe08a';ctx.lineWidth=PPU*.08;ctx.stroke();
+  ctx.fillStyle='#ffe9a8';ctx.font=`bold ${PPU*.55}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(h.y,X,Y-ht*.55);
+  if(!got){ctx.font=`${PPU*1.1}px ${FONT}`;ctx.fillText('⏳',X,Y-ht-PPU*.9+b);}}
+HOOK.actors.push(add=>HISTORY.forEach(h=>add(h.x*K,h.z*K,()=>drawStele(h))));
+HOOK.map.push(toMap=>HISTORY.forEach(h=>{if(HIST.has(h.y))return;const [x,z]=toMap(h.x*K,h.z*K);mc.fillStyle='#b5651d';mc.strokeStyle='#ffe9a8';mc.lineWidth=1.5;mc.beginPath();mc.moveTo(x,z-5);mc.lineTo(x+4,z);mc.lineTo(x,z+5);mc.lineTo(x-4,z);mc.closePath();mc.fill();mc.stroke();}));
+HOOK.update.push(()=>{if(paused||run)return;
+  for(const h of HISTORY){if(HIST.has(h.y))continue;if(Math.hypot(pos.x-h.x*K,pos.z-h.z*K)<2.6){HIST.add(h.y);saveGame();const n=HIST.size;
+    dialog({title:`⏳ 校史時光碑・${h.y}`,por:ICON_HIST,text:`${h.d}\n\n（已找到 ${n} / ${HISTORY.length} 座時光碑${n<HISTORY.length?'，小地圖上的咖啡色菱形就是還沒找到的':''}）`,btn:n>=HISTORY.length?'看完整校史年表':'繼續探險！',onDone:()=>{if(n>=HISTORY.length)historyBook();}});break;}}});
+function historyBook(){
+  dialog({title:'🏛️ 南山校史時光碑',por:ICON_HIST,html:`<div class="oinfo">校園裡藏著 ${HISTORY.length} 座時光碑，走近就能解鎖一段校史。已找到 <b>${HIST.size}</b> / ${HISTORY.length}。曹俊大樓七樓的校史館還有更多故事（11 月任務）。</div><div class="tl">`+
+    HISTORY.map(h=>HIST.has(h.y)?`<div><b>${h.y}　${h.t}</b><br>${h.d}</div>`:`<div><b>${h.y}　？？？</b><br><span style="opacity:.6">還沒找到這座時光碑</span></div>`).join('')+'</div>',btn:'關閉'});}
+
+/* ---------- 成就徽章 ---------- */
+const ACHS=[
+ {id:'first',i:'🐾',n:'初來乍到',d:'完成第一個任務',ok:()=>TASKS.some(t=>t.done)},
+ {id:'explore',i:'🧭',n:'校園探險家',d:()=>`走訪全部 ${BINFO.length} 個地點（${VISITED.size}/${BINFO.length}）`,ok:()=>BINFO.every(B=>VISITED.has(B.name))},
+ {id:'hist',i:'⏳',n:'校史達人',d:()=>`找到 ${HISTORY.length} 座校史時光碑（${HIST.size}/${HISTORY.length}）`,ok:()=>HIST.size>=HISTORY.length},
+ {id:'talk',i:'💬',n:'處室通',d:()=>`和 5 位主任或校長聊過（${Math.min(5,TALKED.size)}/5）`,ok:()=>TALKED.size>=5},
+ {id:'club',i:'🎪',n:'社團新鮮人',d:'在社團博覽會選好社團',ok:()=>!!CLUB},
+ {id:'star',i:'⭐',n:'小教室學霸',d:()=>`各科小教室拿到 3 顆星（${Math.min(3,STARS)}/3）`,ok:()=>STARS>=3},
+ {id:'coins',i:'🏅',n:'榮譽收藏家',d:()=>`撿齊 ${HONORS.length} 枚豹爪幣（${honorsGot.length}/${HONORS.length}）`,ok:()=>honorsGot.length>=HONORS.length},
+ {id:'half',i:'📒',n:'半年有成',d:'集滿 6 個月的章',ok:()=>STAMPS.filter(Boolean).length>=6},
+ {id:'all',i:'🎓',n:'自強不息',d:()=>`集滿全部 ${MONTHS.length} 個章`,ok:()=>STAMPS.filter(Boolean).length>=MONTHS.length},
+];
+let achT=0;
+HOOK.update.push(dt=>{achT+=dt;if(achT<.5)return;achT=0;if($('start')&&!$('start').classList.contains('hidden'))return;
+  for(const a of ACHS)if(!ACH.has(a.id)&&a.ok()){ACH.add(a.id);saveGame();toast(`🏆 成就解鎖：${a.i} ${a.n}（${ACH.size}/${ACHS.length}）`,2800);break;}});
+function achBook(){
+  dialog({title:'🏆 成就徽章',por:ICON_SCHOOL,html:`<div class="oinfo">已解鎖 <b>${ACH.size}</b> / ${ACHS.length} 個徽章。</div><div class="badges">`+
+    ACHS.map(a=>`<div class="badge${ACH.has(a.id)?' on':''}"><b>${ACH.has(a.id)?a.i:'🔒'}</b>${a.n}<br><span style="font-size:11px">${typeof a.d==='function'?a.d():a.d}</span></div>`).join('')+'</div>',btn:'關閉'});}
+
+/* ---------- 校園大地圖（點小地圖或選單開啟；點地圖上的地點會出現導引光線） ---------- */
+function bigMap(){
+  if(paused)return;
+  dialog({title:'🗺️ 南山校園地圖',por:ICON_SCHOOL,html:`<canvas id="bigmap" width="1000" height="600"></canvas><div class="oinfo" style="margin-top:8px;font-size:13px">🟡 本月任務　🔵 加分任務　🟫 主任　🟢 同學　🔶 時光碑　▲ 你在這裡。<b>點地圖上的地點</b>，地上會出現導引光線。</div>`,btn:'關閉'});
+  $('dlg').querySelector('.box').classList.add('wide');
+  const cv=$('bigmap'),m=cv.getContext('2d'),X0=-76*K,Z0=-50*K,S=1000/(160*K),tm=(x,z)=>[(x-X0)*S,(z-Z0)*S];
+  const polyM=(P,f,st)=>{m.beginPath();P.forEach(([x,z],i)=>{const [a,b]=tm(x,z);i?m.lineTo(a,b):m.moveTo(a,b);});m.closePath();m.fillStyle=f;m.fill();if(st){m.strokeStyle=st;m.lineWidth=2;m.stroke();}};
+  const lab=(t,x,z,fs=15,bg='rgba(25,32,64,.85)',fg='#fff')=>{m.font=`bold ${fs}px ${FONT}`;const w=m.measureText(t).width;m.fillStyle=bg;rr(m,x-w/2-6,z-fs*.75,w+12,fs*1.5,6);m.fill();m.fillStyle=fg;m.textAlign='center';m.textBaseline='middle';m.fillText(t,x,z+1);};
+  m.fillStyle='#9cc58a';m.fillRect(0,0,1000,600);
+  [ROAD1,ROAD2].forEach(R=>{polyM(R.road,'#8d8f96');polyM(R.walk,'#cfc6b4');});
+  polyM(PTSK,'#e2d7c0','#8a7b5e');
+  LAWNS.forEach(L=>polyM(L,'#7fca62'));polyM(FIELD,'#c96a4a');polyM(COURT,'#6f9fd0');polyM(GOB,'#d9a85a');polyM(PARK,'#b8bcc4');
+  {const [x,z]=tm(THEATRE.x,THEATRE.z);m.fillStyle='#bfb7a8';m.beginPath();m.arc(x,z,THEATRE.r*S,0,7);m.fill();}
+  mapB.forEach(B=>{const [x,z]=tm(B.x,B.z);m.fillStyle=B.color==='#ffffff'?'#f7f3ea':B.color;m.strokeStyle='#4a4038';m.lineWidth=2;
+    if(B.circle){m.beginPath();m.arc(x,z,B.circle*S,0,7);m.fill();m.stroke();}
+    else{m.save();m.translate(x,z);m.rotate(-(B.rot||0));m.fillRect(-B.w*S/2,-B.d*S/2,B.w*S,B.d*S);m.strokeRect(-B.w*S/2,-B.d*S/2,B.w*S,B.d*S);if(B.ring){m.fillStyle='#d9a85a';m.fillRect(-6*K*S,-6*K*S,12*K*S,12*K*S);}m.restore();}});
+  m.fillStyle='rgba(255,255,255,.9)';m.font=`bold 15px ${FONT}`;m.textAlign='center';{let [x,z]=tm(...ROAD1.lab);m.save();m.translate(x,z);m.rotate(-TH);m.fillText('廣福路',0,0);m.restore();[x,z]=tm(...ROAD2.lab);m.save();m.translate(x,z);m.rotate(Math.PI/2);m.fillText('南工路',0,0);m.restore();}
+  const seen=n=>[...VISITED].some(v=>n.startsWith(v)||v.startsWith(n.replace(/（.*/,'')));
+  mapB.forEach(B=>{if(!B.name||B.name==='警衛室')return;const [x,z]=tm(B.x,B.z);lab(B.name.replace(/（.*/,''),x,z,14,seen(B.name)?'rgba(25,32,64,.88)':'rgba(25,32,64,.5)');});
+  {const [x,z]=tm(THEATRE.x,THEATRE.z);lab('天馬劇場',x,z,13,seen('天馬劇場')?'rgba(25,32,64,.88)':'rgba(25,32,64,.5)');}
+  [['漳和國中操場',FIELD],['籃球場',COURT]].forEach(([t,P])=>{const c=P.reduce((a,p)=>[a[0]+p[0]/P.length,a[1]+p[1]/P.length],[0,0]);const [x,z]=tm(...c);lab(t,x,z,13,'rgba(255,255,255,.75)','#2b2140');});
+  GATES.forEach(g=>{const [x,z]=tm(g.x,g.z);lab('🚪 '+g.name,x,z-14,14,'rgba(47,107,90,.95)','#ffe9a8');});
+  TASKS.forEach(t=>{if(!inMonth(t)||t.done)return;const [x,z]=tm(t.X,t.Z);m.fillStyle=t.id==='final'?'#ff8fab':t.opt?'#7fd3ff':'#ffd84a';m.strokeStyle='#2a2a38';m.lineWidth=2.5;m.beginPath();m.arc(x,z,9,0,7);m.fill();m.stroke();lab(t.N,x,z+20,12,'rgba(255,250,240,.92)','#2b2140');});
+  OFFNPC.forEach(n=>{const [x,z]=tm(n.x,n.z);m.fillStyle=n.kind==='leader'?'#c9a227':'#8c3b2e';m.fillRect(x-5,z-5,10,10);});
+  NPCS.forEach(n=>{if(!n.vis)return;const [x,z]=tm(n.x,n.z);m.fillStyle='#2f8a4a';m.beginPath();m.arc(x,z,6,0,7);m.fill();});
+  HISTORY.forEach(h=>{if(HIST.has(h.y))return;const [x,z]=tm(h.x*K,h.z*K);m.fillStyle='#b5651d';m.strokeStyle='#ffe9a8';m.lineWidth=2;m.beginPath();m.moveTo(x,z-8);m.lineTo(x+6,z);m.lineTo(x,z+8);m.lineTo(x-6,z);m.closePath();m.fill();m.stroke();});
+  {const [x,z]=tm(pos.x,pos.z);m.save();m.translate(x,z);m.rotate(-face+Math.PI);m.fillStyle='#fff';m.strokeStyle='#d8343f';m.lineWidth=3;m.beginPath();m.moveTo(0,-14);m.lineTo(10,11);m.lineTo(0,6);m.lineTo(-10,11);m.closePath();m.fill();m.stroke();m.restore();}
+  m.fillStyle='rgba(25,32,64,.8)';m.font=`bold 14px ${FONT}`;m.textAlign='left';m.fillText(`🧭 探索 ${VISITED.size}/${BINFO.length}　⏳ 時光碑 ${HIST.size}/${HISTORY.length}　🏆 成就 ${ACH.size}/${ACHS.length}`,14,22);
+  cv.onclick=e=>{const r=cv.getBoundingClientRect(),px=(e.clientX-r.left)*1000/r.width,pz=(e.clientY-r.top)*600/r.height;
+    let best=null,bd=40;FIND.forEach(f=>{const [x,z]=tm(f.x,f.z);const d=Math.hypot(x-px,z-pz);if(d<bd&&!f.where){bd=d;best=f;}});
+    if(!best)FIND.forEach(f=>{const [x,z]=tm(f.x,f.z);const d=Math.hypot(x-px,z-pz);if(d<bd){bd=d;best=f;}});
+    if(best){NAV=best;close();toast(`🧭 跟著地上的光線走到「${best.label}」`,2600);}};
+}
+$('map').addEventListener('click',()=>bigMap());
+
 /* ---------- 選單 ---------- */
 function openMenu(){
   if(paused)return;
   dialog({title:'☰ 選單',por:ICON_SCHOOL,html:`<div class="menu">
 <button data-m="stamp">📒 集章冊</button><button data-m="find">🔎 找地點</button><button data-m="off">🏢 處室名冊</button><button data-m="floor">📍 樓層導覽</button>
 <button data-m="song">🎵 校歌</button><button data-m="gloss">📖 南山小辭典</button><button data-m="honor">🏅 南山榮譽榜</button><button data-m="tour">🏫 360° 導覽</button>
-<button data-m="reset">🔄 重新開始</button></div>`.replace(/\n/g,''),btn:'關閉'});
+<button data-m="map">🗺️ 校園地圖</button><button data-m="hist">🏛️ 校史時光碑</button><button data-m="ach">🏆 成就徽章</button><button data-m="reset">🔄 重新開始</button></div>`.replace(/\n/g,''),btn:'關閉'});
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;close();
     if(m==='stamp')stampBook();else if(m==='find')findPlace();else if(m==='off')officeDirectory();else if(m==='floor')floorGuide();else if(m==='song')showAnthem();
-    else if(m==='gloss')glossary();else if(m==='honor')$('coins').click();else if(m==='tour')window.open('https://my.matterport.com/show/?m=Z6YwRxKy3kZ','_blank','noopener');
+    else if(m==='gloss')glossary();else if(m==='map')bigMap();else if(m==='hist')historyBook();else if(m==='ach')achBook();else if(m==='honor')$('coins').click();else if(m==='tour')window.open('https://my.matterport.com/show/?m=Z6YwRxKy3kZ','_blank','noopener');
     else if(m==='reset'){dialog({title:'🔄 重新開始',por:ICON_SCHOOL,html:'<div class="oinfo">確定要清除進度、回到開始畫面嗎？集章、星星和榮譽都會歸零。</div><button class="btn" id="rsok" style="width:100%">確定，重新開始</button>',btn:'不要，繼續玩'});$('rsok').onclick=()=>{clearSave();location.reload();};}});
 }
 $('menubtn').addEventListener('click',openMenu);
