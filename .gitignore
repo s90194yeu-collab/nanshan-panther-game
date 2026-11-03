@@ -1,0 +1,27 @@
+# 系統
+.DS_Store
+Thumbs.db
+
+# 套件與暫存
+node_modules/
+tmp/
+exports/
+
+# 機密：金鑰一律放 Apps Script「指令碼屬性」
+.env*
+*.key
+*.pem
+.clasprc.json
+
+# 截圖工具輸出（tools/screenshot.py）
+shots/
+
+# 學生資料匯出檔（成績、名單、作答紀錄）
+*學生*.csv
+*學生*.xlsx
+*名單*.csv
+*名單*.xlsx
+*成績*.csv
+*成績*.xlsx
+*作答*.csv
+*作答*.xlsx
