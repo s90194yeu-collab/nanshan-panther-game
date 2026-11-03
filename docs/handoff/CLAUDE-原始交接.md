@@ -125,3 +125,13 @@
 ## 部署
 - 目前發布在 claude.ai 的 artifact，只有作者看得到，分享與否由作者決定；已宣告 `downloads` 功能，讓紀念卡可以下載。
 - 改用 Claude Code 後，建議推到 GitHub（帳號 s90194yeu-collab），用 GitHub Pages 發布，或嵌入 Google Sites。在這兩個環境，紀念卡下載會自動改用一般下載連結。
+
+## 同步到 GitHub（2026-11-03 起）
+- **在這個雲端硬碟資料夾直接修改**，這裡是主檔。不要在這裡執行 `git init`；Git repo 放在本機 `~/Projects/nanshan-panther-game`。
+- 改完、確認沒有 JS 錯誤後，執行：`bash tools/sync-to-github.sh "這次改了什麼"`。
+  - 會把 `index.html`、`tools/`、本檔（存成 `docs/handoff/CLAUDE-原始交接.md`）複製進 repo，commit 到 `claude` 分支，再合併到 `main` 並推送。
+  - GitHub：https://github.com/s90194yeu-collab/nanshan-panther-game（public）
+  - 遊戲網址約 1 分鐘後更新：https://s90194yeu-collab.github.io/nanshan-panther-game/
+- 腳本會自動停下來的情況：GitHub 上的 `index.html` 在上次同步後被別的工具改過（避免互相覆蓋）、變更裡疑似有金鑰或 token。
+- Gemini Antigravity、ChatGPT 也請改這個資料夾，不要直接改 GitHub 上的檔案。
+- 金鑰一律放 Apps Script「指令碼屬性」，不得寫進程式碼；學生資料不得放進這個資料夾。
