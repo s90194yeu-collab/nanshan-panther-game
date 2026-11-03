@@ -94,7 +94,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#8db57a;font-family:"P
 .cardimg{width:100%;border-radius:12px;border:3px solid #2a2a38;display:block}
 .gl b{color:#2f6b5a}
 .box.wide{max-width:min(94vw,920px)}
-#bigmap{width:100%;max-width:calc((86vh - 150px)*1.667);margin:0 auto;border-radius:12px;border:3px solid #2a2a38;display:block;cursor:pointer;touch-action:manipulation}
+#bigmap{width:100%;max-width:calc((86vh - 150px)*1.538);margin:0 auto;border-radius:12px;border:3px solid #2a2a38;display:block;cursor:pointer;touch-action:manipulation}
 .badges{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 10px}
 .badge{border:2px solid #2a2a38;border-radius:12px;padding:8px 4px;text-align:center;font-size:13px;line-height:1.4;background:#f3ecdc;opacity:.45}
 .badge.on{opacity:1;background:#fff3c4}.badge b{display:block;font-size:24px}
@@ -516,8 +516,6 @@ const GATES=[{seg:0,t:.2,w:8,name:'廣福門'},{seg:4,t:.75,w:8,name:'南工門'
         x.fillStyle='#ffe9a8';x.font=`bold ${PPU*.95}px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText('南山中學・'+g.name,(a[0]+b[0])/2,(a[1]+b[1])/2-th/2);}});
   });
 })();
-// 南山藝廊：廣福門西側、緊鄰廣福路（依官網大事紀：1978 年整建的廣福路校門，就是現在的南山藝廊）
-building('南山藝廊',-67.6,-9.2,4.5,3.5,6,'#f6f1e7','#5d6b7a',{rot:TH,colw:2,win:'#f3d9a0',labAt:[-67.6,-9.2]});
 // 廣福門警衛室：鏤空圓頂（Nanshan Campus），在大門西側
 {const g=GATES[0],L=Math.hypot(55.2,31.2),ux=55.2/L,uz=-31.2/L,cx=g.x/K-ux*6.2-uz*2.6,cz=g.z/K-uz*6.2+ux*2.6;
  const B=finishB({name:'',pts:[...Array(12)].map((_,i)=>[cx*K+1.5*K*Math.cos(i/12*Math.PI*2),cz*K+1.5*K*Math.sin(i/12*Math.PI*2)]),h:4.2,wall:'#efe6d2',roof:'#d9d3c4',win:'#7fb2d6',o:{},cx:cx*K,cz:cz*K,r:1.5*K,extraTop:6,
@@ -547,10 +545,10 @@ const ROAD2={road:rectK(81,10,11,140),walk:rectK(74.6,10,1.8,140),mid:scaleP([[8
 const LAWNS=[rectK(-8.5,-4,46,21),rectK(-3,-20,30,10),rectK(4.5,-30,18,7,-.25)];
 const FIELD=rectK(-38,37,54,24),COURT=rectK(18,34,32,15),GYMFLOOR=rectK(GYM.x,GYM.z,GYM.w-2.4,GYM.d-2.4),GOB=rectK(-54,4.8,11,11),PARK=rectK(-84,4,14,22);
 const THEATRE={x:44*K,z:9*K,r:9*K};
-const GTEXT=[['廣福路 Guangfu Rd.',...ROAD1.lab,'rgba(60,60,70,.85)'],['南工路 Nangong Rd.',...ROAD2.lab,'rgba(60,60,70,.85)'],['漳和國中第二校區',-38*K,32*K,'rgba(60,60,70,.8)'],['籃球場（C 集合場）',18*K,30*K,'rgba(60,60,70,.8)'],
+const GTEXT=[['廣福路 Guangfu Rd.',...ROAD1.lab,'rgba(60,60,70,.85)'],['南工路 Nangong Rd.',...ROAD2.lab,'rgba(60,60,70,.85)'],['漳二校區・風雨光電操場（平常不可進入）',-38*K,32*K,'rgba(60,60,70,.8)'],['籃球場（C 集合場）',18*K,30*K,'rgba(60,60,70,.8)'],
   ['Ｐ 停車場',-84*K,4*K,'rgba(47,95,181,.9)'],['中庭・全國最大圍棋圖案',-54*K,(4.8+6.6)*K,'rgba(60,60,70,.8)'],['天馬劇場・美術教室',44*K,(9+10)*K,'rgba(60,60,70,.8)'],['大草坪（A 集合場）',-20*K,-12.4*K,'rgba(47,107,90,.85)']];
 /* --- 樹 --- */
-const KEEP=[[-63.5,-10.2,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-22,-14,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],[-30,-6,2],[-6,-22,2],[-68.5,-3,2],[3,-8,2],[9,2,2],[-43,-12,2],[-17.5,-2,2],[-50.5,8,2],
+const KEEP=[[-44.5,-14.5,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-22,-14,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],[-30,-6,2],[-6,-22,2],[-49,-11,2],[3,-8,2],[9,2,2],[-42,-10,2],[-17.5,-2,2],[-50.5,8,2],
   [-59,-10.5,6],[-16.2,-22.7,3],[22,1,3],[4,1,3],[-54,4.8,7],[-8.4,-12,5],[-12,-6,5],[13,1,8],[44,9,11],[14,4,6],[24,4,6],[34,4,6],[50.5,10,5],[-26,-17,9],[-14,0,5],[-30,0,5],[-41,0,4],[-46,-10,7],[5,-20,4],[-2,-12,4],[-62,-14,4],[-57,-12,4],[-50,19.5,4],[-10,-24,3],[12,-22,3],[-14,-15.6,4],[-63,-11,4],
   [-52,-10.5,3],[-35.6,-12.3,3],[-26.8,-17,3],[-31.2,-14.7,3],[-23,-1.5,3],[-41,13,3],[-8,-1.5,3],[-19.7,-20.8,3],[-23.2,-18.9,3],[50.5,0,3],[-41,24,3],[-41,34,3],[-46,-59,3],[-59,13,3],[-10.5,1,3],[24,1,3],
   [-25,-10,2],[32,6,2],[-48,-12,2],[46,20,2],[-30,-4,2],[-46,20,2],[0,16,2],[35,15,2],[48,18,2],[-66,-14,2],[-50,1,2],[-36,-6,2],[39,5,3],[5,-20,3],[-4,-1.5,3],[-2,-12,3],
@@ -764,8 +762,8 @@ const TASKS=[
   q:'主持人：母親節快到了！「入則孝，出則弟」出自哪一部書？',
   opts:['《論語》','《孟子》','《禮記》','《孝經》'],ans:0,ex:'出自《論語・學而》：「弟子入則孝，出則弟，謹而信，汎愛眾，而親仁。」'},
  // 5 月
- {m:9,id:'gallery',name:'南山藝廊看展',x:-63.5,z:-10.2,type:'quiz',title:'🎨 南山藝廊',
-  q:'導覽同學：南山藝廊就在廣福路旁，附近居民也能來看展。根據南山大事紀，現在的藝廊，1978 年整建時原本是什麼？',
+ {m:9,id:'gallery',name:'南山藝廊看展',x:-44.5,z:-14.5,type:'quiz',title:'🎨 南山藝廊',
+  q:'導覽同學：南山藝廊在曹俊大樓一樓西側、緊鄰廣福路，附近居民也能來看展。根據南山大事紀，現在的藝廊，1978 年整建時原本是什麼？',
   opts:['廣福路校門','學生宿舍','實習工廠','游泳池'],ans:0,ex:'1978 年整建廣福路校門，就是現在的南山藝廊。南山 1971 年蓋的男生宿舍，後來改成美工大樓、美育大樓，2013 年再改建成大中至正樓。'},
  {m:9,id:'club',name:'5/30 社團動態成果發表',x:13,z:1,type:'mg',title:'🎸 社團動態成果發表',
   intro:'社長：國高中社團動態成果發表！熱舞社缺一個人，跟著節拍跳 4 拍就上台！',
@@ -1173,7 +1171,7 @@ function trigger(t){
 
 /* ---------- 大樓樓層導覽（依 115 地震避難疏散路線圖；班級只標年級） ---------- */
 const BINFO=[
- {name:'曹俊大樓',at:[-32.5,-15.1],floors:[['7F','校史館・高三'],['6F','高三'],['5F','空中花園・閱覽室・高三・國三'],['2–4F','教務處（2F）・國三（外考班）'],['1F','服務中心'],['B1','停車場・資源回收'],['西側','精宏館・圓弧梯']]},
+ {name:'曹俊大樓',at:[-32.5,-15.1],floors:[['7F','校史館・高三'],['6F','高三'],['5F','空中花園・閱覽室・高三・國三'],['2–4F','教務處（2F）・國三（外考班）'],['1F','南山藝廊（西側）・服務中心'],['B1','停車場・資源回收'],['西側','精宏館・圓弧梯']]},
  {name:'正德大樓',at:[-24.6,-19.3],floors:[['4F','電腦教室 401／402・信息中心'],['3F','電腦教室 301／302・導師室'],['2F','E化教室・導師室・輔導處・應三'],['1F','總務處・輔導處・川堂']]},
  {name:'熊祥大樓',at:[-43,-9],floors:[['2–3F','國一'],['1F','健康中心・外語教室 A–E・社團教室・陶藝教室・跑班教室'],['中庭','全國最大圍棋圖案']]},
  {name:'自強大樓',at:[-21.6,-.5],floors:[['8F','大閱覽室'],['7F','圖書館・教學資源中心'],['6F','校長室・秘書室・人事室・會計室'],['5F','第二閱覽室・國二'],['4F','第一閱覽室・國二'],['3F','專任辦公室・國一'],['2F','大講堂・國一']]},
@@ -1182,7 +1180,8 @@ const BINFO=[
  {name:'崇智樓',at:[51,6],floors:[['頂樓','地科教室・氣象觀測站・仙人掌溫室'],['6F','人文講堂'],['5F','創意教室 B／C・生活科技教室・創意庫・數理專科教室'],['3–4F','國三（直升班）・國二・專任辦公室'],['1–2F','學務處（1F）・電氣室・國二']]},
  {name:'幼保樓',at:[2,-23],floors:[['','南山幼兒園・幼兒游泳池']]},
  {name:'天馬劇場',at:[40,4.5],floors:[['','戶外劇場・美術教室']]},
- {name:'南山藝廊',at:[-66,-6.5],floors:[['','藝術展覽（1978 年整建的廣福路校門）・廣福路旁，社區民眾也能看展']]},
+ {name:'南山藝廊',at:[-45,-12.5],floors:[['','曹俊大樓一樓西側・藝術展覽・緊鄰廣福路，社區民眾也能看展']]},
+ {name:'漳二校區',at:[-38,20],floors:[['','風雨光電操場・平常不能進入'],['小門','自強大樓西側、行健籃球場東側各一個；下方小門通往中和路 217 巷']]},
 ];
 function binfoHTML(B){return `<b>📍 ${B.name}</b>`+B.floors.map(([f,t])=>`<div class="bf">${f?`<span>${f}</span>`:''}${t}</div>`).join('');}
 let binfoCur=null;
@@ -1600,7 +1599,8 @@ const FIND=(()=>{const L=[],seen=new Set();const push=(label,where,x,z,kw='')=>{
   OFFICES.forEach(o=>push(o.name,o.where,o.at[0],o.at[1]+1.5,o.dir));
   push('校長室','自強大樓 6F',-14,0.6,'蔡銘城');push('升旗台（司令台）','大草坪南側',-8.4,-12.4);push('校歌碑','升旗台西側',-14.5,-13.6);
   push('大草坪（A 集合場）','校園中央',-10,-6);push('廣福門（正門）','廣福路',GATES[0].x/K,GATES[0].z/K+3);push('南工門（側門）','南工路',GATES[1].x/K-3,GATES[1].z/K);
-  push('全國最大圍棋圖案','熊祥大樓中庭',-54,4.8);push('白色拱門舞台','大草坪',-2,-4);push('天馬劇場','大中至正樓南側',44,9);
+  push('全國最大圍棋圖案','熊祥大樓中庭',-54,4.8);push('白色拱門舞台','大草坪',-2,-4);push('南山藝廊','曹俊大樓一樓西側',-44.5,-12.5);
+  push('小門（往漳二校區）','自強大樓西側',-41,20.8);push('小門（往漳二校區）','行健籃球場東側',33,20.8);push('漳二校區・風雨光電操場','學校南側（平常不可進入）',-38,20.8,'中和路 217 巷');push('天馬劇場','大中至正樓南側',44,9);
   return L;})();
 function findPlace(){
   if(paused)return;
@@ -1626,7 +1626,7 @@ HOOK.map.push(toMap=>{if(!NAV)return;const [x,z]=toMap(NAV.x,NAV.z);mc.fillStyle
 const GLOSS=[['段考','每學期的定期考試，國中、高中都有第一次段考、第二次段考與期末考。'],['學校日','開學後的晚上，家長到學校認識導師、了解班級和課程。'],['週會','全年級集合的時間，有講座、品德話劇等活動。'],
  ['直升／外考','國三分成直升班（直接升上南山高中部）和外考班（參加會考、選擇其他高中）。'],['會考','國中教育會考，國三 5 月舉行，是升高中的重要考試。'],['學測','大學學科能力測驗，高三 1 月舉行，是申請大學的重要考試。'],
  ['多元選修','高中可以依興趣選修的課程，南山有 20 門以上。'],['學習歷程檔案','高中三年把課程作品、社團、幹部、競賽等紀錄上傳，申請大學時使用。'],['自主學習','高中生自己訂主題和計畫來學習，最後上台分享成果。'],
- ['社團','國中部有 63 個、高中部有 46 個社團，9 月選社。'],['HBL','高中籃球甲級聯賽，南山男籃是 8 座冠軍的常勝軍。'],['集合場','全校集合的地方：大草坪是 A 集合場、籃球場是 C 集合場。'],['導師','每個班級的班導，有任何事都可以先找導師。'],['豹爪幣','遊戲裡的金色硬幣，撿到就能解鎖一項南山榮譽。'],['校徽','三個三角形是「山」的古字；綠色代表生長、紅色代表熱誠、藍色代表成熟。'],['時光碑','遊戲裡的校史石碑，走近就能解鎖一段南山的歷史。']];
+ ['社團','國中部有 63 個、高中部有 46 個社團，9 月選社。'],['HBL','高中籃球甲級聯賽，南山男籃是 8 座冠軍的常勝軍。'],['集合場','全校集合的地方：大草坪是 A 集合場、籃球場是 C 集合場。'],['導師','每個班級的班導，有任何事都可以先找導師。'],['豹爪幣','遊戲裡的金色硬幣，撿到就能解鎖一項南山榮譽。'],['校徽','三個三角形是「山」的古字；綠色代表生長、紅色代表熱誠、藍色代表成熟。'],['時光碑','遊戲裡的校史石碑，走近就能解鎖一段南山的歷史。'],['漳二校區','學校南側的風雨光電操場，平常不能進入。自強大樓西側和行健籃球場東側各有一個小門通往這裡，下方小門通往中和路 217 巷，上放學可以從這裡進出。']];
 function glossary(){dialog({title:'📖 南山小辭典',por:ICON_SCHOOL,html:`<div class="gl">${GLOSS.map(([a,b])=>`<div class="oinfo"><b>${a}</b>：${b}</div>`).join('')}</div>`,btn:'知道了'});}
 
 /* ---------- 集章冊與紀念卡 ---------- */
@@ -1669,6 +1669,37 @@ function showCard(){
 }
 
 
+
+/* ---------- 漳二校區：風雨光電操場（屋頂太陽能板，平常不能進入）與三個小門 ---------- */
+{const x0=-65*K,x1=-11*K,z0=25*K,z1=49*K,H=7;
+ finishB({name:'',pts:[[x0,z0],[x1,z0],[x1,z1],[x0,z1]],h:H,wall:'#9aa3ad',roof:'#2b3a55',o:{},extraTop:3,draw:x=>{
+   x.fillStyle='#8f969e';for(let i=0;i<=8;i++){const X=PX(x0+(x1-x0)*i/8);[z0,z1].forEach(z=>{x.fillRect(X-PPU*.18,PY(z,H),PPU*.36,PY(z)-PY(z,H));});}
+   const R=[[x0,z0],[x1,z0],[x1,z1],[x0,z1]].map(([a,b])=>[PX(a),PY(b,H)]);poly(x,R);x.fillStyle='rgba(38,58,92,.82)';x.fill();
+   x.strokeStyle='rgba(170,200,235,.55)';x.lineWidth=Math.max(1,PPU*.05);
+   for(let i=1;i<24;i++){const t=i/24;x.beginPath();x.moveTo(R[0][0]+(R[1][0]-R[0][0])*t,R[0][1]);x.lineTo(R[3][0]+(R[2][0]-R[3][0])*t,R[3][1]);x.stroke();}
+   for(let i=1;i<8;i++){const y=R[0][1]+(R[3][1]-R[0][1])*i/8;x.beginPath();x.moveTo(R[0][0],y);x.lineTo(R[1][0],y);x.stroke();}
+   x.strokeStyle='rgba(20,25,40,.7)';poly(x,R);x.stroke();
+   plate(x,'漳二校區・風雨光電操場',(R[0][0]+R[1][0])/2,(R[0][1]+R[3][1])/2,Math.max(10,PPU*.8),'rgba(25,32,64,.85)');}});}
+const SIDEDOORS=[
+ {n:'小門・往漳二校區',x:-41,z:22.8,d:'🚪 自強大樓西側的小門，通往漳二校區（風雨光電操場）。漳二校區平常不能進入。'},
+ {n:'小門・往漳二校區',x:33,z:22.8,d:'🚪 行健籃球場東側的小門，通往漳二校區。漳二校區平常不能進入。'},
+ {n:'小門・往中和路 217 巷',x:-38,z:49.6,d:'🚪 漳二校區下方的小門，通往中和路 217 巷，上放學也可以從這裡進出。'},
+];
+function drawSideDoor(g){const X=PX(g.x*K),Y=PY(g.z*K),w=PPU*2.2,h=PPU*2.6;
+  ctx.fillStyle='#d9c39b';ctx.fillRect(X-w/2-PPU*.5,Y-h-PPU*.3,PPU*.5,h+PPU*.3);ctx.fillRect(X+w/2,Y-h-PPU*.3,PPU*.5,h+PPU*.3);
+  ctx.fillStyle='#2f6b5a';ctx.fillRect(X-w/2,Y-h,w,h);ctx.strokeStyle='#ffe9a8';ctx.lineWidth=Math.max(1,PPU*.06);
+  for(let i=1;i<6;i++){ctx.beginPath();ctx.moveTo(X-w/2+w*i/6,Y-h);ctx.lineTo(X-w/2+w*i/6,Y);ctx.stroke();}ctx.strokeRect(X-w/2,Y-h,w,h);
+  plate(ctx,g.n,X,Y-h-PPU*.9,Math.max(8,PPU*.5),'rgba(47,107,90,.95)','#ffffff','#ffe9a8');}
+HOOK.actors.push(add=>SIDEDOORS.forEach(g=>add(g.x*K,g.z*K-.01,()=>drawSideDoor(g))));
+// 南山藝廊（曹俊大樓一樓西側）門口的立牌
+HOOK.actors.push(add=>add(-46.6*K,-13.2*K,()=>{const X=PX(-46.6*K),Y=PY(-13.2*K),w=PPU*3.4,h=PPU*2;
+  ctx.strokeStyle='#5a4632';ctx.lineWidth=PPU*.16;ctx.beginPath();ctx.moveTo(X-w*.3,Y);ctx.lineTo(X-w*.2,Y-h);ctx.moveTo(X+w*.3,Y);ctx.lineTo(X+w*.2,Y-h);ctx.stroke();
+  ctx.fillStyle='#8c3b2e';rr(ctx,X-w/2,Y-h-PPU*1.3,w,PPU*1.5,PPU*.25);ctx.fill();ctx.strokeStyle='#ffe9a8';ctx.lineWidth=PPU*.07;ctx.stroke();
+  ctx.fillStyle='#fffaf0';ctx.font=`bold ${PPU*.62}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🎨 南山藝廊',X,Y-h-PPU*.55);}));
+HOOK.map.push(toMap=>SIDEDOORS.forEach(g=>{const [x,z]=toMap(g.x*K,g.z*K);mc.fillStyle='#2f6b5a';mc.strokeStyle='#ffe9a8';mc.lineWidth=1.5;mc.fillRect(x-4,z-3,8,6);mc.strokeRect(x-4,z-3,8,6);}));
+let doorNear=null;
+HOOK.update.push(()=>{if(paused)return;const g=SIDEDOORS.find(g=>Math.hypot(pos.x-g.x*K,pos.z-g.z*K)<2.6*K);if(g&&g!==doorNear)toast(g.d,3200);doorNear=g||null;});
+
 /* ---------- 校史時光碑（全年都可以收集；只用學校提供的校史年表） ---------- */
 // 依南山官網「南山校史」「南山大事紀」整理；新增請以學校資料為準，不要自行補寫
 const HISTORY=[
@@ -1676,11 +1707,11 @@ const HISTORY=[
  {y:'1946',x:-30,z:-6,t:'更名「南山」',d:'1946 年更名為「私立南山工商職業學校」，設土木、機械、商業三科。南山的校慶週年就是從這一年算起，所以 2026 年是 80 週年。'},
  {y:'1957',x:-56,z:-11,t:'在現址復校',d:'1957 年在現在的校址復校，招收初中、高中部學生，第一屆大約 250 人，當時的董事長是林熊祥先生。'},
  {y:'1963',x:-6,z:-22,t:'師生路完工',d:'1963 年，師生一起動手闢花圃、築道路，「師生路」完工剪綵，就是現在的南山大道。'},
- {y:'1978',x:-68.5,z:-3,t:'整建廣福路校門',d:'1978 年整建廣福路校門，這裡就是現在的南山藝廊。'},
+ {y:'1978',x:-49,z:-11,t:'整建廣福路校門',d:'1978 年整建廣福路校門，就是現在的南山藝廊（在曹俊大樓一樓西側）。'},
  {y:'1987',x:3,z:-8,t:'圓弧舞台完工',d:'1987 年圓弧舞台完工、南工門改建。同一年《南山雜誌》創刊，教室也全面裝上冷氣。'},
  {y:'1991',x:9,z:2,t:'男籃 HBL 首度奪冠',d:'1991 年，南山男籃第一次拿下 HBL 冠軍。籃球隊早在 1970 年就成軍了。'},
  {y:'1995',x:47,z:15.5,t:'崇智大樓完工',d:'1994 年增設國中部、更名為南山高級中學；1995 年崇智大樓完工啟用。現在學務處、國二和國三直升班都在這裡。'},
- {y:'1998',x:-43,z:-12,t:'曹俊大樓啟用',d:'1998 年曹俊大樓啟用。2001 年創校 55 週年時，校史館也在這裡啟用。'},
+ {y:'1998',x:-42,z:-10,t:'曹俊大樓啟用',d:'1998 年曹俊大樓啟用。2001 年創校 55 週年時，校史館也在這裡啟用。'},
  {y:'2006',x:-17.5,z:-2,t:'自強大樓、行健館啟用',d:'2006 年慶祝創校 60 週年（甲子校慶），自強大樓和行健館一起啟用。'},
  {y:'2010',x:-50.5,z:8,t:'全國最大圍棋圖案',d:'2010 年整修熊祥大樓中庭，畫上全國最大的圍棋圖案。南山 2007 年開辦南山盃青少年圍棋公開賽，2008 年設圍棋專班。'},
  {y:'2013',x:21,z:-14.5,t:'大中至正樓落成',d:'2013 年大中至正樓（科學館）落成啟用，是由原本的美育大樓改建的。'},
@@ -1725,15 +1756,15 @@ function achBook(){
 /* ---------- 校園大地圖（點小地圖或選單開啟；點地圖上的地點會出現導引光線） ---------- */
 function bigMap(){
   if(paused)return;
-  dialog({title:'🗺️ 南山校園地圖',por:ICON_SCHOOL,html:`<canvas id="bigmap" width="1000" height="600"></canvas><div class="oinfo" style="margin-top:8px;font-size:13px">🟡 本月任務　🔵 加分任務　🟫 主任　🟢 同學　🔶 時光碑　▲ 你在這裡。<b>點地圖上的地點</b>，地上會出現導引光線。</div>`,btn:'關閉'});
+  dialog({title:'🗺️ 南山校園地圖',por:ICON_SCHOOL,html:`<canvas id="bigmap" width="1000" height="650"></canvas><div class="oinfo" style="margin-top:8px;font-size:13px">🟡 本月任務　🔵 加分任務　🟫 主任　🟢 同學　🔶 時光碑　▲ 你在這裡。<b>點地圖上的地點</b>，地上會出現導引光線。</div>`,btn:'關閉'});
   $('dlg').querySelector('.box').classList.add('wide');
   const cv=$('bigmap'),m=cv.getContext('2d'),X0=-76*K,Z0=-50*K,S=1000/(160*K),tm=(x,z)=>[(x-X0)*S,(z-Z0)*S];
   const polyM=(P,f,st)=>{m.beginPath();P.forEach(([x,z],i)=>{const [a,b]=tm(x,z);i?m.lineTo(a,b):m.moveTo(a,b);});m.closePath();m.fillStyle=f;m.fill();if(st){m.strokeStyle=st;m.lineWidth=2;m.stroke();}};
   const lab=(t,x,z,fs=15,bg='rgba(25,32,64,.85)',fg='#fff')=>{m.font=`bold ${fs}px ${FONT}`;const w=m.measureText(t).width;m.fillStyle=bg;rr(m,x-w/2-6,z-fs*.75,w+12,fs*1.5,6);m.fill();m.fillStyle=fg;m.textAlign='center';m.textBaseline='middle';m.fillText(t,x,z+1);};
-  m.fillStyle='#9cc58a';m.fillRect(0,0,1000,600);
+  m.fillStyle='#9cc58a';m.fillRect(0,0,1000,650);
   [ROAD1,ROAD2].forEach(R=>{polyM(R.road,'#8d8f96');polyM(R.walk,'#cfc6b4');});
   polyM(PTSK,'#e2d7c0','#8a7b5e');
-  LAWNS.forEach(L=>polyM(L,'#7fca62'));polyM(FIELD,'#c96a4a');polyM(COURT,'#6f9fd0');polyM(GOB,'#d9a85a');polyM(PARK,'#b8bcc4');
+  LAWNS.forEach(L=>polyM(L,'#7fca62'));polyM(FIELD,'#3c5378');polyM(COURT,'#6f9fd0');polyM(GOB,'#d9a85a');polyM(PARK,'#b8bcc4');
   {const [x,z]=tm(THEATRE.x,THEATRE.z);m.fillStyle='#bfb7a8';m.beginPath();m.arc(x,z,THEATRE.r*S,0,7);m.fill();}
   mapB.forEach(B=>{const [x,z]=tm(B.x,B.z);m.fillStyle=B.color==='#ffffff'?'#f7f3ea':B.color;m.strokeStyle='#4a4038';m.lineWidth=2;
     if(B.circle){m.beginPath();m.arc(x,z,B.circle*S,0,7);m.fill();m.stroke();}
@@ -1742,15 +1773,17 @@ function bigMap(){
   const seen=n=>[...VISITED].some(v=>n.startsWith(v)||v.startsWith(n.replace(/（.*/,'')));
   mapB.forEach(B=>{if(!B.name||B.name==='警衛室')return;const [x,z]=tm(B.x,B.z);lab(B.name.replace(/（.*/,''),x,z,14,seen(B.name)?'rgba(25,32,64,.88)':'rgba(25,32,64,.5)');});
   {const [x,z]=tm(THEATRE.x,THEATRE.z);lab('天馬劇場',x,z,13,seen('天馬劇場')?'rgba(25,32,64,.88)':'rgba(25,32,64,.5)');}
-  [['漳和國中操場',FIELD],['籃球場',COURT]].forEach(([t,P])=>{const c=P.reduce((a,p)=>[a[0]+p[0]/P.length,a[1]+p[1]/P.length],[0,0]);const [x,z]=tm(...c);lab(t,x,z,13,'rgba(255,255,255,.75)','#2b2140');});
+  [['漳二校區・風雨光電操場（平常不可進入）',FIELD],['籃球場',COURT]].forEach(([t,P])=>{const c=P.reduce((a,p)=>[a[0]+p[0]/P.length,a[1]+p[1]/P.length],[0,0]);const [x,z]=tm(...c);lab(t,x,z,13,'rgba(255,255,255,.75)','#2b2140');});
   GATES.forEach(g=>{const [x,z]=tm(g.x,g.z);lab('🚪 '+g.name,x,z-14,14,'rgba(47,107,90,.95)','#ffe9a8');});
+  SIDEDOORS.forEach(g=>{const [x,z]=tm(g.x*K,g.z*K);m.fillStyle='#2f6b5a';m.fillRect(x-6,z-4,12,8);lab(g.n.replace('小門・',''),x,z+(g.z>40?-16:16),12,'rgba(47,107,90,.9)','#ffe9a8');});
+  {const [x,z]=tm(-46.5*K,-17*K);lab('🎨 南山藝廊',x,z,12,'rgba(140,59,46,.92)');}
   TASKS.forEach(t=>{if(!inMonth(t)||t.done)return;const [x,z]=tm(t.X,t.Z);m.fillStyle=t.id==='final'?'#ff8fab':t.opt?'#7fd3ff':'#ffd84a';m.strokeStyle='#2a2a38';m.lineWidth=2.5;m.beginPath();m.arc(x,z,9,0,7);m.fill();m.stroke();lab(t.N,x,z+20,12,'rgba(255,250,240,.92)','#2b2140');});
   OFFNPC.forEach(n=>{const [x,z]=tm(n.x,n.z);m.fillStyle=n.kind==='leader'?'#c9a227':'#8c3b2e';m.fillRect(x-5,z-5,10,10);});
   NPCS.forEach(n=>{if(!n.vis)return;const [x,z]=tm(n.x,n.z);m.fillStyle='#2f8a4a';m.beginPath();m.arc(x,z,6,0,7);m.fill();});
   HISTORY.forEach(h=>{if(HIST.has(h.y))return;const [x,z]=tm(h.x*K,h.z*K);m.fillStyle='#b5651d';m.strokeStyle='#ffe9a8';m.lineWidth=2;m.beginPath();m.moveTo(x,z-8);m.lineTo(x+6,z);m.lineTo(x,z+8);m.lineTo(x-6,z);m.closePath();m.fill();m.stroke();});
   {const [x,z]=tm(pos.x,pos.z);m.save();m.translate(x,z);m.rotate(-face+Math.PI);m.fillStyle='#fff';m.strokeStyle='#d8343f';m.lineWidth=3;m.beginPath();m.moveTo(0,-14);m.lineTo(10,11);m.lineTo(0,6);m.lineTo(-10,11);m.closePath();m.fill();m.stroke();m.restore();}
   m.fillStyle='rgba(25,32,64,.8)';m.font=`bold 14px ${FONT}`;m.textAlign='left';m.fillText(`🧭 探索 ${VISITED.size}/${BINFO.length}　⏳ 時光碑 ${HIST.size}/${HISTORY.length}　🏆 成就 ${ACH.size}/${ACHS.length}`,14,22);
-  cv.onclick=e=>{const r=cv.getBoundingClientRect(),px=(e.clientX-r.left)*1000/r.width,pz=(e.clientY-r.top)*600/r.height;
+  cv.onclick=e=>{const r=cv.getBoundingClientRect(),px=(e.clientX-r.left)*1000/r.width,pz=(e.clientY-r.top)*650/r.height;
     let best=null,bd=40;FIND.forEach(f=>{const [x,z]=tm(f.x,f.z);const d=Math.hypot(x-px,z-pz);if(d<bd&&!f.where){bd=d;best=f;}});
     if(!best)FIND.forEach(f=>{const [x,z]=tm(f.x,f.z);const d=Math.hypot(x-px,z-pz);if(d<bd){bd=d;best=f;}});
     if(best){NAV=best;close();toast(`🧭 跟著地上的光線走到「${best.label}」`,2600);}};
