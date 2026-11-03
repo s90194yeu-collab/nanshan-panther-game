@@ -1324,6 +1324,7 @@ const MOTES=[...Array(70)].map(()=>({x:Math.random(),y:Math.random(),r:.6+Math.r
 let gradeCol='rgba(255,196,140,.32)';
 function post(dt,camDX,camDY){
   const W=canvas.width,H=canvas.height,s1=FX.s1,s2=FX.s2;
+  if(!W||!H)return; // 視窗尺寸為 0（背景分頁、隱藏的嵌入框）時跳過，避免 drawImage 丟錯中斷主迴圈
   FX.c1.drawImage(canvas,0,0,s1.width,s1.height);FX.c2.drawImage(s1,0,0,s2.width,s2.height);
   const cb=FX.cb;cb.globalCompositeOperation='source-over';cb.clearRect(0,0,W,H);cb.imageSmoothingEnabled=true;cb.drawImage(s2,0,0,W,H);
   cb.globalCompositeOperation='destination-in';const m=cb.createLinearGradient(0,0,0,H);m.addColorStop(0,'rgba(0,0,0,1)');m.addColorStop(.3,'rgba(0,0,0,0)');m.addColorStop(.7,'rgba(0,0,0,0)');m.addColorStop(1,'rgba(0,0,0,.95)');cb.fillStyle=m;cb.fillRect(0,0,W,H);
