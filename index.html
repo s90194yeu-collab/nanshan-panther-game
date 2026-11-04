@@ -1679,7 +1679,7 @@ const FIND=(()=>{const L=[],seen=new Set();const push=(label,where,x,z,kw='')=>{
   push('校長室','自強大樓 6F',-14,0.6,'蔡銘城');push('司令台（升旗台）','大草坪北側',-8.4,-12.4,'拱門 舞台');push('校歌碑','升旗台西側',-14.5,-13.6);
   push('大草坪（A 集合場）','校園中央',-10,-6);push('廣福門（正門）','廣福路',GATES[0].x/K,GATES[0].z/K+3);push('南工門（側門）','南工路',GATES[1].x/K-3,GATES[1].z/K);
   push('全國最大圍棋圖案','熊祥大樓中庭',-54,4.8);push('南山藝廊','曹俊大樓一樓西側',-44.5,-12.5);
-  push('小門（往漳二籃球場）','行健籃球場東側',33,20.8);push('校車停駐處','漳二籃球場',45,28,'交通車 校車');push('漳二光電球場','學校西南側（全區不開放）',-38,20.8);push('小門（往中和路 217 巷）','漳二籃球場下方',-4,48,'上放學');push('天馬劇場','大中至正樓南側',44,9);
+  push('小門（往漳二籃球場）','行健籃球場東側',33,20.8);push('校車停駐處','漳二籃球場',45,28,'交通車 校車');push('漳二光電球場','學校西南側（全區不開放）',-38,20.8);push('小門（往中和路 217 巷）','光電球場與籃球場之間的小路盡頭',-7,48,'上放學 小路');push('天馬劇場','大中至正樓南側',44,9);
   return L;})();
 function findPlace(){
   if(paused)return;
@@ -1761,10 +1761,14 @@ function showCard(){
    plate(x,'漳二光電球場（全區不開放）',(R[0][0]+R[1][0])/2,(R[0][1]+R[3][1])/2,Math.max(10,PPU*.8),'rgba(25,32,64,.85)');}});}
 // 校車停駐處的三輛校車
 [40,45,50].forEach(x=>building('',x,37,3.2,10,3.6,'#f2c230','#f5cf4a',{nomap:1,colw:1.6,win:'#9fc7e8',nodoor:1,roofFx:(x,B,R)=>{const c=[(R[0][0]+R[2][0])/2,(R[0][1]+R[2][1])/2];plate(x,'校車',c[0],c[1],Math.max(8,PPU*.55),'rgba(60,40,0,.85)','#ffe9a8','#ffe9a8');}}));
+// 往中和路 217 巷的小路：在光電球場（隔牆西側，不開放）和籃球場之間，只有這條小路可以走到小門
+HOOK.ground.push(()=>{const x0=(ZH2.xd+.4)*K,x1=(ZH2.xd+4.6)*K,z0=ZH2.z0*K,z1=ZH2.z1*K;gfill([[x0,z0],[x1,z0],[x1,z1],[x0,z1]],'#cdbf9f');
+  ctx.strokeStyle='rgba(120,100,70,.35)';ctx.lineWidth=Math.max(1,PPU*.05);for(let z=z0;z<z1;z+=1.6*K){const X0=PX(x0),X1=PX(x1),Y=PY(z);ctx.beginPath();ctx.moveTo(X0,Y);ctx.lineTo(X1,Y);ctx.stroke();}
+  if(!GTXT_CV.lane)GTXT_CV.lane=tagCanvas('小路・往中和路 217 巷','rgba(120,90,40,.9)',11);drawUI(GTXT_CV.lane,PX((x0+x1)/2),PY(40*K));});
 const SIDEDOORS=[
  {n:'小門・往光電球場',x:-41,z:22.8,closed:1,d:'🚪 自強大樓西側的小門，通往漳二光電球場。光電球場全區不開放，這扇門平常是關著的喔。'},
  {n:'小門・往漳二籃球場',x:33,z:22.8,d:'🚪 行健籃球場東側的小門，通往漳二籃球場，也是校車停駐處。搭校車的同學上下學都從這裡走喔！'},
- {n:'小門・往中和路 217 巷',x:-4,z:50.5,closed:1,route:1,d:'🎒 這是漳二校區下方的小門，外面就是中和路 217 巷。上放學時段可以從這裡進出，走這條捷徑要注意安全喔！'},
+ {n:'小門・往中和路 217 巷',x:-7,z:50.5,closed:1,route:1,d:'🎒 這是漳二校區下方的小門，外面就是中和路 217 巷。上放學時段可以從這裡進出，走這條捷徑要注意安全喔！'},
 ];
 function drawSideDoor(g){const X=PX(g.x*K),Y=PY(g.z*K),half=(g.closed?1.1:DOORW/2)*K*PPU,h=PPU*2.6;
   const pil=X0=>{ctx.fillStyle='#d9c39b';ctx.fillRect(X0-PPU*.3,Y-h-PPU*.3,PPU*.6,h+PPU*.3);ctx.fillStyle='#e8d6b4';ctx.fillRect(X0-PPU*.4,Y-h-PPU*.5,PPU*.8,PPU*.3);};
