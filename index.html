@@ -504,11 +504,14 @@ const GYM={x:13.2,z:12,w:34,d:18,h:13};
 {const B=building('行健樓（體育館）',GYM.x,GYM.z,GYM.w,GYM.d,GYM.h,'#e4e8ec','#7d8794',{nobox:1,mapc:'#cfe3d8',colw:4.8,win:'#8fb6d9',
   facade:(x,B,w)=>{if(w.nz<.6)return;x.strokeStyle='#9aa3ad';x.lineWidth=PPU*.32;x.lineCap='round';
     for(let i=0;i<8;i++){const t0=(i+.1)/8,t1=(i+(i%2?.1:.9))/8;const a=wallPt(w,t0,0),b=wallPt(w,i%2?t0+.1:t0+.02,B.h-1.6);x.beginPath();x.moveTo(...wallPt(w,(i+.15)/8,0));x.lineTo(...wallPt(w,(i+(i%2?-.2:.5))/8,B.h-1.6));x.stroke();}
-    quad(x,[wallPt(w,0,B.h-1.6),wallPt(w,1,B.h-1.6),wallPt(w,1,B.h),wallPt(w,0,B.h)],'#dfe4ea');},
+    quad(x,[wallPt(w,0,B.h-1.6),wallPt(w,1,B.h-1.6),wallPt(w,1,B.h),wallPt(w,0,B.h)],'#dfe4ea');
+    const g=x.createLinearGradient(0,wallPt(w,0,4.6)[1],0,wallPt(w,0,0)[1]);g.addColorStop(0,'rgba(38,52,46,.92)');g.addColorStop(1,'rgba(70,96,84,.55)');quad(x,[wallPt(w,0,0),wallPt(w,1,0),wallPt(w,1,4.6),wallPt(w,0,4.6)],g);
+    for(let i=0;i<8;i++){const t=(i+.5)/8;quad(x,[wallPt(w,t-.012,0),wallPt(w,t+.012,0),wallPt(w,t+.012,4.6),wallPt(w,t-.012,4.6)],'#d7dce2');}
+    plate(x,'一樓通透空間',...wallPt(w,.5,2.4),Math.max(8,PPU*.5),'rgba(47,107,90,.9)');},
   roofFx:(x,B,R)=>{x.strokeStyle='rgba(255,255,255,.25)';x.lineWidth=Math.max(1,PPU*.08);for(let i=1;i<14;i++){const t=i/14;x.beginPath();x.moveTo(R[0][0]+(R[1][0]-R[0][0])*t,R[0][1]);x.lineTo(R[3][0]+(R[2][0]-R[3][0])*t,R[3][1]);x.stroke();}}});
- const {x,z,w,d}=GYM;addBox((x)*K,(z+d/2-.5)*K,w*K,1*K);[-1,1].forEach(sd=>addBox((x+sd*(w/2-.5))*K,z*K,1*K,d*K));
- // 北側柱列（只擋柱子）
- for(let i=0;i<7;i++)addBox((x-w/2+2.5+i*4.8)*K,(z-d/2+.6)*K,.6,.6);}
+ // 一樓是通透空間：四周只有柱子，沒有牆
+ const {x,z,w,d}=GYM;for(let i=0;i<8;i++){const px=(x-w/2+.6+i*(w-1.2)/7)*K;addBox(px,(z-d/2+.6)*K,.6,.6);addBox(px,(z+d/2-.6)*K,.6,.6);}
+ [-1,1].forEach(sd=>{for(let j=1;j<4;j++)addBox((x+sd*(w/2-.6))*K,(z-d/2+.6+j*(d-1.2)/4)*K,.6,.6);});}
 // 大中至正樓：西側高塔（彩色線條、陽台、外掛樓梯）＋東側主體
 building('',14,-7,12,12,38,'#f0f2f4','#4a7a9c',{nomap:1,nodoor:1,plain:1,colw:3,
   facade:(x,B,w)=>{if(w.nz<.6)return;
@@ -521,7 +524,7 @@ building('大中至正樓',38,-5.9,38,10,24,'#e9edf1','#4a7a9c',{labAt:[30,-6],
   facade:(x,B,w)=>{if(w.nz<.6)return;[['#3aa655',21.6],['#d8343f',19.4],['#2f5fb5',17.2],['#f2b705',15]].forEach(([c,y])=>quad(x,[wallPt(w,.02,y),wallPt(w,.98,y),wallPt(w,.98,y+.5),wallPt(w,.02,y+.5)],c));},
   roofFx:(x,B,R)=>{const c=[(R[0][0]+R[2][0])/2,(R[0][1]+R[2][1])/2],hw=(R[1][0]-R[0][0])*.38,hd=(R[3][1]-R[0][1])*.33;x.fillStyle='#6fb85a';rr(x,c[0]-hw+PPU*3,c[1]-hd,hw*2-PPU*3,hd*2,PPU*.6);x.fill();}});
 // 天馬劇場（地面，見 drawGround）
-building('崇智樓',59.4,14.4,13,42,21,'#f4ead0','#5f8a5a',{rot:-.05,labAt:[59.4,8],
+building('崇智樓',59.4,14.4,13,42,21,'#f4ead0','#5f8a5a',{rot:-.05,labAt:[59.4,8],nobox:1,
   facade:(x,B,w)=>{if(w.nz<.6)return;['樓','智','崇'].forEach((ch,i)=>{const t=(i+.5)/3,p=wallPt(w,t,B.h-1.2),r=w.L/3*.36*PPU;
     x.strokeStyle='#ffffff';x.lineWidth=PPU*.35;x.beginPath();x.arc(p[0],p[1]+r*.2,r,Math.PI,0);x.stroke();x.fillStyle='#fffaf0';x.fillRect(p[0]-r*.42,p[1]+r*.25,r*.84,r*.75);
     x.fillStyle='#c62828';x.font=`bold ${r*.62}px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText(ch,p[0],p[1]+r*.64);});},
@@ -532,12 +535,14 @@ building('崇智樓',59.4,14.4,13,42,21,'#f4ead0','#5f8a5a',{rot:-.05,labAt:[59.
     const gh=[PX(60*K),PY(26*K,B.h)];x.fillStyle='rgba(216,243,255,.65)';x.fillRect(gh[0]-PPU*2.4,gh[1]-PPU*1.8,PPU*4.8,PPU*2.4);x.strokeStyle='#9fc7d8';x.strokeRect(gh[0]-PPU*2.4,gh[1]-PPU*1.8,PPU*4.8,PPU*2.4);
     for(let i=0;i<5;i++){x.fillStyle='#3f8a3c';x.beginPath();x.ellipse(gh[0]-PPU*1.8+i*PPU*.9,gh[1]-PPU*.2,PPU*.22,PPU*.5,0,0,7);x.fill();}
     plate(x,'仙人掌溫室',gh[0],gh[1]+PPU*1.2,Math.max(9,PPU*.55),'rgba(47,107,90,.9)');}});
+// 崇智樓碰撞：一樓中段有川堂（z 13–17），從南工門可以穿過去
+{const rot=-.05,c=Math.cos(rot),sn=Math.sin(rot);[[-21,-1.4],[2.6,21]].forEach(([a,b])=>{const lz=(a+b)/2;addBox((59.4+lz*sn)*K,(14.4+lz*c)*K,13*K,(b-a)*K,rot);});}
 // 圍牆與校門（廣福門、南工門）
 const PTS=[[-70.8,-12],[-15.6,-43.2],[3.6,-45.6],[21.6,-11.4],[73.2,-9.6],[72,38.4],[55.2,39.6],[54,22.8],[-69.6,22.8]];
 const PTSK=PTS.map(([x,z])=>[x*K,z*K]);
 const GATES=[{seg:0,t:.2,w:8,name:'廣福門'},{seg:4,t:.75,w:8,name:'南工門'}]; // 廣福門在廣福路（正門），南工門在東側南工路
-const DOORGAP=[{seg:7,x:-41,z:22.8},{seg:7,x:33,z:22.8}],DOORW=3; // 南側圍牆的兩個小門（自強大樓西側、行健籃球場東側），通往漳二校區
-const ZH2={x0:-66,x1:36,z0:22.8,z1:50.5}; // 漳二校區（風雨光電操場）的範圍
+const DOORGAP=[{seg:7,x:-41,z:22.8},{seg:7,x:33,z:22.8},{seg:6,x:55,z:37}],DOORW=3; // 第三個：崇智樓南側通往漳二籃球場 // 南側圍牆的兩個小門（自強大樓西側、行健籃球場東側），通往漳二校區
+const ZH2={x0:-66,x1:55,z0:22.8,z1:50.5}; // 東邊接崇智樓旁的圍牆（PTS 第 6 段） // 漳二校區（風雨光電操場）的範圍
 (function(){
   const piece=(ax,az,bx,bz)=>{const dx=bx-ax,dz=bz-az,L=Math.hypot(dx,dz);if(L<.2)return;const rot=-Math.atan2(dz,dx);
     building('',(ax+bx)/2,(az+bz)/2,L,.8,2.2,'#d8c9a8','#b9a37f',{rot,nowin:1,nomap:1});};
@@ -559,7 +564,7 @@ const ZH2={x0:-66,x1:36,z0:22.8,z1:50.5}; // 漳二校區（風雨光電操場�
         quad(x,[[a[0],a[1]-th],[b[0],b[1]-th],[b[0],b[1]],[a[0],a[1]]],'#2f6b5a');x.strokeStyle='#ffe9a8';x.lineWidth=PPU*.12;poly(x,[[a[0],a[1]-th],[b[0],b[1]-th],[b[0],b[1]],[a[0],a[1]]]);x.stroke();
         x.fillStyle='#ffe9a8';x.font=`bold ${PPU*.95}px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText('南山中學・'+g.name,(a[0]+b[0])/2,(a[1]+b[1])/2-th/2);}});
   });
-  const {x0,x1,z0,z1}=ZH2;piece(x0,z0,x0,z1);piece(x1,z0,x1,z1);piece(x0,z1,x1,z1);
+  const {x0,x1,z0,z1}=ZH2;piece(x0,z0,x0,z1);piece(55.2,39.6,55.2,z1);piece(x0,z1,55.2,z1);
 })();
 // 廣福門警衛室：鏤空圓頂（Nanshan Campus），在大門西側
 {const g=GATES[0],L=Math.hypot(55.2,31.2),ux=55.2/L,uz=-31.2/L,cx=g.x/K-ux*6.2-uz*2.6,cz=g.z/K-uz*6.2+ux*2.6;
@@ -593,7 +598,7 @@ const THEATRE={x:44*K,z:9*K,r:9*K};
 const GTEXT=[['廣福路 Guangfu Rd.',...ROAD1.lab,'rgba(60,60,70,.85)'],['南工路 Nangong Rd.',...ROAD2.lab,'rgba(60,60,70,.85)'],['漳二校區・風雨光電操場',-38*K,32*K,'rgba(60,60,70,.8)'],['籃球場（C 集合場）',18*K,30*K,'rgba(60,60,70,.8)'],
   ['Ｐ 停車場',-84*K,4*K,'rgba(47,95,181,.9)'],['中庭・全國最大圍棋圖案',-54*K,(4.8+6.6)*K,'rgba(60,60,70,.8)'],['天馬劇場・美術教室',44*K,(9+10)*K,'rgba(60,60,70,.8)'],['大草坪（A 集合場）',-20*K,-12.4*K,'rgba(47,107,90,.85)']];
 /* --- 樹 --- */
-const KEEP=[[-44.5,-14.5,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-22,-14,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],[-30,-6,2],[-6,-22,2],[-49,-11,2],[3,-8,2],[9,2,2],[-42,-10,2],[-17.5,-2,2],[-50.5,8,2],
+const KEEP=[[58,37,3],[63,37,3],[68,37,3],[69,30,3],[69,20,3],[69,14,3],[-44.5,-14.5,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-22,-14,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],[-30,-6,2],[-6,-22,2],[-49,-11,2],[-12.5,-19.5,2],[9,2,2],[-42,-10,2],[-17.5,-2,2],[-50.5,8,2],
   [-59,-10.5,6],[-16.2,-22.7,3],[22,1,3],[4,1,3],[-54,4.8,7],[-8.4,-12,5],[-12,-6,5],[13,1,8],[44,9,11],[14,4,6],[24,4,6],[34,4,6],[50.5,10,5],[-26,-17,9],[-14,0,5],[-30,0,5],[-41,0,4],[-46,-10,7],[5,-20,4],[-2,-12,4],[-62,-14,4],[-57,-12,4],[-50,19.5,4],[-10,-24,3],[12,-22,3],[-14,-15.6,4],[-63,-11,4],
   [-52,-10.5,3],[-35.6,-12.3,3],[-26.8,-17,3],[-31.2,-14.7,3],[-23,-1.5,3],[-41,13,3],[-8,-1.5,3],[-19.7,-20.8,3],[-23.2,-18.9,3],[50.5,0,3],[-41,24,3],[-41,34,3],[-46,-59,3],[-59,13,3],[-10.5,1,3],[24,1,3],
   [-25,-10,2],[32,6,2],[-48,-12,2],[46,20,2],[-30,-4,2],[-46,20,2],[0,16,2],[35,15,2],[48,18,2],[-66,-14,2],[-50,1,2],[-36,-6,2],[39,5,3],[5,-20,3],[-4,-1.5,3],[-2,-12,3],
@@ -639,14 +644,15 @@ const MONTHS=[
    {who:'國二輔導學長姐',at:'H',text:'7/31 國一新生入學輔導，我們負責帶路！'},
    {who:'高三學長姐',at:'G',text:'暑假也在上複習增廣課，學測倒數中……'},
    {who:'高中社團幹部',at:'B',text:'8/22–23 社團幹部訓練，開學要招新血！'},
-   {who:'國三學長姐',at:'I',text:'畢聯會開始上畢冊編輯課程了。'}]},
+   {who:'國三直升班學長姐',at:'I',text:'畢聯會開始上畢冊編輯課程，升上國三，童軍活動和課業都要兼顧！'}]},
  {name:'9 月・開學',sky:0x9fd8ff,
   desc:()=>'8/31 開學典禮！9/2–9/4 新生體檢，9/23 教師節敬師活動。社團多到選不完：國中 63 個、高中 46 個。',
   others:[
    {who:'高三學長姐',at:'G',text:'9/4 學測暨統測誓師大會，衝啊！'},
    {who:'班聯會',at:'B',text:'9/17 班聯會正副主席票選，記得投票！'},
    {who:'糾察隊',at:'A',text:'9/21 9:21 全國防災演練：趴下、掩護、穩住！'},
-   {who:'國三學長姐',at:'I',text:'9/21–25 國三的抽考週，祝我們順利。'}]},
+   {who:'國三外考班學長姐',at:'J',text:'9/21–25 國三抽考週，為了會考，每一題都要弄懂！'},
+   {who:'國三直升班學長姐',at:'I',text:'直升班的童軍課開始了：綁繩結、搭帳篷，功課也要顧好！'}]},
  {name:'10 月・80 週年校慶',sky:0xa8dcff,
   desc:()=>'10 月中第一次段考，接著是 10/29–10/31 創校 80 週年校慶！校慶運動競賽、國高一才藝合唱競賽，10/31 校慶典禮與大隊接力。',
   others:[
@@ -657,8 +663,8 @@ const MONTHS=[
  {name:'11 月・校慶之後',sky:0xaed6f5,
   desc:()=>'校慶熱鬧落幕，到校史館看看南山 80 年的故事。11/6 全校流感疫苗接種，國際交流也很熱絡。',
   others:[
-   {who:'國三學長姐',at:'G',text:'11/4–11/6 拍畢業個人照，要帥要美！'},
-   {who:'國三直升班',at:'I',text:'11/20 鐵人單車＋競走，先通過自行車測驗才行。'},
+   {who:'國三外考班學長姐',at:'J',text:'11/4–11/6 拍完畢業照，馬上回教室複習，會考倒數中！'},
+   {who:'國三直升班學長姐',at:'I',text:'11/20 鐵人單車＋競走！童軍課練出的體力派上用場，段考也不能放鬆。'},
    {who:'高中部學長姐',at:'E',text:'11/1–11/7 日本關西教育旅行，帶伴手禮回來！'},
    {who:'外語中心',at:'H',text:'11/18 新加坡華僑中學來訪，歡迎！'}]},
  {name:'12 月・第二次段考',sky:0xb8cfe2,
@@ -667,14 +673,14 @@ const MONTHS=[
    {who:'國二同學',at:'B',text:'12/23 國二年級週會，班級品德話劇上場！'},
    {who:'籃球隊',at:'C',text:'12/18–12/29 HBL 男女準決賽在屏東，加油！'},
    {who:'模聯社',at:'A',text:'12/12 EMUN winter 模擬聯合國，Honorable delegates……'},
-   {who:'國三直升班',at:'I',text:'12/23–12/24 直升草山探險隊出發！'}]},
+   {who:'國三直升班學長姐',at:'I',text:'12/23–12/24 直升草山探險隊出發！童軍技能大考驗，回來繼續拚課業。'}]},
  {name:'1 月・民俗季與期末',sky:0xbccbd9,
   desc:()=>'1/7 民俗季點燈儀式，校園掛滿燈籠！1/18–1/20 期末考，1/27 休業式。',
   others:[
    {who:'高三學長姐',at:'G',text:'1/15 學測祈福活動，學測要上榜！'},
    {who:'模聯社',at:'B',text:'1/25–1/27 南山模擬聯合國會議 NSMUN。'},
    {who:'志工媽媽',at:'A',text:'寒假寫書法贈春聯（暫定 1/25），歡迎來拿！'},
-   {who:'國三學長姐',at:'J',text:'期末考完就是寒假，會考倒數開始……'}]},
+   {who:'國三外考班學長姐',at:'J',text:'期末考完就是寒假，會考倒數開始，寒假讀書計畫已經排好了！'}]},
  {name:'2 月・下學期開學',sky:0xc4cfdc,note:true,
   desc:()=>'2/11 下學期開學始業式。HBL 男子組準決賽在新北，圍棋公開賽也在南山舉行。',
   others:[
@@ -692,16 +698,17 @@ const MONTHS=[
  {name:'4 月・孝悌與戶外',sky:0x9fd8ff,note:true,
   desc:J('4/8 國一烘爐地徒步旅行！4/25 母親節孝悌楷模表揚與無塑環保園遊會。','4/11 國高一班際羽球賽！4/25 母親節孝悌楷模表揚與無塑環保園遊會。'),
   others:[
-   {who:'國二同學',at:'I',text:'4/11 國高二班際籃球賽，我們班要拿冠軍！'},
+   {who:'國二同學',at:'B',text:'4/11 國高二班際籃球賽，我們班要拿冠軍！'},
    {who:'語文競賽選手',at:'A',text:'4/14 國中部、4/17 高中部語文競賽，朗讀練習中。'},
    {who:'高三學長姐',at:'G',text:'4/28–4/29 普三期末考，最後一次段考了。'},
-   {who:'國三學長姐',at:'J',text:'4/24 國三綜合活動：聯盟競技場！'}]},
+   {who:'國三直升班學長姐',at:'I',text:'4/24 國三綜合活動：聯盟競技場！童軍課學到的團隊合作全用上了。'},
+   {who:'國三外考班學長姐',at:'J',text:'會考只剩不到一個月，每天把錯題本再看一遍！'}]},
  {name:'5 月・文藝季',sky:0x9fdcff,note:true,
   desc:J('5/13–5/14 第二次段考。5/30 國高中社團動態成果發表，文藝季的舞台輪到你！','5/8 高一二自主學習分享會，5/13–5/14 第二次段考，5/30 社團動態成果發表。'),
   others:[
-   {who:'國三學長姐',at:'J',text:'5/16–5/17 國中教育會考，拚了！'},
+   {who:'國三外考班學長姐',at:'J',text:'5/16–5/17 國中教育會考，三年的努力，拚了！'},
    {who:'管樂團',at:'A',text:'80 週年校慶音樂會在新北藝文中心演出！'},
-   {who:'國三同學',at:'I',text:'5/8 國三自行車旅行，風好舒服。'},
+   {who:'國三直升班學長姐',at:'I',text:'5/8 國三自行車旅行，風好舒服！回來繼續把功課顧好。'},
    {who:'高三學長姐',at:'G',text:'大學個人申請第二階段面試中……'}]},
  {name:'6 月・畢業與結業',sky:0x96d6ff,note:true,
   desc:J('6/2 國中畢業典禮，歡送學長姐。6/18 國一二英語之夜，期末考後 6/30 休業式。','6/1 高中畢業典禮，歡送學長姐。期末考後 6/30 休業式。'),
@@ -943,35 +950,46 @@ const HONORS=[
 const honorsGot=[];
 
 const LEADERS=[
- {title:'董事長',name:'王繼光',at:[-16.2,-22.7],suit:'#4a3428',tie:'#c9a227',help:'南山學校財團法人董事長，帶領南山走過 80 年。'},
+ {title:'董事長',name:'王繼光',at:[-16.2,-22.7],suit:'#4a3428',tie:'#c9a227',help:'歡迎來到南山！南山是一所以美育為主風格的學園，重視多元適性與全人教育。希望你在這裡成為樂觀、進取、明理、感恩，有膽識擔當時代責任、有智慧解決時代問題的南山人。'},
  {title:'校長',name:'蔡銘城',at:[-14,0.6],suit:'#1f2a44',tie:'#d8343f',help:'歡迎來到南山！校訓「自強不息」，祝你學得開心、長得茁壯。'},
 ];
 const OFFICES=[
- {name:'學務處',dir:'吳崑助主任',at:[51.5,12],where:'崇智樓一樓',help:'請假與生活輔導、失物招領、社團與班聯會、健康中心（體檢、急救、生理用品）、獎懲與銷過。',
+ {name:'學務處',dir:'吳崑助主任',at:[51.5,12],where:'崇智樓一樓',help:'同學好！學務處陪你過好每一天的校園生活。請假與獎懲、校園安全、品德楷模表揚，社團、童軍與服務學習，健康檢查與環境衛生，還有運動會、校隊和交通車，都可以來找我們喔！',
   chiefs:['生輔組','生輔組副組長','高中訓育組','國中訓育組','衛生組','體育組','社團活動組','社團活動組副組長']},
- {name:'教務處',dir:'陳炳霖主任',at:[-35.6,-12.3],where:'曹俊大樓二樓',help:'課表與考試、夜間選修選課、自強不息獎學金與新生入學獎勵、資優與亮點計畫、科展、縮短修業年限。',
+ {name:'教務處',dir:'陳炳霖主任',at:[-35.6,-12.3],where:'曹俊大樓二樓',help:'學習上的大小事都交給教務處！課表與考試、多元選修與增廣課程、重補修、數位自學，還有資優鑑定、科學展覽和實驗教室，我們都會幫你安排好。',
   chiefs:['高中教學組','國中教學組','註冊組','資優教育組','課務組','實驗設備組']},
- {name:'輔導處',dir:'陳秋桂主任',at:[-26.8,-17],where:'正德大樓一、二樓',help:'心理諮詢與諮商、生涯與選組輔導、適性輔導、生命教育講座。心裡有事，隨時可以來聊聊。',
+ {name:'輔導處',dir:'陳秋桂主任',at:[-26.8,-17],where:'正德大樓一、二樓',help:'心裡有煩惱、對未來有疑問，都歡迎來輔導處坐坐。我們陪你認識自己、規劃生涯與選組，也舉辦生命教育週、生命體驗營和親職講座。',
   chiefs:['生命教育組','生涯輔導組']},
- {name:'總務處',dir:'王思元主任',at:[-31.2,-14.7],where:'正德大樓一樓',help:'教室設備報修、校舍維護、校園環境與安全。',
+ {name:'總務處',dir:'王思元主任',at:[-31.2,-14.7],where:'正德大樓一樓',help:'總務處默默守護大家的校園。教室設備壞了可以上網報修；校園門禁安全、消防演練、節約能源和綠化美化，也都是我們在照顧。',
   chiefs:['出納組','庶務組','保管組','安維組']},
- {name:'教學資源中心',dir:'鄭淑慧主任',at:[-23,-1.5],where:'自強大樓七樓',help:'數位圖書館、鹿鳴書屋、靜思閱讀書軒借閱；夜間與假日自習閱覽室；筆電車；南山藝廊展覽。',
+ {name:'教學資源中心',dir:'鄭淑慧主任',at:[-23,-1.5],where:'自強大樓七樓',help:'愛看書、愛藝術的你一定要來！圖書館借閱與閱讀活動、資訊設備維修，還有南山藝廊展覽、南山小舞台、音樂性社團和藝術服務團，都在這裡等你。',
   chiefs:['信息組','信息組副組長','出版典藏組','美育文創組']},
- {name:'外語中心',dir:'葛衍辰主任',at:[-41,13],where:'熊祥大樓一樓外語教室',help:'10 位專任外師、雙語與 ESL 課程、英檢輔導、國際交流與暑期遊學團。',chiefs:[]},
- {name:'秘書室',dir:'黃筠雅主任',at:[-8,-1.5],where:'自強大樓六樓',help:'外賓參訪與國際交流接待、校友會、校園場地借用。',chiefs:[]},
+ {name:'外語中心',dir:'葛衍辰主任',at:[-41,13],where:'熊祥大樓一樓外語教室',help:'想把英文學得更好、想看看世界嗎？外語中心有外籍老師、雙語亮點課程和英檢普查，還有暑期遊學團，帶你走出去看世界！',chiefs:[]},
+ {name:'秘書室',dir:'黃筠雅主任',at:[-8,-1.5],where:'自強大樓六樓',help:'秘書室幫全校安排行事曆、接待來訪的外賓，還負責《南山雜誌》、南山文學獎、校園場地借用和南山大事紀。有好作品，歡迎投稿南山文學獎喔！',chiefs:[]},
 ];
 // 各組業務說明（畫面只顯示「某某組 組長」，不放組長姓名）
 const CHIEF_NPC=[
- {unit:'體育組',help:'班際運動競賽、校隊招募與培訓、場地器材借用，找體育組！'},
- {unit:'衛生組',help:'環境整潔、健康檢查與疫苗接種、衛生宣導。'},
- {unit:'生輔組',help:'請假與出缺勤、獎懲與銷過、校園安全。辦公室在崇智樓一樓學務處。'},
- {unit:'社團活動組',help:'國中 63 個、高中 46 個社團，選社與成果發表都找我們（崇智樓一樓學務處）。'},
- {unit:'高中教學組',help:'高中課程與學科研究、夜間選修、學習檔案觀摩。'},
- {unit:'國中教學組',help:'國中課程與考試、週六輔導班、作文研習班。'},
- {unit:'註冊組',help:'成績與學籍、新生入學獎勵、學雜費補助申請。'},
- {unit:'資優教育組',help:'亮點人才培育計畫、科學展覽、科學班專題、縮短修業年限。'},
- {unit:'生涯輔導組',help:'生涯探索、選組與大學學群諮詢。'},
- {unit:'出版典藏組',help:'南山藝廊展覽與出版典藏。'},
+ {unit:'生輔組',help:'請假、出缺勤、獎勵與銷過，還有校園安全，都可以來找我們。國中部、高中部的「自強競賽」也由我們負責喔！'},
+ {unit:'高中訓育組',help:'高中部的品德教育由我們推動：每月品德楷模、孝悌楷模表揚、班級幹部訓練，還有校慶的高一合唱比賽！'},
+ {unit:'國中訓育組',help:'國中部的品德教育由我們推動：每月品德楷模、孝悌楷模表揚、班級幹部訓練，還有校慶的國一合唱比賽！'},
+ {unit:'衛生組',help:'環境衛生、午餐與餐飲管理、環保政策，還有健康檢查和健康促進都是我們的工作。身體不舒服時，護理師會好好照顧你。'},
+ {unit:'體育組',help:'校慶運動競賽、班際盃籃球和羽球賽、各項校隊甄選（籃球、排球、羽球、桌球、棒球、足球……），還有 HBL 應援團，愛運動的你快來！'},
+ {unit:'社團活動組',help:'國中 63 個、高中 46 個社團等你挑！我們負責社團與成果發表、國中部的童軍教育，還有服務學習，陪你在社團裡發掘自己的潛能。'},
+ {unit:'高中教學組',help:'高中的多元選修與增廣課程、重補修、數位自學，還有模擬考和成就測驗的安排，都交給我們。'},
+ {unit:'國中教學組',help:'國中部的課程與考試、週六輔導班、作文研習班，課業上有任何問題都可以來問我們喔！'},
+ {unit:'註冊組',help:'成績與學籍、新生入學獎勵、學雜費補助申請，找我們就對了！'},
+ {unit:'資優教育組',help:'喜歡挑戰的你看過來！資優鑑定、免修跳級、小奧數學、專題講座和各種競賽活動，我們陪你一起探索。'},
+ {unit:'課務組',help:'全校的課表安排、老師的調課與代課，由我們細心規劃，讓每一堂課都順利進行。'},
+ {unit:'實驗設備組',help:'實驗室、生活科技教室和教學設備由我們管理；科學展覽、自然科實驗能力競賽也找我們喔！'},
+ {unit:'生命教育組',help:'生命教育週、生命體驗營、生命教育漫畫比賽和服務活動，陪你一起珍惜生命、關懷身邊的人。'},
+ {unit:'生涯輔導組',help:'對未來有點迷惘嗎？我們陪你做生涯探索、選組與了解大學升學，也辦大學多元入學說明會和親職講座。'},
+ {unit:'出納組',help:'學校的各項付款、註冊費核算等出納工作，都由我們仔細把關。'},
+ {unit:'庶務組',help:'學校需要的採購與修繕工程由我們負責，讓校園設施越來越完善。'},
+ {unit:'保管組',help:'學校財產的驗收、清點與維修由我們照顧；教室設備有狀況，記得上網報修喔！'},
+ {unit:'安維組',help:'校門門禁、校園安全、消防演練、節約能源和校園綠化美化，我們守護大家安全又舒服的校園。'},
+ {unit:'信息組',help:'電腦、投影機等資訊設備壞了可以來申報維修；教學資源和數位學習也可以找我們。'},
+ {unit:'出版典藏組',help:'圖書館的閱讀活動由我們規劃：早安悅讀、閱讀心得與小論文寫作比賽、南山百閱獎，還有每月的《圖書館訊》！'},
+ {unit:'美育文創組',help:'喜歡音樂和藝術嗎？南山藝廊展覽、南山小舞台、音樂性社團招生、國一新生管樂體驗營和藝術服務團，都在這裡！'},
 ];
 const ICON_SCHOOL='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="88" height="88"><path d="M4 28V13l12-8 12 8v15Z" fill="#f3e6cf" stroke="#1a1a24"/><path d="M2 14 16 4l14 10" fill="none" stroke="#8c3b2e" stroke-width="2.4" stroke-linecap="round"/><path d="M13 28v-7h6v7Z" fill="#2f6b5a" stroke="#1a1a24"/><path d="M7 16h4v4H7ZM21 16h4v4h-4Z" fill="#5b8fc9" stroke="#1a1a24"/><path d="M14 10h4v4h-4Z" fill="#ffd84a" stroke="#1a1a24"/></svg>';
 const ICON_CAL='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="88" height="88"><path d="M4 7h24v21H4Z" fill="#fffaf0" stroke="#1a1a24"/><path d="M4 7h24v6H4Z" fill="#d8343f" stroke="#1a1a24"/><path d="M10 4v6M22 4v6" stroke="#1a1a24" stroke-width="2" stroke-linecap="round"/><path d="M8 17h4v3H8ZM14 17h4v3h-4ZM20 17h4v3h-4ZM8 22h4v3H8ZM14 22h4v3h-4Z" fill="#2f6b5a"/></svg>';
@@ -1006,10 +1024,10 @@ const OFFNPC=[
  ...LEADERS.map(l=>({kind:'leader',d:l,C:makeChar(suitCfg(l.suit,l.tie,{glasses:l.title==='董事長',hair:l.title==='董事長'?'#8a8a8a':'#1f1a18'}),3.3),x:l.at[0]*K,z:l.at[1]*K,
    tag:tagCanvas(`${l.title}・${l.name}`,'rgba(150,110,20,.95)'),bub:bubbleCanvas(`${l.title}　${l.name}`,l.help)})),
  ...OFFICES.map((o,i)=>{const sex=FEM.test(o.dir)?'f':'m';return {kind:'office',d:o,C:makeChar(suitCfg(SUITS[i],sex==='f'?'#d8343f':'#8c3b2e',{sex,hair:sex==='f'?'#3a2a22':'#1f1a18'}),3.2),x:o.at[0]*K,z:o.at[1]*K,
-   tag:tagCanvas(`${o.name}・${o.dir}`,'rgba(140,59,46,.92)'),bub:bubbleCanvas(`${o.name}　${o.dir}`,o.help.split('、').slice(0,3).join('、')+'……')};}),
+   tag:tagCanvas(`${o.name}・${o.dir}`,'rgba(140,59,46,.92)'),bub:bubbleCanvas(`${o.name}　${o.dir}`,o.help.split(/[。！]/)[0]+'！')};}),
 ];
 function chiefCard(unit,i){
-  const vice=/副組長$/.test(unit),u=unit.replace(/副?組長$/,''),c=CHIEF_NPC.find(x=>x.unit===unit),sex=i%2?'f':'m';
+  const vice=/副組長$/.test(unit),u=unit.replace(/副?組長$/,''),c=CHIEF_NPC.find(x=>x.unit===u||x.unit===u+'組'),sex=i%2?'f':'m';
   return `<div class="chief">${svgMarkup(charShapes(suitCfg('#5a6577','#2f6b5a',{sex,hair:sex==='f'?'#3a2a22':'#231c18'}),'front',0),'3 0 26 26',46)}<div><b>${u}</b>　${vice?'副組長':'組長'}${c?`<br><span>${c.help}</span>`:''}</div></div>`;
 }
 function openOffice(n){
@@ -1237,9 +1255,9 @@ const BINFO=[
  {name:'自強大樓',at:[-21.6,-.5],floors:[['8F','大閱覽室'],['7F','圖書館・教學資源中心'],['6F','校長室・秘書室・人事室・會計室'],['5F','第二閱覽室・國二'],['4F','第一閱覽室・國二'],['3F','專任辦公室・國一'],['2F','大講堂・國一']]},
  {name:'行健樓',at:[13.2,1],floors:[['','室內體育館・韻律教室・舞蹈教室・健身房'],['B1','羽球・桌球場']]},
  {name:'大中至正樓',at:[20,3],floors:[['10F','生物實驗室 ×2・研究室'],['9F','化學實驗室・理化實驗室・研究室'],['8F','物理實驗室・地科實驗室・研究室'],['7F','實驗設備組辦公室・電子電路實習工廠・數位專題實習工廠'],['4–6F','高二'],['2–4F','高一'],['1F','鹿鳴書屋・社團教室']]},
- {name:'崇智樓',at:[51,6],floors:[['頂樓','地科教室・氣象觀測站・仙人掌溫室'],['6F','人文講堂'],['5F','創意教室 B／C・生活科技教室・創意庫・數理專科教室'],['3–4F','國三（直升班）・國二・專任辦公室'],['1–2F','學務處（1F）・電氣室・國二']]},
+ {name:'崇智樓',at:[51,6],floors:[['頂樓','地科教室・氣象觀測站・仙人掌溫室'],['6F','人文講堂'],['5F','創意教室 B／C・生活科技教室・創意庫・數理專科教室'],['3–4F','國三（直升班）・國二・專任辦公室'],['1–2F','學務處（1F）・川堂（往南工門）・電氣室・國二']]},
  {name:'幼保樓',at:[2,-23],floors:[['','南山幼兒園・幼兒游泳池']]},
- {name:'天馬劇場',at:[40,4.5],floors:[['','戶外劇場・美術教室']]},
+ {name:'天馬劇場',at:[40,4.5],floors:[['','下凹式戶外劇場（一階一階往下）・美術教室']]},
  {name:'南山藝廊',at:[-45,-12.5],floors:[['','曹俊大樓一樓西側・藝術展覽・緊鄰廣福路，社區民眾也能看展']]},
  {name:'漳二校區',at:[-38,33],floors:[['','風雨光電操場・平常不開放'],['小門','自強大樓西側、行健籃球場東側各一個；下方小門通往中和路 217 巷（上放學時段可進出）']]},
 ];
@@ -1358,8 +1376,10 @@ function drawGround(){
     [[3,3,1],[15,15,1],[15,3,0],[3,15,0],[4,5,1],[5,3,0],[16,13,1],[13,16,0],[9,9,1],[10,8,0],[2,13,1],[13,2,0],[8,15,1],[16,7,0]].forEach(([i,j,k])=>{const X=PX(x0+(x1-x0)*i/18),Y=PY(z0+(z1-z0)*j/18);
       ctx.fillStyle=k?'#1d1d1d':'#fbfbf7';ctx.beginPath();ctx.ellipse(X,Y,PPU*.42,PPU*.42*TILT,0,0,7);ctx.fill();ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=1;ctx.stroke();});}
   // 天馬劇場：半圓階梯（開口朝西，舞台在西側）
-  {const {x,z,r}=THEATRE;for(let i=0;i<5;i++){const R=r*(1-i*.17);ctx.beginPath();ctx.ellipse(PX(x),PY(z),R*PPU,R*PPU*TILT,0,-Math.PI/2,Math.PI/2);ctx.closePath();
-     ctx.fillStyle=i%2?'#d8d2c6':'#cbc3b4';ctx.fill();ctx.strokeStyle='rgba(90,80,70,.35)';ctx.lineWidth=Math.max(1,PPU*.06);ctx.stroke();}
+  {const {x,z,r}=THEATRE;for(let i=0;i<5;i++){const R=r*(1-i*.17),X=PX(x),Y=PY(z);ctx.beginPath();ctx.ellipse(X,Y,R*PPU,R*PPU*TILT,0,-Math.PI/2,Math.PI/2);ctx.closePath();
+     ctx.fillStyle=shade(i%2?'#d8d2c6':'#cbc3b4',1-i*.07);ctx.fill();ctx.strokeStyle='rgba(90,80,70,.35)';ctx.lineWidth=Math.max(1,PPU*.06);ctx.stroke();
+     if(i){ctx.save();ctx.beginPath();ctx.ellipse(X,Y,R*PPU,R*PPU*TILT,0,-Math.PI/2,Math.PI/2);ctx.closePath();ctx.clip();ctx.strokeStyle='rgba(60,50,40,.38)';ctx.lineWidth=PPU*.55;ctx.beginPath();ctx.ellipse(X,Y-PPU*.25,R*PPU,R*PPU*TILT,0,-Math.PI/2,.15);ctx.stroke();ctx.restore();}}
+   {const X=PX(x),Y=PY(z),g=ctx.createRadialGradient(X,Y,0,X,Y,r*PPU);g.addColorStop(0,'rgba(40,30,20,.28)');g.addColorStop(1,'rgba(40,30,20,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(X,Y,r*PPU,r*PPU*TILT,0,-Math.PI/2,Math.PI/2);ctx.closePath();ctx.fill();}
    gfill(rectK(40,9,8,6),'#b9b0a0');}
   // 建物陰影
   ctx.fillStyle='rgba(28,30,72,.2)';
@@ -1378,16 +1398,14 @@ function drawGround(){
 }
 
 /* ---------- 動態物件 ---------- */
-function drawFlagpole(){const x=-8.4*K,z=-15.6*K,X=PX(x),Y=PY(z),rx=2.9*K*PPU,ry=rx*TILT,ht=PPU*.9;
-  ctx.fillStyle='#bdb5a6';ctx.beginPath();ctx.ellipse(X,Y,rx,ry,0,0,Math.PI);ctx.lineTo(X-rx,Y-ht);ctx.ellipse(X,Y-ht,rx,ry,0,Math.PI,0,true);ctx.closePath();ctx.fill();
-  const g=ctx.createRadialGradient(X-rx*.3,Y-ht-ry*.3,0,X,Y-ht,rx);g.addColorStop(0,'#f1ece2');g.addColorStop(1,'#d3cbbb');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(X,Y-ht,rx,ry,0,0,7);ctx.fill();ctx.strokeStyle='rgba(60,50,40,.35)';ctx.lineWidth=1;ctx.stroke();
-  const top=Y-ht-PPU*10*HS*1.4;ctx.strokeStyle='#e6e6e6';ctx.lineWidth=PPU*.18;ctx.beginPath();ctx.moveTo(X,Y-ht);ctx.lineTo(X,top);ctx.stroke();ctx.fillStyle='#ffd84a';ctx.beginPath();ctx.arc(X,top,PPU*.22,0,7);ctx.fill();
-  ctx.beginPath();const fw=PPU*3.2,fh=PPU*2;for(let i=0;i<=12;i++){const t=i/12;ctx.lineTo(X+t*fw,top+PPU*.2+Math.sin(clock*4-t*5)*PPU*.25*t);}for(let i=12;i>=0;i--){const t=i/12;ctx.lineTo(X+t*fw,top+PPU*.2+fh+Math.sin(clock*4-t*5)*PPU*.25*t);}ctx.closePath();
-  const fg=ctx.createLinearGradient(X,0,X+fw,0);fg.addColorStop(0,'#2f6b5a');fg.addColorStop(1,'#3f8a72');ctx.fillStyle=fg;ctx.fill();ctx.fillStyle='#ffe9a8';ctx.font=`bold ${PPU*.85}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('南山',X+fw/2,top+PPU*.2+fh/2+Math.sin(clock*4-2.5)*PPU*.12);}
-function drawArch(){const cx=-2*K,z=-6*K,X=PX(cx),Y=PY(z),half=3.4*K*PPU,h=PPU*3.4*1.25;
-  [[1.25,'#b9b2a4'],[1.05,'#cfc8b9'],[.85,'#e2dccf']].forEach(([s,c],i)=>{const rx=half*s,ht=PPU*.35*(i+1);ctx.fillStyle=shade(c,.85);ctx.beginPath();ctx.ellipse(X,Y-ht+PPU*.35,rx,rx*TILT,0,0,Math.PI);ctx.lineTo(X-rx,Y-ht);ctx.ellipse(X,Y-ht,rx,rx*TILT,0,Math.PI,0,true);ctx.closePath();ctx.fill();ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(X,Y-ht,rx,rx*TILT,0,0,7);ctx.fill();});
+// 司令台（升旗台）：圓形階梯舞台＋三道白色拱門，旗桿在舞台後方
+function drawFlagpole(){const x=-8.4*K,z=-15.6*K,X=PX(x),Y=PY(z),half=2.9*K*PPU,h=PPU*4.2;
+  const top=PY(z-2.6*K)-PPU*10*HS*1.4,PX0=X+half*.55,PY0=PY(z-2.6*K);ctx.strokeStyle='#e6e6e6';ctx.lineWidth=PPU*.18;ctx.beginPath();ctx.moveTo(PX0,PY0);ctx.lineTo(PX0,top);ctx.stroke();ctx.fillStyle='#ffd84a';ctx.beginPath();ctx.arc(PX0,top,PPU*.22,0,7);ctx.fill();
+  ctx.beginPath();const fw=PPU*3.2,fh=PPU*2;for(let i=0;i<=12;i++){const t=i/12;ctx.lineTo(PX0+t*fw,top+PPU*.2+Math.sin(clock*4-t*5)*PPU*.25*t);}for(let i=12;i>=0;i--){const t=i/12;ctx.lineTo(PX0+t*fw,top+PPU*.2+fh+Math.sin(clock*4-t*5)*PPU*.25*t);}ctx.closePath();
+  const fg=ctx.createLinearGradient(PX0,0,PX0+fw,0);fg.addColorStop(0,'#2f6b5a');fg.addColorStop(1,'#3f8a72');ctx.fillStyle=fg;ctx.fill();ctx.fillStyle='#ffe9a8';ctx.font=`bold ${PPU*.85}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('南山',PX0+fw/2,top+PPU*.2+fh/2+Math.sin(clock*4-2.5)*PPU*.12);
+  [[1.25,'#b9b2a4'],[1.05,'#cfc8b9'],[.85,'#e2dccf']].forEach(([k,c],i)=>{const rx=half*k,ht=PPU*.35*(i+1);ctx.fillStyle=shade(c,.85);ctx.beginPath();ctx.ellipse(X,Y-ht+PPU*.35,rx,rx*TILT,0,0,Math.PI);ctx.lineTo(X-rx,Y-ht);ctx.ellipse(X,Y-ht,rx,rx*TILT,0,Math.PI,0,true);ctx.closePath();ctx.fill();ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(X,Y-ht,rx,rx*TILT,0,0,7);ctx.fill();});
   ctx.lineCap='round';ctx.strokeStyle='rgba(246,246,242,.75)';ctx.lineWidth=PPU*.4;ctx.beginPath();ctx.ellipse(X,Y-h*.75,half*.72,half*1.05,0,Math.PI*1.02,Math.PI*1.98);ctx.stroke();
-  ctx.lineCap='round';[['rgba(30,30,60,.25)',PPU*.7,PPU*.18],['#f6f6f2',PPU*.55,0]].forEach(([c,w,o])=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(X-half+o,Y+o*.5);ctx.lineTo(X-half+o,Y-h);ctx.ellipse(X+o,Y-h,half,half*.8,0,Math.PI,0);ctx.lineTo(X+half+o,Y+o*.5);ctx.stroke();});
+  [['rgba(30,30,60,.25)',PPU*.7,PPU*.18],['#f6f6f2',PPU*.55,0]].forEach(([c,w,o])=>{ctx.strokeStyle=c;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(X-half+o,Y+o*.5);ctx.lineTo(X-half+o,Y-h);ctx.ellipse(X+o,Y-h,half,half*.8,0,Math.PI,0);ctx.lineTo(X+half+o,Y+o*.5);ctx.stroke();});
   ctx.strokeStyle='rgba(255,255,255,.9)';ctx.lineWidth=PPU*.15;ctx.beginPath();ctx.ellipse(X-PPU*.1,Y-h-PPU*.1,half,half*.8,0,Math.PI*1.1,Math.PI*1.6);ctx.stroke();}
 function drawAnthem(){const X=PX(ANTHEM.x),Y=PY(ANTHEM.z),w=PPU*2.6,h=PPU*2.4;
   ctx.fillStyle='rgba(28,30,72,.22)';ctx.beginPath();ctx.ellipse(X+PPU*.4,Y,w*.7,PPU*.5,0,0,7);ctx.fill();
@@ -1514,7 +1532,7 @@ function render(dt){
   coins.forEach(k=>{if(!k.got)add(k.x,k.z,()=>drawCoin(k));});
   flags.forEach(f=>{if(f.vis&&!f.got)add(f.x,f.z,()=>f.kind==='ball'?drawBall(f):drawLanternItem(f));});
   TASKS.forEach(t=>{if(inMonth(t)&&!t.done)add(t.X,t.Z+.02,()=>drawBeam(t));});
-  add(-8.4*K,-15.6*K+2.9*K*.4,drawFlagpole);add(-2*K,-6*K,drawArch);add(ANTHEM.x,ANTHEM.z,drawAnthem);
+  add(-8.4*K,-15.6*K+2.9*K*.4,drawFlagpole);add(ANTHEM.x,ANTHEM.z,drawAnthem);
   if(decoL)for(let i=0;i<4;i++)add(-11*K,(-12+i*4)*K,()=>drawLanternRow(i));
   HOOK.actors.forEach(f=>f(add));
   items.sort((a,b)=>a.s-b.s||a.z-b.z);
@@ -1658,9 +1676,9 @@ MG.relay=function(cfg,A,end){
 const FIND=(()=>{const L=[],seen=new Set();const push=(label,where,x,z,kw='')=>{const k=label+'|'+where;if(seen.has(k))return;seen.add(k);L.push({label,where,x:x*K,z:z*K,kw});};
   BINFO.forEach(B=>{push(B.name,'',B.at[0],B.at[1]);B.floors.forEach(([f,txt])=>txt.split('・').forEach(it=>{it=it.trim();if(it)push(it,`${B.name}${f?' '+f:''}`,B.at[0],B.at[1]);}));});
   OFFICES.forEach(o=>push(o.name,o.where,o.at[0],o.at[1]+1.5,o.dir));
-  push('校長室','自強大樓 6F',-14,0.6,'蔡銘城');push('升旗台（司令台）','大草坪南側',-8.4,-12.4);push('校歌碑','升旗台西側',-14.5,-13.6);
+  push('校長室','自強大樓 6F',-14,0.6,'蔡銘城');push('司令台（升旗台）','大草坪北側',-8.4,-12.4,'拱門 舞台');push('校歌碑','升旗台西側',-14.5,-13.6);
   push('大草坪（A 集合場）','校園中央',-10,-6);push('廣福門（正門）','廣福路',GATES[0].x/K,GATES[0].z/K+3);push('南工門（側門）','南工路',GATES[1].x/K-3,GATES[1].z/K);
-  push('全國最大圍棋圖案','熊祥大樓中庭',-54,4.8);push('白色拱門舞台','大草坪',-2,-4);push('南山藝廊','曹俊大樓一樓西側',-44.5,-12.5);
+  push('全國最大圍棋圖案','熊祥大樓中庭',-54,4.8);push('南山藝廊','曹俊大樓一樓西側',-44.5,-12.5);
   push('小門（往漳二校區）','自強大樓西側',-41,20.8);push('小門（往漳二校區）','行健籃球場東側',33,20.8);push('漳二校區・風雨光電操場','學校南側（平常不開放）',-38,33);push('小門（往中和路 217 巷）','漳二校區下方',-38,48,'上放學');push('天馬劇場','大中至正樓南側',44,9);
   return L;})();
 function findPlace(){
@@ -1773,7 +1791,7 @@ const HISTORY=[
  {y:'1957',x:-56,z:-11,t:'在現址復校',d:'1957 年在現在的校址復校，招收初中、高中部學生，第一屆大約 250 人，當時的董事長是林熊祥先生。'},
  {y:'1963',x:-6,z:-22,t:'師生路完工',d:'1963 年，師生一起動手闢花圃、築道路，「師生路」完工剪綵，就是現在的南山大道。'},
  {y:'1978',x:-49,z:-11,t:'整建廣福路校門',d:'1978 年整建廣福路校門，就是現在的南山藝廊（在曹俊大樓一樓西側）。'},
- {y:'1987',x:3,z:-8,t:'圓弧舞台完工',d:'1987 年圓弧舞台完工、南工門改建。同一年《南山雜誌》創刊，教室也全面裝上冷氣。'},
+ {y:'1987',x:-12.5,z:-19.5,t:'圓弧舞台完工',d:'1987 年圓弧舞台完工、南工門改建。同一年《南山雜誌》創刊，教室也全面裝上冷氣。'},
  {y:'1991',x:9,z:2,t:'男籃 HBL 首度奪冠',d:'1991 年，南山男籃第一次拿下 HBL 冠軍。籃球隊早在 1970 年就成軍了。'},
  {y:'1995',x:47,z:15.5,t:'崇智大樓完工',d:'1994 年增設國中部、更名為南山高級中學；1995 年崇智大樓完工啟用。現在學務處、國二和國三直升班都在這裡。'},
  {y:'1998',x:-42,z:-10,t:'曹俊大樓啟用',d:'1998 年曹俊大樓啟用。2001 年創校 55 週年時，校史館也在這裡啟用。'},
