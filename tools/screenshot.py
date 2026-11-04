@@ -12,8 +12,10 @@ async def shot(p, name, role, **ctx):
     pg = await c.new_page(); errs = []
     pg.on('pageerror', lambda e: errs.append(str(e)))
     await pg.goto(URL); await pg.wait_for_timeout(1500)
-    await pg.click(f'[data-g="{role}"]'); await pg.click('#go'); await pg.wait_for_timeout(400)
-    await pg.click('#dB'); await pg.wait_for_timeout(1200)
+    await pg.click(f'[data-g="{role}"]'); await pg.click('#go'); await pg.wait_for_timeout(2600)  # 等月份轉場
+    await pg.click('#dB'); await pg.wait_for_timeout(200)  # 第一下：跳過打字效果
+    if await pg.is_visible('#dlg:not(.hidden)'): await pg.click('#dB')
+    await pg.wait_for_timeout(1200)
     await pg.screenshot(path=str(OUT / f'{name}_{role}_play.png'))
     await pg.click('#menubtn'); await pg.wait_for_timeout(300)
     await pg.screenshot(path=str(OUT / f'{name}_{role}_menu.png'))
