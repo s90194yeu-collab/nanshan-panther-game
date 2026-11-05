@@ -667,7 +667,7 @@ const THEATRE={x:44*K,z:9*K,r:9*K};
 const GTEXT=[['廣福路 Guangfu Rd.',...ROAD1.lab,'rgba(60,60,70,.85)'],['南工路 Nangong Rd.',...ROAD2.lab,'rgba(60,60,70,.85)'],['漳二光電球場（全區不開放）',-38*K,32*K,'rgba(60,60,70,.8)'],['漳二籃球場（C 集合場）',18*K,30*K,'rgba(60,60,70,.8)'],['🚌 校車停駐處',45*K,44*K,'rgba(200,140,20,.9)'],
   ['🅿️ 教師停車場',-55*K,18.4*K,'rgba(47,95,181,.9)'],['🅿️',-67.7*K,9*K,'rgba(47,95,181,.9)'],['🚌 校車車道（往漳二籃球場）',-38*K,25.6*K,'rgba(60,60,70,.85)'],['🗑️ 垃圾子母車',-65.6*K,-10.6*K,'rgba(60,90,60,.9)'],['中庭・全國最大圍棋圖案',-54*K,(4.8+6.6)*K,'rgba(60,60,70,.8)'],['天馬劇場・美術教室',44*K,(9+10)*K,'rgba(60,60,70,.8)'],['大草坪（A 集合場）',-20*K,-12.4*K,'rgba(47,107,90,.85)']];
 /* --- 樹 --- */
-const KEEP=[[-56,20,9],[-67.7,6,6],[-67.7,16,5],[-67.7,-4,5],[-67,-12,3],[58,37,3],[63,37,3],[68,37,3],[69,30,3],[69,20,3],[69,14,3],[-44.5,-14.5,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-13,-27,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],[-30,-6,2],[-6,-22,2],[-49,-11,2],[-12.5,-19.5,2],[9,2,2],[-42,-10,2],[-17.5,-2,2],[-50.5,8,2],
+const KEEP=[[-53,2,3],[36,1.5,3],[-56,20,9],[-67.7,6,6],[-67.7,16,5],[-67.7,-4,5],[-67,-12,3],[58,37,3],[63,37,3],[68,37,3],[69,30,3],[69,20,3],[69,14,3],[-44.5,-14.5,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-13,-27,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],[-30,-6,2],[-6,-22,2],[-49,-11,2],[-12.5,-19.5,2],[9,2,2],[-42,-10,2],[-17.5,-2,2],[-50.5,8,2],
   [-59,-10.5,6],[-3,-19,3],[-34,-1.5,3],[-45,4.8,4],[22,1,3],[4,1,3],[-54,4.8,7],[-8.4,-12,5],[-12,-6,5],[13,1,8],[44,9,11],[14,4,6],[24,4,6],[34,4,6],[50.5,10,5],[-26,-17,9],[-14,0,5],[-30,0,5],[-41,0,4],[-46,-10,7],[5,-20,4],[-2,-12,4],[-62,-14,4],[-57,-12,4],[-50,19.5,4],[-10,-24,3],[12,-22,3],[-14,-15.6,4],[-63,-11,4],
   [-52,-10.5,3],[-35.6,-12.3,3],[-26.8,-17,3],[-31.2,-14.7,3],[-23,-1.5,3],[-41,13,3],[-8,-1.5,3],[-19.7,-20.8,3],[-23.2,-18.9,3],[50.5,0,3],[-41,24,3],[-41,34,3],[-46,-59,3],[-59,13,3],[-10.5,1,3],[24,1,3],
   [-25,-10,2],[32,6,2],[-48,-12,2],[46,20,2],[-30,-4,2],[-46,20,2],[0,16,2],[35,15,2],[48,18,2],[-66,-14,2],[-50,1,2],[-36,-6,2],[39,5,3],[5,-20,3],[-4,-1.5,3],[-2,-12,3],
@@ -940,6 +940,7 @@ const TASKS=[
 TASKS.push(
  {m:1,id:'clubfair',name:'社團博覽會：逛攤位',x:-20,z:-8,type:'visit',title:'🎪 9 月社團博覽會',
   intro:J('社團活動組：大草坪上擺滿了社團攤位！南山國中部有 60 多個社團，至少逛 5 個攤位，聽聽學長姐怎麼介紹，再選出你最想參加的社團。','社團活動組：大草坪上擺滿了社團攤位！南山高中部有 40 多個社團，至少逛 5 個攤位，聽聽學長姐怎麼介紹，再選出你最想參加的社團。')},
+ {m:1,id:'drill',name:'9/21 防災演練',x:J(-53,36),z:J(2,1.5),type:'drill',route:J([],[[16,1.5]]),title:'🚨 9/21 全國防災演練'},
  {m:2,id:'relay',name:'10/31 校慶大隊接力',x:-20,z:-8,type:'mg',title:'🏃 80 週年校慶・大隊接力',
   intro:'體育股長：10/31 校慶典禮後就是大隊接力，地點在漳和國中操場，連老師都組隊參賽！先在大草坪練習：連打衝刺，指針跑進綠色區時交棒，4 棒跑完就贏了！',
   mg:{kind:'relay',title:'🏃 大隊接力',prompt:'先連打「跑！」把衝刺條拉滿，再等指針進綠色區按「交棒！」（鍵盤可按空白鍵）。交棒失誤會扣 1.5 秒。',need:14,time:30,legs:4},
@@ -1297,6 +1298,7 @@ function complete(t){
 
 /* 收集挑戰 */
 let run=null;
+let DRILL=null; // 防災演練進行中：{t,phase:'quake'|'walk',time}
 function startRun(t){
   run={time:t.time,t,set:flags.filter(f=>f.kind===t.items)};
   run.set.forEach(f=>{f.got=false;f.vis=true;});$('timer').style.display='block';
@@ -1317,6 +1319,7 @@ function trigger(t){
   else if(t.TY==='collect') dialog({title,text:T(t.intro),btn:'開始！',onDone:()=>startRun(t)});
   else if(t.TY==='multi') askMulti(t);
   else if(t.TY==='visit') startVisit(t);
+  else if(t.TY==='drill') startDrill(t);
   else if(t.TY==='final'){
     const left=monthTasks().filter(x=>x!==t&&!x.done&&!x.opt);
     if(left.length){dialog({title,text:`校長：先去${left.map(x=>x.N).join('、')}，再回來找我吧！`,btn:'好！'});return;}
@@ -1588,7 +1591,7 @@ function update(dt){
   if(!paused){if(keys.KeyW||keys.ArrowUp)iy+=1;if(keys.KeyS||keys.ArrowDown)iy-=1;if(keys.KeyA||keys.ArrowLeft)ix-=1;if(keys.KeyD||keys.ArrowRight)ix+=1;ix+=joyV.x;iy+=joyV.y;}
   let l=Math.hypot(ix,iy);if(l>1){ix/=l;iy/=l;l=1;}
   const mx=ix,mz=-iy;
-  const sprint=(keys.ShiftLeft||keys.ShiftRight||l>.95&&isTouch)?1.45:1,sp=10*sprint*l;
+  const sprint=(!DRILL&&(keys.ShiftLeft||keys.ShiftRight||l>.95&&isTouch))?1.45:1,sp=10*sprint*l;
   if(l>.05){
     const nx=pos.x+mx/l*sp*dt,nz=pos.z+mz/l*sp*dt;
     if(!blocked(nx,pos.z))pos.x=nx;if(!blocked(pos.x,nz))pos.z=nz;
@@ -1599,7 +1602,7 @@ function update(dt){
   moving+=((l>.05?1:0)-moving)*Math.min(1,dt*10);
   phase+=dt*(7+5*sprint*l)*moving;P.f=moving>.3?Math.floor(phase/1.3)%4:0;
   // 任務
-  TASKS.forEach(t=>{if(!inMonth(t)||t.done)return;const d=Math.hypot(pos.x-t.X,pos.z-t.Z);if(d>3.2)t.cool=false;if(!paused&&!t.cool&&!run&&d<2.3)trigger(t);});
+  TASKS.forEach(t=>{if(!inMonth(t)||t.done)return;const d=Math.hypot(pos.x-t.X,pos.z-t.Z);if(d>3.2)t.cool=false;if(!paused&&!t.cool&&!run&&!DRILL&&d<2.3)trigger(t);});
   // 豹爪幣
   coins.forEach(k=>{if(k.got)return;if(Math.hypot(pos.x-k.x,pos.z-k.z)<1.5&&pos.y<2.5){k.got=true;coinCount++;fxPop(k.x,k.z,'+1 🏅','#ffd84a');sfx('coin');shake(.25);const hi=coins.indexOf(k);honorsGot.push(hi);renderHud();saveGame();toast('🏅 解鎖南山榮譽：'+HONORS[hi].replace(/^\S+\s/,''),4200);}});
   // 收集挑戰
@@ -1755,6 +1758,30 @@ function chooseClub(t){
     dialog({title:'🎪 社團博覽會',por:ICON_TENT,text:`你選了「${CLUB}」！開學後到社團活動組報名，期末的社團成果發表見。這個選擇也會記在你的紀念卡上。`,btn:'太好了！',onDone:()=>{VISIT_RUN=null;complete(t);}});});
 }
 
+/* ---------- 9/21 防災演練：警報 → 趴下、掩護、穩住 → 依疏散路線走到集合場（不語、不推、不跑） ---------- */
+const DRILL_AT=[-8.5,-4]; // 大草坪（A 集合場）
+function startDrill(t){
+  dialog({title:T(t.title),text:'糾察隊：9/21 上午 9:21 是全國防災演練！\n地震警報一響，先在原地「趴下、掩護、穩住」；搖晃停止後，聽從老師的指揮，依疏散路線走到大草坪（A 集合場）。\n疏散時記得「不語、不推、不跑」。準備好了嗎？',btn:'開始演練',
+    onDone:()=>{DRILL={t,phase:'quake',time:0};sfx('alarm');shake(1.4);toast('🚨 地震！先趴下、掩護、穩住！',2200);
+      setTimeout(()=>miniGame({kind:'order',title:'🚨 趴下、掩護、穩住',prompt:'地震來了！依正確順序點選保護自己的動作。',items:['趴下：降低身體，避免跌倒','掩護：躲到桌子下，用手護住頭和頸部','穩住：抓緊桌腳，等搖晃停止']},
+        ()=>{DRILL.phase='calm';dialog({title:'🚨 搖晃停止了',text:'老師：大家做得很好！現在依疏散路線到集合場。\n不要搭電梯、不要回頭拿東西，跟著地上的光線走過去。這段路只能用走的喔！',btn:'開始疏散',
+          onDone:()=>{DRILL.phase='walk';DRILL.time=0;DRILL.route=[...(T(t.route)||[]),DRILL_AT];drillNav();$('timer').style.display='block';toast('🚶 不語、不推、不跑，走到集合場',2800);}});},
+        ()=>{DRILL=null;t.cool=true;toast('演練暫停，回到發光圈圈可以重新開始',2400);}),1000);}});
+}
+function drillNav(){const [x,z]=DRILL.route[0],last=DRILL.route.length===1;NAV={label:last?'大草坪（A 集合場）':'疏散路線',where:'',x:x*K,z:z*K,drill:true};}
+function finishDrill(){
+  const t=DRILL.t,sec=DRILL.time;DRILL=null;NAV=null;$('timer').style.display='none';sfx('win');
+  dialog({title:'📣 到達集合場',text:`班長：全班到齊！我們花了 ${Math.max(1,Math.round(sec))} 秒走到集合場。\n糾察隊：疏散的時候，要記得哪三個原則？`,
+    opts:['不語、不推、不跑','邊跑邊喊，越快越好','先回教室拿書包','搭電梯比較快'],ans:0,
+    ex:'疏散時「不語、不推、不跑」：不講話才聽得到老師的指示；不推擠、不奔跑才不會跌倒受傷。也不要搭電梯、不要回頭拿東西。',
+    onDone:()=>dialog({title:T(t.title),text:'糾察隊：演練完成！真的地震時也要這樣做：先「趴下、掩護、穩住」，搖晃停止後聽從老師指揮，依疏散路線到集合場。',btn:'記住了！',onDone:()=>complete(t)})});
+}
+HOOK.update.push(dt=>{if(!DRILL)return;
+  if(DRILL.phase==='quake'){shake(.6);return;}
+  if(paused)return;DRILL.time+=dt;$('timer').textContent=`🚨 疏散中 ${DRILL.time.toFixed(1)} 秒`;
+  const [wx,wz]=DRILL.route[0],last=DRILL.route.length===1,dd=Math.hypot(pos.x-wx*K,pos.z-wz*K);
+  if(last&&dd<6.5)finishDrill();else if(!last&&dd<4){DRILL.route.shift();drillNav();}});
+
 /* ---------- 各科小教室（加分題，不影響月份進度） ---------- */
 function askMulti(t){
   const bank=QBANK[G];let pool=bank.filter(q=>!QDONE.has(q.id));if(pool.length<3)pool=bank.slice();
@@ -1808,7 +1835,7 @@ function findPlace(){
     fl.querySelectorAll('button').forEach(b=>b.onclick=()=>{const e=FIND[+b.dataset.i];NAV=e;close();toast(`🧭 跟著地上的光線走到「${e.label}」`,2600);});};
   q.oninput=draw;draw();setTimeout(()=>{if(!isTouch)q.focus();},50);
 }
-HOOK.update.push(()=>{if(NAV&&Math.hypot(pos.x-NAV.x,pos.z-NAV.z)<6.5){toast(`📍 到了！${NAV.label}${NAV.where?'在'+NAV.where:''}`,3200);NAV=null;}});
+HOOK.update.push(()=>{if(NAV&&!NAV.drill&&Math.hypot(pos.x-NAV.x,pos.z-NAV.z)<6.5){toast(`📍 到了！${NAV.label}${NAV.where?'在'+NAV.where:''}`,3200);NAV=null;}});
 HOOK.ground.push(()=>{if(!NAV)return;
   ctx.setLineDash([PPU*.7,PPU*.5]);ctx.lineDashOffset=-clock*PPU*3;ctx.lineCap='round';
   ctx.strokeStyle='rgba(120,220,255,.35)';ctx.lineWidth=PPU*.55;ctx.beginPath();ctx.moveTo(PX(pos.x),PY(pos.z));ctx.lineTo(PX(NAV.x),PY(NAV.z));ctx.stroke();
@@ -1824,6 +1851,7 @@ const GLOSS=[['段考','每學期的定期考試，國中、高中都有第一�
 ['會考','國中教育會考，國三 5 月舉行，是升高中的重要考試。'],['學測','大學學科能力測驗，高三 1 月舉行，是申請大學的重要考試。'],
  ['校訂必修','南山自己設計、每位高中生都要修的課：國際素養教育、科學方法導論。'],['加深加廣選修','高二起依志向修的進階課程，南山分成法政商管、工程生醫兩個學群。'],
  ['才藝選修','利用課餘時間的音樂、美術課程，國高中部都可以報名。'],['多元運動選修','利用課餘時間的運動課程，有羽球、籃球、啦啦隊、太極拳等，到體育組選課。'],['輔導老師','輔導處的老師。心情、人際、家庭或生涯有煩惱，都可以找他們聊聊。'],
+ ['趴下、掩護、穩住','地震時保護自己的三個動作：趴低身體、躲到桌下護住頭頸、抓緊桌腳等搖晃停止。'],['不語、不推、不跑','防災演練疏散時的三個原則，安全又有秩序地走到集合場。'],
  ['多元選修','高中可以依興趣選修的課程，南山有 20 門以上。'],['學習歷程檔案','高中三年把課程作品、社團、幹部、競賽等紀錄上傳，申請大學時使用。'],['自主學習','高中生自己訂主題和計畫來學習，最後上台分享成果。'],
  ['社團','國中部有 60 多個、高中部有 40 多個社團，兩部的社團不一樣，9 月選社。'],['HBL','高中籃球甲級聯賽，南山男籃是 8 座冠軍的常勝軍。'],['集合場','全校集合的地方：大草坪是 A 集合場、籃球場是 C 集合場。'],['導師','每個班級的班導，有任何事都可以先找導師。'],['豹爪幣','遊戲裡的金色硬幣，撿到就能解鎖一項南山榮譽。'],['校徽','三個三角形是「山」的古字；綠色代表生長、紅色代表熱誠、藍色代表成熟。'],['時光碑','遊戲裡的校史石碑，走近就能解鎖一段南山的歷史。'],['漳二校區','學校南側。西邊是光電球場（屋頂是太陽能板），全區不開放；東邊是籃球場，也是校車停駐處，從行健籃球場東側的小門進去。籃球場下方的小門通往中和路 217 巷，上放學可以從這裡進出。']];
 /* ---------- 特色課程（依高中課程地圖、115-1 才藝選修與多元運動選修課程；不寫費用、時段與「夜間」） ---------- */
@@ -2073,6 +2101,7 @@ function sfx(n){if(!AC||!SND||AC.state!=='running')return;const t=AC.currentTime
    case 'chirp':[0,.12,.24].forEach(d=>tone(2600+Math.random()*900,t+d,.07,{g:.035,f2:3400}));break;
    case 'cicada':noise(t,1.6,{g:.022,fq:5200,q:8});break;
    case 'rain':noise(t,2.2,{g:.045,fq:900,q:.4,type:'lowpass'});break;
+   case 'alarm':for(let i=0;i<4;i++)tone(620,t+i*.7,.65,{type:'sawtooth',g:.045,f2:940});break; // 地震警報
    case 'bus':tone(220,t,.25,{type:'square',g:.04});tone(277.18,t+.3,.35,{type:'square',g:.04});break;
   }}
 // 背景音樂：依月份換調性與速度，旋律用固定種子產生（每 4 小節重複一次）
