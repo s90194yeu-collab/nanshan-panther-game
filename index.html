@@ -652,6 +652,7 @@ const MONTHS=[
    {who:'高三學長姐',at:'G',text:'9/4 學測誓師大會，衝啊！'},
    {who:'班聯會',at:'B',text:'9/17 班聯會正副主席票選，記得投票！'},
    {who:'糾察隊',at:'A',text:'9/21 9:21 全國防災演練：趴下、掩護、穩住！'},
+   {who:'弦樂合奏同學',at:'C',text:'才藝選修開始報名：弦樂合奏、合唱、創意繪畫，全校都能參加！'},
    {who:'國三學長姐',at:'J',text:'升上國三了，每天把課本複習一遍，為會考做準備！'},
    {who:'國三學長姐',at:'I',text:'國三的童軍課開始了：綁繩結、搭帳篷，功課也要顧好！'}]},
  {name:'10 月・80 週年校慶',sky:0xa8dcff,
@@ -667,7 +668,8 @@ const MONTHS=[
    {who:'國三學長姐',at:'J',text:'11/4–11/6 拍完畢業照，馬上回教室複習，會考倒數中！'},
    {who:'國三學長姐',at:'I',text:'11/20 鐵人單車＋競走！童軍課練出的體力派上用場，段考也不能放鬆。'},
    {who:'高中部學長姐',at:'E',text:'11/1–11/7 日本關西教育旅行，帶伴手禮回來！'},
-   {who:'外語中心',at:'H',text:'11/18 新加坡華僑中學來訪，歡迎！'}]},
+   {who:'外語中心',at:'H',text:'11/18 新加坡華僑中學來訪，歡迎！'},
+   {who:'多元運動選修同學',at:'C',text:'課餘的多元運動選修：太極拳、花式籃球、競技啦啦隊，練得好開心！'}]},
  {name:'12 月・第二次段考',sky:0xb8cfe2,
   desc:J('12/1–12/2 第二次段考。12/15–12/16 國一藝文參訪，12/30 國一年級週會要演品德話劇！','12/1–12/2 第二次段考。12/18 高一、高二週班會時段有交通安全宣導講座。'),
   others:[
@@ -959,7 +961,14 @@ const OFFICES=[
   chiefs:['生輔組','生輔組副組長','高中訓育組','國中訓育組','衛生組','體育組','社團活動組','社團活動組副組長']},
  {name:'教務處',dir:'陳炳霖主任',at:[-35.6,-12.3],where:'曹俊大樓二樓',help:'學習上的大小事都交給教務處！課表與段考、多元選修、重補修、數位自學，還有科學展覽和實驗教室，我們都會幫你安排好。',
   chiefs:['高中教學組','國中教學組','註冊組','資優教育組','課務組','實驗設備組']},
- {name:'輔導處',dir:'陳秋桂主任',at:[-26.8,-17],where:'正德大樓一、二樓',help:'心裡有煩惱、對未來有疑問，都歡迎來輔導處坐坐。我們陪你認識自己、規劃生涯與選組，也舉辦生命教育週、生命體驗營和親職講座。',
+ {name:'輔導處',dir:'陳秋桂主任',at:[-26.8,-17],where:'正德大樓一、二樓',help:'心裡有煩惱、對未來有疑問，都歡迎來輔導處坐坐！輔導老師會認真聽你說，陪你認識自己、規劃生涯，也讓爸媽一起參與你的成長。',
+  svc:['💬 心事聊聊：心情低落、人際相處或家裡的煩惱，都可以找輔導老師個別晤談，我們會好好聽你說，也會替你保密。',
+   '🌱 生命教育：生命教育週、生命體驗營、生命教育漫畫比賽，還有和學務處一起到創世基金會的服務活動，陪你珍惜生命、關懷別人。',
+   J('🧭 生涯探索：認識自己的興趣和專長，慢慢想想未來想走的路。','🧭 生涯探索：興趣探索、選組說明、大學營隊資訊，還有自主學習和學習歷程檔案專區。'),
+   J('','🎓 升學資訊：大學多元入學說明會、海外升學資訊和各項講座資料，都可以在輔導處找到。'),
+   '👨‍👩‍👧 親職與家庭教育：親職講座和學校日，讓爸媽也一起陪你長大。',
+   '🤝 性別平等教育、特殊教育、憂鬱與自傷防治：讓每一位同學都被好好照顧。',
+   '📮 學生申訴：覺得受到不公平的對待，可以透過學生申訴管道說出來。'],
   chiefs:['生命教育組','生涯輔導組']},
  {name:'總務處',dir:'王思元主任',at:[-31.2,-14.7],where:'正德大樓一樓',help:'總務處默默守護大家的校園。教室設備壞了可以上網報修；校園門禁安全、消防演練、節約能源和綠化美化，也都是我們在照顧。',
   chiefs:['出納組','庶務組','保管組','安維組']},
@@ -970,20 +979,21 @@ const OFFICES=[
 ];
 // 各組業務說明（畫面只顯示「某某組 組長」，不放組長姓名）
 const CHIEF_NPC=[
- {unit:'生輔組',help:'請假、出缺勤、獎勵與銷過，還有校園安全，都可以來找我們。國中部、高中部的「自強競賽」也由我們負責喔！'},
- {unit:'高中訓育組',help:'高中部的品德教育由我們推動：每月品德楷模、孝悌楷模表揚、班級幹部訓練，還有校慶的高一合唱比賽！'},
- {unit:'國中訓育組',help:'國中部的品德教育由我們推動：每月品德楷模、孝悌楷模表揚、班級幹部訓練，還有校慶的國一合唱比賽！'},
- {unit:'衛生組',help:'環境衛生、午餐與餐飲管理、環保政策，還有健康檢查和健康促進都是我們的工作。身體不舒服時，護理師會好好照顧你。'},
- {unit:'體育組',help:'校慶運動競賽、班際盃籃球和羽球賽、各項校隊甄選（籃球、排球、羽球、桌球、棒球、足球……），還有 HBL 應援團，愛運動的你快來！'},
- {unit:'社團活動組',help:'國中部 60 多個、高中部 40 多個社團等你挑！我們負責社團與成果發表、國中部的童軍教育，還有服務學習，陪你在社團裡發掘自己的潛能。'},
+ {unit:'生輔組',help:'請假、出缺勤、獎勵與銷過，還有校園安全，都可以來找我們。國中部、高中部的「自強競賽」、家庭訪問和性別平等教育窗口也是我們喔！'},
+ {unit:'高中訓育組',help:'高中部的品德教育由我們推動：每月品德楷模、孝悌楷模表揚、班級幹部訓練，還有校慶的高一合唱比賽！班週會、學生自治和校園志工團隊也由我們規劃，遇到急難也可以申請急難救助。'},
+ {unit:'國中訓育組',help:'國中部的品德教育由我們推動：每月品德楷模、孝悌楷模表揚、班級幹部訓練，還有校慶的國一合唱比賽！班週會、學生自治和校園志工團隊也由我們規劃，遇到急難也可以申請急難救助。'},
+ {unit:'衛生組',help:'環境衛生、午餐與餐飲管理、環保政策，還有健康檢查和健康促進都是我們的工作。新生體檢、CPR 急救訓練和捐血活動也是我們辦的；身體不舒服時，健康中心的護理師會好好照顧你。'},
+ {unit:'體育組',help:'校慶運動競賽、班際盃籃球和羽球賽、各項校隊甄選（籃球、排球、羽球、桌球、棒球、足球……），還有 HBL 應援團培訓；課餘的多元運動選修也到體育組選課，愛運動的你快來！'},
+ {unit:'社團活動組',help:'國中部 60 多個、高中部 40 多個社團等你挑！我們負責社團與成果發表、社團幹部訓練，還有國中綜合活動的童軍教育（做中學、學中做）；校外教學、公民訓練和畢業旅行等戶外教育也由我們規劃。'},
+ {unit:'社團活動組副組長',help:'模擬聯合國和辯論隊訓練、校際交流、海外遊學團，還有服務學習：服務性社團、偏鄉服務和海外志工，我們陪你走出去看世界、幫助別人！'},
  {unit:'高中教學組',help:'高中的多元選修、重補修和數位自學，都交給我們，陪你把課程安排得剛剛好！'},
  {unit:'國中教學組',help:'國中部的課程安排與段考，課業上有任何問題都可以來問我們喔！'},
  {unit:'註冊組',help:'成績與學籍、新生入學獎勵、學雜費補助申請，找我們就對了！'},
  {unit:'資優教育組',help:'喜歡挑戰的你看過來！專題講座、科學與數學探索，還有各種競賽活動，我們陪你一起探索。'},
  {unit:'課務組',help:'全校的課表安排、老師的調課與代課，由我們細心規劃，讓每一堂課都順利進行。'},
  {unit:'實驗設備組',help:'實驗室、生活科技教室和教學設備由我們管理；科學展覽、自然科實驗能力競賽也找我們喔！'},
- {unit:'生命教育組',help:'生命教育週、生命體驗營、生命教育漫畫比賽和服務活動，陪你一起珍惜生命、關懷身邊的人。'},
- {unit:'生涯輔導組',help:'對未來有點迷惘嗎？我們陪你做生涯探索、選組與了解大學升學，也辦大學多元入學說明會和親職講座。'},
+ {unit:'生命教育組',help:'生命教育週、生命體驗營、生命教育漫畫比賽、生命教育專欄和影片書籍借閱；憂鬱與自傷防治、性別平等和家庭教育也是我們的工作，陪你珍惜生命、關懷身邊的人。'},
+ {unit:'生涯輔導組',help:'對未來有點迷惘嗎？我們陪你做生涯探索和選組，提供大學營隊資訊、自主學習與學習歷程檔案專區，也辦大學多元入學說明會和親職講座。'},
  {unit:'出納組',help:'學校的各項付款、註冊費核算等出納工作，都由我們仔細把關。'},
  {unit:'庶務組',help:'學校需要的採購與修繕工程由我們負責，讓校園設施越來越完善。'},
  {unit:'保管組',help:'學校財產的驗收、清點與維修由我們照顧；教室設備有狀況，記得上網報修喔！'},
@@ -1028,7 +1038,7 @@ const OFFNPC=[
    tag:tagCanvas(`${o.name}・${o.dir}`,'rgba(140,59,46,.92)'),bub:bubbleCanvas(`${o.name}　${o.dir}`,o.help.split(/[。！]/)[0]+'！')};}),
 ];
 function chiefCard(unit,i){
-  const vice=/副組長$/.test(unit),u=unit.replace(/副?組長$/,''),c=CHIEF_NPC.find(x=>x.unit===u||x.unit===u+'組'),sex=i%2?'f':'m';
+  const vice=/副組長$/.test(unit),u=unit.replace(/副?組長$/,''),c=CHIEF_NPC.find(x=>x.unit===unit)||CHIEF_NPC.find(x=>x.unit===u||x.unit===u+'組'),sex=i%2?'f':'m';
   return `<div class="chief">${svgMarkup(charShapes(suitCfg('#5a6577','#2f6b5a',{sex,hair:sex==='f'?'#3a2a22':'#231c18'}),'front',0),'3 0 26 26',46)}<div><b>${u}</b>　${vice?'副組長':'組長'}${c?`<br><span>${c.help}</span>`:''}</div></div>`;
 }
 function openOffice(n){
@@ -1036,7 +1046,7 @@ function openOffice(n){
   if(n.kind==='leader'){dialog({title:`${n.d.title}　${n.d.name}`,por:portrait(n.C.cfg),text:n.d.help,btn:'謝謝！'});return;}
   const o=n.d;
   dialog({title:`🏢 ${o.name}　${o.dir}`,por:portrait(n.C.cfg),
-    html:`<div class="oinfo">📍 ${o.where}<br>${o.help}</div>`+(o.chiefs.length?`<div class="chiefs">${o.chiefs.map((u,i)=>chiefCard(u,i)).join('')}</div>`:'<div class="oinfo">有需要隨時來辦公室找我們！</div>'),btn:'謝謝！'});
+    html:`<div class="oinfo">📍 ${o.where}<br>${o.help}</div>`+(o.svc?`<div class="oinfo svc">${o.svc.map(T).filter(Boolean).join('<br>')}</div>`:'')+(o.chiefs.length?`<div class="chiefs">${o.chiefs.map((u,i)=>chiefCard(u,i)).join('')}</div>`:'<div class="oinfo">有需要隨時來辦公室找我們！</div>'),btn:'謝謝！'});
 }
 
 /* ---------- 校歌 ---------- */
@@ -1720,8 +1730,28 @@ HOOK.map.push(toMap=>{if(!NAV)return;const [x,z]=toMap(NAV.x,NAV.z);mc.fillStyle
 /* ---------- 南山小辭典（給小六與新生） ---------- */
 const GLOSS=[['段考','每學期的定期考試，國中、高中都有第一次段考、第二次段考與期末考。'],['學校日','開學後的晚上，家長到學校認識導師、了解班級和課程。'],['週會','全年級集合的時間，有講座、品德話劇等活動。'],
 ['會考','國中教育會考，國三 5 月舉行，是升高中的重要考試。'],['學測','大學學科能力測驗，高三 1 月舉行，是申請大學的重要考試。'],
+ ['校訂必修','南山自己設計、每位高中生都要修的課：國際素養教育、科學方法導論。'],['加深加廣選修','高二起依志向修的進階課程，南山分成法政商管、工程生醫兩個學群。'],
+ ['才藝選修','利用課餘時間的音樂、美術課程，國高中部都可以報名。'],['多元運動選修','利用課餘時間的運動課程，有羽球、籃球、啦啦隊、太極拳等，到體育組選課。'],['輔導老師','輔導處的老師。心情、人際、家庭或生涯有煩惱，都可以找他們聊聊。'],
  ['多元選修','高中可以依興趣選修的課程，南山有 20 門以上。'],['學習歷程檔案','高中三年把課程作品、社團、幹部、競賽等紀錄上傳，申請大學時使用。'],['自主學習','高中生自己訂主題和計畫來學習，最後上台分享成果。'],
  ['社團','國中部有 60 多個、高中部有 40 多個社團，兩部的社團不一樣，9 月選社。'],['HBL','高中籃球甲級聯賽，南山男籃是 8 座冠軍的常勝軍。'],['集合場','全校集合的地方：大草坪是 A 集合場、籃球場是 C 集合場。'],['導師','每個班級的班導，有任何事都可以先找導師。'],['豹爪幣','遊戲裡的金色硬幣，撿到就能解鎖一項南山榮譽。'],['校徽','三個三角形是「山」的古字；綠色代表生長、紅色代表熱誠、藍色代表成熟。'],['時光碑','遊戲裡的校史石碑，走近就能解鎖一段南山的歷史。'],['漳二校區','學校南側。西邊是光電球場（屋頂是太陽能板），全區不開放；東邊是籃球場，也是校車停駐處，從行健籃球場東側的小門進去。籃球場下方的小門通往中和路 217 巷，上放學可以從這裡進出。']];
+/* ---------- 特色課程（依高中課程地圖、115-1 才藝選修與多元運動選修課程；不寫費用、時段與「夜間」） ---------- */
+const COURSES={
+ j:[['🏕️ 綜合活動與童軍教育','國中部的綜合活動運用童軍制度，強調「做中學、學中做」：綁繩結、搭帳篷、野外生活，也在活動裡學品德、探索和服務。'],
+  ['🚌 特色戶外教育','校外教學、公民訓練和畢業旅行，走出教室體驗生活。國一還有烘爐地徒步旅行！'],
+  ['🔬 國一科學實驗','彈力球、偏光玩具、平衡鳥、暖暖包、化學聖誕樹、萬花筒……動手做，把課本上的原理變成看得到的現象。'],
+  ['🗣️ 外師英文','外籍老師帶你開口說英文，6 月還有國一二英語之夜。']],
+ s:[['🧭 校訂必修','南山自己設計、每位高中生都要修的課：高一上「國際素養教育」、高一下「科學方法導論」。'],
+  ['🔎 專題研究','彈性學習時間可以選「數理科學專題研究」或「人文社會科學專題研究」，自己訂主題，最後發表成果。'],
+  ['📚 自主學習','自己訂主題和計畫來學習，還有圖書館利用課程和數位自學系統陪你。'],
+  ['🎨 多元選修','網路學習與電子競技、流行 MV 鑑賞與創作、Python 程式語言、arduino 基礎應用、醫學領域概論、金融知識概論、旅遊英文、日韓法西語……依興趣選！'],
+  ['🎓 加深加廣選修','高二起依志向分成「法政商管學群」和「工程生醫學群」，修習更深入的國文、英文、數學、社會或自然課程。']],
+ both:[['🎨 才藝選修：創意繪畫','國高中部都能參加！學素描、水彩與水墨基礎，從草圖構思到結合各種媒材，完成自己的作品（大中至正 B1 美術教室）。'],
+  ['🎻 才藝選修：音樂','弦樂合奏（小提琴、中提琴、大提琴、低音大提琴，全校同學都能參加）、合唱技巧培訓；管樂團員還有管樂合奏和打擊合奏（正德音樂教室）。'],
+  ['🏸 多元運動選修','國高中部一、二年級可以到體育組選課：羽球、桌球、排球、足球、籃球、花式籃球、舞蹈啦啦、競技啦啦隊、太極拳，由專業老師和教練帶你練技巧、養成運動習慣。']]};
+function courseBook(){
+  const list=[...COURSES[G==='s'?'s':'j'],...COURSES.both];
+  dialog({title:G==='s'?'📚 高中部特色課程':'📚 國中部特色課程',por:ICON_SCHOOL,html:`<div class="gl">${list.map(([a,b])=>`<div class="oinfo"><b>${a}</b><br>${b}</div>`).join('')}<div class="oinfo" style="opacity:.75">才藝選修與多元運動選修利用課餘時間上課，依興趣自由報名。</div></div>`,btn:'知道了'});
+}
 function glossary(){dialog({title:'📖 南山小辭典',por:ICON_SCHOOL,html:`<div class="gl">${GLOSS.map(([a,b])=>`<div class="oinfo"><b>${a}</b>：${b}</div>`).join('')}</div>`,btn:'知道了'});}
 
 /* ---------- 集章冊與紀念卡 ---------- */
@@ -2154,11 +2184,11 @@ function openMenu(){
   if(paused)return;sfx('open');
   dialog({title:'☰ 選單',por:ICON_SCHOOL,html:`<div class="menu">
 <button data-m="stamp">📒 集章冊</button><button data-m="find">🔎 找地點</button><button data-m="off">🏢 處室名冊</button><button data-m="floor">📍 樓層導覽</button>
-<button data-m="song">🎵 校歌</button><button data-m="gloss">📖 南山小辭典</button><button data-m="honor">🏅 南山榮譽榜</button><button data-m="tour">🏫 360° 導覽</button>
+<button data-m="song">🎵 校歌</button><button data-m="gloss">📖 南山小辭典</button><button data-m="course">📚 特色課程</button><button data-m="honor">🏅 南山榮譽榜</button><button data-m="tour">🏫 360° 導覽</button>
 <button data-m="map">🗺️ 校園地圖</button><button data-m="hist">🏛️ 校史時光碑</button><button data-m="ach">🏆 成就徽章</button><button data-m="album">📷 南山相簿</button><button data-m="reset">🔄 重新開始</button></div>`.replace(/\n/g,''),btn:'關閉'});
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;close();
     if(m==='stamp')stampBook();else if(m==='find')findPlace();else if(m==='off')officeDirectory();else if(m==='floor')floorGuide();else if(m==='song')showAnthem();
-    else if(m==='gloss')glossary();else if(m==='map')bigMap();else if(m==='hist')historyBook();else if(m==='ach')achBook();else if(m==='album')album();else if(m==='honor')$('coins').click();else if(m==='tour')window.open('https://my.matterport.com/show/?m=Z6YwRxKy3kZ','_blank','noopener');
+    else if(m==='gloss')glossary();else if(m==='course')courseBook();else if(m==='map')bigMap();else if(m==='hist')historyBook();else if(m==='ach')achBook();else if(m==='album')album();else if(m==='honor')$('coins').click();else if(m==='tour')window.open('https://my.matterport.com/show/?m=Z6YwRxKy3kZ','_blank','noopener');
     else if(m==='reset'){dialog({title:'🔄 重新開始',por:ICON_SCHOOL,html:'<div class="oinfo">確定要清除進度、回到開始畫面嗎？集章、星星和榮譽都會歸零。</div><button class="btn" id="rsok" style="width:100%">確定，重新開始</button>',btn:'不要，繼續玩'});$('rsok').onclick=()=>{clearSave();location.reload();};}});
 }
 $('menubtn').addEventListener('click',openMenu);
@@ -2167,8 +2197,8 @@ $('findbtn').addEventListener('click',findPlace);
 resize();setupTasks();renderHud();cam.x=pos.x;cam.z=pos.z;requestAnimationFrame(loop);
 $('cover').innerHTML=svgMarkup(charShapes(pantherCfg('m'),'front',0),'0 0 32 48',84)+svgMarkup(charShapes(pantherCfg('f'),'front',0),'0 0 32 48',84);
 let pickG='j',pickX='m';
-const GDESC={v:'🔍 給想讀南山的小六生：用國一新生的身分，體驗南山國中部一整年的課程、社團和活動，最後拿到一張體驗紀念卡。',j:'🎒 國中部課程：國文、英語、數學、社會（歷史・地理・公民）、自然（生物）、外師英文；國一科學實驗、生物實驗課。',
- s:'📘 高中部課程：國文、英文、數學、歷史、公民、基礎物理、基礎地科；20 門多元選修、科學專題、第二外語、自主學習與學習歷程。'};
+const GDESC={v:'🔍 給想讀南山的小六生：用國一新生的身分，體驗南山國中部一整年的課程、社團和活動，最後拿到一張體驗紀念卡。',j:'🎒 國中部課程：國文、英語、數學、社會（歷史・地理・公民）、自然（生物）、外師英文；童軍教育、國一科學實驗、生物實驗課，還有才藝選修與多元運動選修。',
+ s:'📘 高中部課程：國文、英文、數學、歷史、公民、基礎物理、基礎地科；校訂必修（國際素養教育、科學方法導論）、20 門多元選修、專題研究、第二外語、自主學習，還有才藝與多元運動選修。'};
 const showG=()=>{$('gdesc').textContent=GDESC[pickG]+(pickG==='v'?'':'（國中、高中兩條路線的任務與課程完全不同）');};showG();
 document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{pickG=b.dataset.g;document.querySelectorAll('[data-g]').forEach(x=>x.classList.toggle('sel',x===b));showG();});
 document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{pickX=b.dataset.x;document.querySelectorAll('[data-x]').forEach(x=>x.classList.toggle('sel',x===b));});
