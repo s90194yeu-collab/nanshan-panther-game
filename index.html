@@ -237,7 +237,8 @@ function charShapes(c,d,f){
   if(c.bag&&side)S.push(RR(6.6,22.4,5.4,10.2,1.8,'#2f5fb5'));
   S.push(RR(bx,21,bw,13,4,top));
   S.push(PT(side?`M${bx+bw-3} 21.4Q${bx+bw} 21.6 ${bx+bw} 25V30Q${bx+bw} 34 ${bx+bw-3} 34Z`:'M19.5 21.4Q22.5 21.6 22.5 25V30Q22.5 34 19.5 34Z','rgba(40,40,80,.10)',null));
-  if(skirt)S.push(PT(side?'M10.5 29.5H21.5L23.6 36.6Q16 38.2 8.4 36.6Z':'M9.5 29.5H22.5L25 36.6Q16 38.4 7 36.6Z',bottom),
+  const sk=sw*.55; // 裙擺跟著步伐左右擺
+  if(skirt)S.push(PT(side?`M10.5 29.5H21.5L${23.6-sk} 36.6Q${16-sk} 38.2 ${8.4-sk} 36.6Z`:`M9.5 29.5H22.5L${25+sk} 36.6Q${16+sk} ${38.4-Math.abs(sk)*.4} ${7+sk} 36.6Z`,bottom),
                   LN(side?'M13.5 30.5L12.7 36.8M17 30.5V37.2M20 30.5L20.9 36.9':'M12.5 30.5L11.4 36.9M16 30.5V37.4M19.5 30.5L20.6 36.9','rgba(0,0,0,.35)',.55));
   else if(c.shorts)S.push(RR(bx+.2,29.6,bw-.4,5.4,1.6,bottom),LN(side?'':'M16 30.4V35','rgba(0,0,0,.25)',.5));
   else if(!c.suit)S.push(RR(bx,30.4,bw,2.2,.8,'#22222c',null));
@@ -306,7 +307,8 @@ function charShapes(c,d,f){
         if(c.sex==='f')S.push(PT('M8.4 15Q8 22.5 10 23.4H22Q24 22.5 23.6 15Z',hair));}
       else{
         S.push(PT('M8.3 14Q7.8 5 16 5Q24.2 5 23.7 14Q22.6 9.8 19 9.4Q17.6 10.8 13.6 10.4Q10.4 10.4 8.3 14Z',hair));
-        if(c.sex==='f')S.push(PT('M8.3 13Q7 19 8.6 22.6L10.4 22Q9.6 17 10 12.6Z',hair),PT('M23.7 13Q25 19 23.4 22.6L21.6 22Q22.4 17 22 12.6Z',hair));
+        const hs=sw*.45; // 長髮髮尾輕輕擺動
+        if(c.sex==='f')S.push(PT(`M8.3 13Q7 19 ${8.6+hs} 22.6L${10.4+hs} 22Q9.6 17 10 12.6Z`,hair),PT(`M23.7 13Q25 19 ${23.4+hs} 22.6L${21.6+hs} 22Q22.4 17 22 12.6Z`,hair));
         S.push(EL(12.9,15.2,1.35,1.7,'#2a2220',null),EL(19.1,15.2,1.35,1.7,'#2a2220',null),EL(13.35,14.5,.55,.55,'#ffffff',null),EL(19.55,14.5,.55,.55,'#ffffff',null),EL(12.5,15.9,.25,.25,'#ffffff',null),EL(18.7,15.9,.25,.25,'#ffffff',null));
         S.push(EL(11,17.6,1.4,.8,'rgba(255,130,140,.5)',null),EL(21,17.6,1.4,.8,'rgba(255,130,140,.5)',null));
         S.push(LN('M14.6 18.8Q16 19.8 17.4 18.8','#a0522d',.7));
@@ -315,7 +317,7 @@ function charShapes(c,d,f){
     }else{
       S.push(EL(17,14,7.2,8.1,skin),EL(14.4,14.8,1.3,1.7,skin));
       S.push(PT('M9.8 15Q9.2 5 17 5Q24.5 5.4 24.2 11.4Q20 9 16.4 10.4Q13.2 11.6 13.4 16Z',hair));
-      if(c.sex==='f')S.push(PT('M9.8 14Q9.2 21 11 23.4H14Q13 19 13.4 15Z',hair));
+      if(c.sex==='f')S.push(PT(`M9.8 14Q9.2 21 ${11-sw*.6} 23.4H${14-sw*.6}Q13 19 13.4 15Z`,hair));
       S.push(EL(21,15.1,1.2,1.6,'#2a2220',null),EL(21.4,14.5,.45,.45,'#ffffff',null),LN('M21.6 19Q22.8 19.2 23.4 18.6','#a0522d',.6));
       if(c.glasses)S.push(LN('M19.2 13.3h3.8v3.3h-3.8z','#333333',.6));
     }
@@ -341,14 +343,22 @@ const UNI={m:{trim:'#2f5fb5'},f:{trim:'#d8343f'}};
 const pantherCfg=sex=>({species:'panther',sex,shirt:sex==='m'?'#a9c8ea':'#f6bfd0',vest:'#8f2130',trim:UNI[sex].trim,bottom:sex==='m'?'#9da1a8':'#ef6aa6',shorts:sex==='m'});
 const hex=n=>typeof n==='number'?'#'+n.toString(16).padStart(6,'0'):n;
 function makeChar(cfg,h=3.2){return {cfg,h,cache:{},dir:'front',f:0};}
-function charFrame(C,dir,f){const key=dir+f;let cv=C.cache[key];if(cv)return cv;
-  const H=Math.ceil(C.h*PPU),W=Math.ceil(H*32/48);cv=document.createElement('canvas');cv.width=W;cv.height=H;
-  const x=cv.getContext('2d');x.scale(H/48,H/48);drawShapes(x,charShapes(C.cfg,dir==='left'?'right':dir,f),dir==='left');
-  return C.cache[key]=cv;}
+// 角色畫面：先畫向量圖，再加一圈深色外框（從背景跳出來），受光那一側加一道亮邊（依太陽方向，傍晚偏暖）
+function charFrame(C,dir,f){const sxs=typeof SUNX==='number'&&SUNX>=0?'L':'R',dk=typeof DUSK==='number'&&DUSK>.35?'d':'',key=dir+f+sxs+dk;let cv=C.cache[key];if(cv)return cv;
+  const H=Math.ceil(C.h*PPU),W=Math.ceil(H*32/48),pad=Math.max(2,Math.round(H*.03)),t=Math.max(1,H*.014);
+  const base=document.createElement('canvas');base.width=W+pad*2;base.height=H+pad*2;const b=base.getContext('2d');b.translate(pad,pad);b.scale(H/48,H/48);drawShapes(b,charShapes(C.cfg,dir==='left'?'right':dir,f),dir==='left');
+  const sil=document.createElement('canvas');sil.width=base.width;sil.height=base.height;const si=sil.getContext('2d');si.drawImage(base,0,0);si.globalCompositeOperation='source-in';si.fillStyle='#211c33';si.fillRect(0,0,sil.width,sil.height);
+  cv=document.createElement('canvas');cv.width=base.width;cv.height=base.height;const x=cv.getContext('2d');
+  x.globalAlpha=.8;for(let a=0;a<8;a++){const r=a*Math.PI/4;x.drawImage(sil,Math.cos(r)*t,Math.sin(r)*t);}x.globalAlpha=1;
+  x.drawImage(base,0,0);
+  const rim=document.createElement('canvas');rim.width=base.width;rim.height=base.height;const ri=rim.getContext('2d');ri.drawImage(base,0,0);ri.globalCompositeOperation='source-in';ri.fillStyle=dk?'rgba(255,196,130,.42)':'rgba(255,250,232,.5)';ri.fillRect(0,0,rim.width,rim.height);
+  const lx=(sxs==='L'?1:-1)*t*1.1;ri.globalCompositeOperation='destination-out';ri.drawImage(base,lx,t*.8);
+  x.globalCompositeOperation='source-atop';x.drawImage(rim,0,0);x.globalCompositeOperation='source-over';
+  cv.pad=pad;return C.cache[key]=cv;}
 function drawChar(C,x,z,y=0,dir='front',f=0,sx=1,sy=1){
-  const cv=charFrame(C,dir,f),X=PX(x),Y=PY(z);
+  const cv=charFrame(C,dir,f),X=PX(x),Y=PY(z),pd=cv.pad||0;
   ctx.fillStyle='rgba(30,25,70,.28)';ctx.beginPath();ctx.ellipse(X,Y,.8*PPU*(1-Math.min(.4,y*.08)),.32*PPU,0,0,7);ctx.fill();
-  const w=cv.width*sx,h=cv.height*sy;ctx.drawImage(cv,Math.round(X-w/2),Math.round(Y-h+.08*PPU-y*PPU),w,h);
+  const w=cv.width*sx,h=cv.height*sy;ctx.drawImage(cv,Math.round(X-w/2),Math.round(Y-h+pd*sy+.08*PPU-y*PPU),w,h);
 }
 /* 名牌與對話泡泡（固定以 2 倍解析度繪製） */
 function tagCanvas(text,bg,fs=13){
