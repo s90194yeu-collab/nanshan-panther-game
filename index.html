@@ -1400,21 +1400,34 @@ function drawMap(){
 const PAT={};
 function wrapDraw(W,H,fn){for(const ox of [-W,0,W])for(const oy of [-H,0,H])fn(ox,oy);}
 function mkPat(wu,hu,draw){const c=document.createElement('canvas');c.width=Math.max(8,Math.round(wu*PPU));c.height=Math.max(8,Math.round(hu*PPU*TILT));draw(c.getContext('2d'),c.width,c.height);return ctx.createPattern(c,'repeat');}
-function grassDraw(base,cols,n){return (x,W,H)=>{x.fillStyle=base;x.fillRect(0,0,W,H);let s=11;const r=()=>{s=(s*16807)%2147483647;return s/2147483647;};
-  for(let i=0;i<14;i++){const X=r()*W,Y=r()*H,R=(.6+r()*1.2)*PPU;const c=cols[i%cols.length];wrapDraw(W,H,(ox,oy)=>{const g=x.createRadialGradient(X+ox,Y+oy,0,X+ox,Y+oy,R);g.addColorStop(0,c+'55');g.addColorStop(1,c+'00');x.fillStyle=g;x.fillRect(X+ox-R,Y+oy-R,R*2,R*2);});}
-  x.lineCap='round';for(let i=0;i<n;i++){const X=r()*W,Y=r()*H,l=(.12+r()*.18)*PPU,a=-Math.PI/2+(r()-.5)*.8;x.strokeStyle=cols[Math.floor(r()*cols.length)];x.lineWidth=Math.max(1,PPU*.05);
-    wrapDraw(W,H,(ox,oy)=>{x.beginPath();x.moveTo(X+ox,Y+oy);x.lineTo(X+ox+Math.cos(a)*l,Y+oy+Math.sin(a)*l);x.stroke();});}};}
+function seeded(n){let s=n;return ()=>{s=(s*16807)%2147483647;return s/2147483647;};}
+function grassDraw(base,cols,n,seed=11){return (x,W,H)=>{x.fillStyle=base;x.fillRect(0,0,W,H);const r=seeded(seed);
+  for(let i=0;i<30;i++){const X=r()*W,Y=r()*H,R=(.8+r()*1.8)*PPU;const c=cols[i%cols.length];wrapDraw(W,H,(ox,oy)=>{const g=x.createRadialGradient(X+ox,Y+oy,0,X+ox,Y+oy,R);g.addColorStop(0,c+'66');g.addColorStop(1,c+'00');x.fillStyle=g;x.fillRect(X+ox-R,Y+oy-R,R*2,R*2);});}
+  x.lineCap='round';for(let i=0;i<n;i++){const X=r()*W,Y=r()*H,l=(.12+r()*.2)*PPU,a=-Math.PI/2+(r()-.5)*.9;x.strokeStyle=cols[Math.floor(r()*cols.length)];x.lineWidth=Math.max(1,PPU*.05);
+    wrapDraw(W,H,(ox,oy)=>{x.beginPath();x.moveTo(X+ox,Y+oy);x.lineTo(X+ox+Math.cos(a)*l,Y+oy+Math.sin(a)*l);x.stroke();});}
+  for(let i=0;i<16;i++){const X=r()*W,Y=r()*H; // 一叢叢較深的草
+    for(let k=0;k<5;k++){const a=-Math.PI/2+(k-2)*.24,l=(.22+r()*.12)*PPU;x.strokeStyle='rgba(70,120,50,.3)';x.lineWidth=Math.max(1,PPU*.055);wrapDraw(W,H,(ox,oy)=>{x.beginPath();x.moveTo(X+ox,Y+oy);x.lineTo(X+ox+Math.cos(a)*l,Y+oy+Math.sin(a)*l);x.stroke();});}}
+  const fl=['#ffffff','#fff3a0','#ffd1dc'];for(let i=0;i<18;i++){const X=r()*W,Y=r()*H,c=fl[i%3]; // 小白花、酢漿草花
+    wrapDraw(W,H,(ox,oy)=>{x.fillStyle=c;x.beginPath();x.ellipse(X+ox,Y+oy,PPU*.07,PPU*.05,0,0,7);x.fill();});}};}
+function paveDraw(base,seed){return (x,W,H)=>{x.fillStyle=base;x.fillRect(0,0,W,H);const r=seeded(seed),n=8,tw=W/n,th=H/n,lw=Math.max(1,PPU*.035);
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){const v=r();x.fillStyle=v<.5?`rgba(255,248,230,${.04+v*.12})`:`rgba(120,95,60,${.02+(v-.5)*.12})`;x.fillRect(i*tw,j*th,tw,th);
+    x.fillStyle='rgba(255,252,240,.28)';x.fillRect(i*tw,j*th+lw,tw,lw);x.fillRect(i*tw+lw,j*th,lw,th); // 磚面倒角：上、左受光
+    x.fillStyle='rgba(90,70,45,.16)';x.fillRect(i*tw,(j+1)*th-lw*2,tw,lw);x.fillRect((i+1)*tw-lw*2,j*th,lw,th);}
+  x.strokeStyle='rgba(140,118,85,.5)';x.lineWidth=lw;for(let i=0;i<=n;i++){x.beginPath();x.moveTo(i*tw,0);x.lineTo(i*tw,H);x.stroke();x.beginPath();x.moveTo(0,i*th);x.lineTo(W,i*th);x.stroke();}
+  for(let i=0;i<7;i++){const X=r()*W,Y=r()*H,R=(.4+r()*.9)*PPU;wrapDraw(W,H,(ox,oy)=>{const g=x.createRadialGradient(X+ox,Y+oy,0,X+ox,Y+oy,R);g.addColorStop(0,'rgba(110,90,60,.12)');g.addColorStop(1,'rgba(110,90,60,0)');x.fillStyle=g;x.fillRect(X+ox-R,Y+oy-R,R*2,R*2);});} // 污漬
+  x.strokeStyle='rgba(100,80,55,.28)';x.lineWidth=Math.max(1,PPU*.025);for(let i=0;i<4;i++){let X=r()*W,Y=r()*H;x.beginPath();x.moveTo(X,Y);for(let k=0;k<4;k++){X+=(r()-.5)*PPU*.8;Y+=(r()-.3)*PPU*.5;x.lineTo(X,Y);}x.stroke();} // 細裂紋
+  for(let i=0;i<260;i++){x.fillStyle=r()>.5?'rgba(255,255,255,.12)':'rgba(80,60,40,.1)';x.fillRect(r()*W,r()*H,Math.max(1,PPU*.04),Math.max(1,PPU*.04));}};}
 function buildPatterns(){
-  PAT.grass=mkPat(7,7,grassDraw('#7cc062',['#6aaf52','#8fd172','#5e9f49','#a3dc84'],420));
-  PAT.out=mkPat(7,7,grassDraw('#8db57a',['#7ea86c','#9cc488','#73995f'],260));
-  PAT.pave=mkPat(4,4,(x,W,H)=>{x.fillStyle='#d6c8ab';x.fillRect(0,0,W,H);let s=5;const r=()=>{s=(s*16807)%2147483647;return s/2147483647;};
-    const tw=W/4,th=H/4;for(let i=0;i<4;i++)for(let j=0;j<4;j++){x.fillStyle=`rgba(${r()>.5?255:150},${r()>.5?240:130},${r()>.5?220:100},${.05+r()*.07})`;x.fillRect(i*tw,j*th,tw,th);}
-    x.strokeStyle='rgba(150,130,95,.45)';x.lineWidth=Math.max(1,PPU*.04);for(let i=0;i<=4;i++){x.beginPath();x.moveTo(i*tw,0);x.lineTo(i*tw,H);x.stroke();x.beginPath();x.moveTo(0,i*th);x.lineTo(W,i*th);x.stroke();}
-    x.strokeStyle='rgba(255,250,235,.35)';for(let i=0;i<4;i++){x.beginPath();x.moveTo(0,i*th+1.5);x.lineTo(W,i*th+1.5);x.stroke();}});
-  PAT.road=mkPat(5,5,(x,W,H)=>{x.fillStyle='#62656d';x.fillRect(0,0,W,H);let s=3;const r=()=>{s=(s*16807)%2147483647;return s/2147483647;};
-    for(let i=0;i<500;i++){x.fillStyle=r()>.5?'rgba(255,255,255,.06)':'rgba(0,0,0,.08)';x.fillRect(r()*W,r()*H,Math.max(1,PPU*.06),Math.max(1,PPU*.06));}});
-  PAT.walk=mkPat(2,2,(x,W,H)=>{x.fillStyle='#c9c4ba';x.fillRect(0,0,W,H);x.strokeStyle='rgba(120,110,100,.35)';x.lineWidth=1;x.strokeRect(.5,.5,W-1,H-1);});
+  PAT.grass=mkPat(11,11,grassDraw('#7cc062',['#6aaf52','#8fd172','#5e9f49','#a3dc84'],1000));
+  PAT.out=mkPat(11,11,grassDraw('#8db57a',['#7ea86c','#9cc488','#73995f'],600,23));
+  PAT.pave=mkPat(8,8,paveDraw('#d6c8ab',5));
+  PAT.road=mkPat(9,9,(x,W,H)=>{x.fillStyle='#62656d';x.fillRect(0,0,W,H);const r=seeded(3);
+    for(let i=0;i<5;i++){const X=r()*W,Y=r()*H,w=(1+r()*2)*PPU,h=(.6+r()*1.2)*PPU*TILT;x.fillStyle=r()>.5?'rgba(40,42,48,.22)':'rgba(120,122,130,.12)';x.fillRect(X,Y,w,h);} // 補丁
+    for(let i=0;i<1600;i++){x.fillStyle=r()>.5?'rgba(255,255,255,.07)':'rgba(0,0,0,.09)';x.fillRect(r()*W,r()*H,Math.max(1,PPU*.05),Math.max(1,PPU*.05));}
+    x.strokeStyle='rgba(25,25,30,.35)';x.lineWidth=Math.max(1,PPU*.03);for(let i=0;i<3;i++){let X=r()*W,Y=r()*H;x.beginPath();x.moveTo(X,Y);for(let k=0;k<5;k++){X+=(r()-.5)*PPU;Y+=(r()-.5)*PPU*.6;x.lineTo(X,Y);}x.stroke();}});
+  PAT.walk=mkPat(2,2,(x,W,H)=>{x.fillStyle='#c9c4ba';x.fillRect(0,0,W,H);x.fillStyle='rgba(255,255,255,.25)';x.fillRect(1,1,W-2,Math.max(1,PPU*.04));x.strokeStyle='rgba(120,110,100,.35)';x.lineWidth=1;x.strokeRect(.5,.5,W-1,H-1);});
   PAT.wood=mkPat(3,3,(x,W,H)=>{x.fillStyle='#d9a066';x.fillRect(0,0,W,H);x.strokeStyle='rgba(120,70,30,.18)';x.lineWidth=1;for(let i=0;i<6;i++){x.beginPath();x.moveTo(0,i*H/6);x.lineTo(W,i*H/6);x.stroke();}});
+  BUSH.cv={};
 }
 function gpath(P){ctx.beginPath();P.forEach(([x,z],i)=>{const X=PX(x),Y=PY(z);i?ctx.lineTo(X,Y):ctx.moveTo(X,Y);});ctx.closePath();}
 function gfill(P,fill){gpath(P);ctx.fillStyle=fill;ctx.fill();}
@@ -1433,7 +1446,8 @@ function drawGround(){
   gfill(COURT,'#d9774a');gpath(COURT);ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=PPU*.1;ctx.stroke();gline([18*K,26.5*K],[18*K,41.5*K],'rgba(255,255,255,.8)',PPU*.1);
   // 校內鋪面
   gfill(PTSK,PAT.pave);
-  LAWNS.forEach(L=>{gfill(L,PAT.grass);gpath(L);ctx.strokeStyle='#4f8f3f';ctx.lineWidth=PPU*.35;ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=PPU*.08;ctx.stroke();});
+  LAWNS.forEach(L=>{gfill(L,PAT.grass);ctx.save();gpath(L);ctx.clip();ctx.strokeStyle='rgba(40,80,30,.22)';ctx.lineWidth=PPU*1.6;ctx.stroke();ctx.strokeStyle='rgba(40,80,30,.18)';ctx.lineWidth=PPU*.7;ctx.stroke();ctx.restore();
+    gpath(L);ctx.lineJoin='round';ctx.strokeStyle='rgba(60,55,45,.25)';ctx.lineWidth=PPU*.62;ctx.stroke();ctx.strokeStyle='#d8d3c8';ctx.lineWidth=PPU*.42;ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=PPU*.1;ctx.stroke();});
   // 體育館地板
   gfill(GYMFLOOR,PAT.wood);gpath(GYMFLOOR);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=PPU*.1;ctx.stroke();
   gline([GYM.x*K,(GYM.z-GYM.d/2+1.2)*K],[GYM.x*K,(GYM.z+GYM.d/2-1.2)*K],'rgba(255,255,255,.85)',PPU*.1);
@@ -1450,12 +1464,17 @@ function drawGround(){
      if(i){ctx.save();ctx.beginPath();ctx.ellipse(X,Y,R*PPU,R*PPU*TILT,0,-Math.PI/2,Math.PI/2);ctx.closePath();ctx.clip();ctx.strokeStyle='rgba(60,50,40,.38)';ctx.lineWidth=PPU*.55;ctx.beginPath();ctx.ellipse(X,Y-PPU*.25,R*PPU,R*PPU*TILT,0,-Math.PI/2,.15);ctx.stroke();ctx.restore();}}
    {const X=PX(x),Y=PY(z),g=ctx.createRadialGradient(X,Y,0,X,Y,r*PPU);g.addColorStop(0,'rgba(40,30,20,.28)');g.addColorStop(1,'rgba(40,30,20,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(X,Y,r*PPU,r*PPU*TILT,0,-Math.PI/2,Math.PI/2);ctx.closePath();ctx.fill();}
    gfill(rectK(40,9,8,6),'#b9b0a0');}
+  // 大範圍深淺變化
+  MACRO.forEach(m=>{const X=PX(m.x),Y=PY(m.z),R=m.r*PPU;if(X+R<view.x0||X-R>view.x1||Y+R*TILT<view.y0||Y-R*TILT>view.y1)return;
+    const g=ctx.createRadialGradient(X,Y,0,X,Y,R);g.addColorStop(0,m.d?'rgba(60,50,30,.07)':'rgba(255,250,225,.07)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(X,Y,R,R*TILT,0,0,7);ctx.fill();});
   // 建物陰影
   ctx.fillStyle='rgba(28,30,72,.2)';
   BUILD.forEach(B=>{if(!B.shadow||B.maxx*PPU<view.x0-PPU*20||B.minx*PPU>view.x1+PPU*20)return;gpath(shadowOf(B));ctx.fill();});
+  ctx.lineJoin='round';BUILD.forEach(B=>{if(B.maxx*PPU<view.x0-PPU*4||B.minx*PPU>view.x1+PPU*4||B.o.nobox&&B.o.plain)return; // 牆腳接觸陰影
+    gpath(B.pts);[[1.5,.05],[.8,.07],[.3,.1]].forEach(([w,a])=>{ctx.strokeStyle=`rgba(28,30,60,${a})`;ctx.lineWidth=PPU*w*Math.min(1,.4+B.h*.08);ctx.stroke();});});
   // 樹影
   ctx.fillStyle='rgba(28,40,60,.22)';
-  TREES.forEach(t=>{const X=PX(t.x),Y=PY(t.z);if(X<view.x0-PPU*6||X>view.x1+PPU*6||Y<view.y0-PPU*6||Y>view.y1+PPU*4)return;ctx.beginPath();ctx.ellipse(X+PPU*1.1*t.s*SUNX,Y+PPU*.2,PPU*(1.6+.6*Math.abs(SUNX))*t.s,PPU*.95*t.s,0,0,7);ctx.fill();});
+  TREES.forEach(t=>{const X=PX(t.x),Y=PY(t.z);if(X<view.x0-PPU*6||X>view.x1+PPU*6||Y<view.y0-PPU*6||Y>view.y1+PPU*4)return;ctx.beginPath();ctx.ellipse(X+PPU*1.1*t.s*SUNX,Y+PPU*.2,PPU*(1.6+.6*Math.abs(SUNX))*t.s,PPU*.95*t.s,0,0,7);ctx.fill();ctx.beginPath();ctx.ellipse(X,Y+PPU*.05,PPU*.75*t.s,PPU*.4*t.s,0,0,7);ctx.fill();});
   // 雲影
   CLOUDS.forEach(c=>{const X=PX(c.x),Y=PY(c.z),R=c.r*PPU;if(X+R<view.x0||X-R>view.x1)return;const g=ctx.createRadialGradient(X,Y,0,X,Y,R);g.addColorStop(0,'rgba(30,40,90,.10)');g.addColorStop(1,'rgba(30,40,90,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(X,Y,R,R*TILT,0,0,7);ctx.fill();});
   // 任務光圈
@@ -2081,6 +2100,26 @@ let SUNX=-1,DUSK=0;
 HOOK.update.push(()=>{SUNX=-1+2*Math.min(1,Math.max(0,TOD));DUSK=Math.min(1,Math.max(0,(TOD-.62)/.33))*.85*(RAIN?1.2:1);});
 function shadowOf(B){const k=Math.round(SUNX*30);if(B._sk!==k){const L=.55+.5*Math.abs(SUNX),dx=B.h*HS*.62*SUNX*L,dz=B.h*HS*.34*(.65+.35*L);
   B._sh=hull(B.pts.concat(B.pts.map(([x,z])=>[x+dx,z+dz])));B._sk=k;}return B._sh;}
+// 地面大範圍深淺變化（打破材質重複感）
+const MACRO=(()=>{const r=seeded(97),a=[];for(let i=0;i<90;i++)a.push({x:(-70+r()*150)*K,z:(-35+r()*90)*K,r:(4+r()*9)*K,d:r()<.55});return a;})();
+// 草坪邊的灌木與花叢（避開任務點、時光碑、攤位與人物站位）
+const BUSH={list:null,key:'',cv:{}};
+function bushList(){const key=G;if(BUSH.key===key&&BUSH.list)return BUSH.list;BUSH.key=key;
+  const av=[...KEEP.map(([x,z,r])=>[x,z,Math.max(2.4,r)]),...TASKS.map(t=>[T(t.x),T(t.z),3]),...HISTORY.map(h=>[h.x,h.z,2.4]),...STALL_POS.map(([x,z])=>[x,z+1,3.2]),...Object.values(SP).map(([x,z])=>[x,z,2.6])];
+  const out=[],r=seeded(41);
+  LAWNS.forEach(L=>{for(let i=0;i<L.length;i++){const a=L[i],b=L[(i+1)%L.length],len=Math.hypot(b[0]-a[0],b[1]-a[1])/K;let nx=-(b[1]-a[1]),nz=b[0]-a[0];const l=Math.hypot(nx,nz);nx/=l;nz/=l;
+    if(!inPoly((a[0]+b[0])/2+nx*K,(a[1]+b[1])/2+nz*K,L)){nx=-nx;nz=-nz;}
+    for(let t=1.6;t<len-1.4;t+=2.3+r()*1.2){const x=(a[0]+(b[0]-a[0])*t/len)/K+nx*.85,z=(a[1]+(b[1]-a[1])*t/len)/K+nz*.85;
+      if(av.some(([ax,az,ar])=>Math.hypot(ax-x,az-z)<ar))continue;out.push({x:x*K,z:z*K,v:Math.floor(r()*4),s:.8+r()*.4});}}});
+  return BUSH.list=out;}
+function bushSprite(v){if(BUSH.cv[v])return BUSH.cv[v];const u=PPU,c=document.createElement('canvas');c.width=Math.ceil(u*2.4);c.height=Math.ceil(u*1.9);const x=c.getContext('2d'),r=seeded(7+v*13);
+  const cx=c.width/2,by=c.height-u*.35,base=['#3f8a3c','#47923f','#3b7f45','#4b9440'][v];
+  [[-.55,0,.55],[.5,.02,.5],[0,-.22,.62]].forEach(([dx,dy,rr])=>{const X=cx+dx*u,Y=by-u*.45+dy*u,R=rr*u;const g=x.createRadialGradient(X-R*.35,Y-R*.45,R*.1,X,Y,R);g.addColorStop(0,shade(base,1.35));g.addColorStop(.7,base);g.addColorStop(1,shade(base,.7));x.fillStyle=g;x.beginPath();x.ellipse(X,Y,R,R*.82,0,0,7);x.fill();});
+  for(let i=0;i<14;i++){const a=r()*Math.PI,d=r()*u*.75;x.fillStyle='rgba(190,235,150,.35)';x.beginPath();x.arc(cx+Math.cos(a)*d*1.2,by-u*.55-Math.sin(a)*d*.6,u*.07,0,7);x.fill();}
+  if(v>=2){const fc=v===2?['#ff7aa2','#ffd1dc']:['#ffd84a','#ffffff'];for(let i=0;i<9;i++){const a=r()*Math.PI,d=(.3+r()*.6)*u;x.fillStyle=fc[i%2];x.beginPath();x.arc(cx+Math.cos(a)*d,by-u*.5-Math.sin(a)*d*.55,u*.09,0,7);x.fill();}}
+  return BUSH.cv[v]=c;}
+HOOK.actors.push(add=>{if(!BUSH.list&&!TASKS.length)return;bushList().forEach(b=>{const X=PX(b.x),Y=PY(b.z);if(X<view.x0-PPU*3||X>view.x1+PPU*3||Y<view.y0-PPU*3||Y>view.y1+PPU*3)return;
+  add(b.x,b.z,()=>{const cv=bushSprite(b.v),w=cv.width*b.s,h=cv.height*b.s;ctx.fillStyle='rgba(28,40,50,.22)';ctx.beginPath();ctx.ellipse(X+PPU*.15,Y,PPU*1.05*b.s,PPU*.38*b.s,0,0,7);ctx.fill();ctx.drawImage(cv,X-w/2,Y-h+PPU*.3*b.s,w,h);});});});
 // 草坪上的樹影光斑
 const DAP=[...Array(16)].map((_,i)=>({x:(-30+((i*29)%44))*K,z:(-28+((i*17)%34))*K,r:(1.4+(i%4)*.5)*K,p:i*1.7}));
 HOOK.ground.push(()=>{ctx.save();ctx.beginPath();LAWNS.forEach(L=>{L.forEach(([x,z],i)=>i?ctx.lineTo(PX(x),PY(z)):ctx.moveTo(PX(x),PY(z)));ctx.closePath();});ctx.clip();
