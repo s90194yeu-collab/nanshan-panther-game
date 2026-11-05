@@ -176,6 +176,9 @@ const FONT='"Huninn","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-seri
 const K=1.8;            // 校園放大倍率（比 3D 版寬 1.8 倍）
 const HS=.46,TILT=.74;  // 建物高度比例、地面俯視壓縮
 let DPR=1,VW=0,VH=0,PPU=20;
+// 畫質：QUAL 是玩家的選擇（auto 自動／high／mid／low，記在本機），QLV 是實際等級（2 高、1 中、0 低）
+let QUAL='auto';try{QUAL=localStorage.getItem('nanshan-q')||'auto';}catch(e){}
+let QLV=QUAL==='high'?2:QUAL==='mid'?1:QUAL==='low'?0:((navigator.hardwareConcurrency||8)<=4?1:2);
 const PX=x=>x*PPU,PY=(z,y=0)=>z*PPU*TILT-y*HS*PPU;
 function rr(x,X,Y,w,h,r){r=Math.min(r,w/2,h/2);x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();}
 const hexRGB=h=>{h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];};
@@ -1480,7 +1483,7 @@ function drawGround(){
    {const X=PX(x),Y=PY(z),g=ctx.createRadialGradient(X,Y,0,X,Y,r*PPU);g.addColorStop(0,'rgba(40,30,20,.28)');g.addColorStop(1,'rgba(40,30,20,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(X,Y,r*PPU,r*PPU*TILT,0,-Math.PI/2,Math.PI/2);ctx.closePath();ctx.fill();}
    gfill(rectK(40,9,8,6),'#b9b0a0');}
   // 大範圍深淺變化
-  MACRO.forEach(m=>{const X=PX(m.x),Y=PY(m.z),R=m.r*PPU;if(X+R<view.x0||X-R>view.x1||Y+R*TILT<view.y0||Y-R*TILT>view.y1)return;
+  if(QLV>=2)MACRO.forEach(m=>{const X=PX(m.x),Y=PY(m.z),R=m.r*PPU;if(X+R<view.x0||X-R>view.x1||Y+R*TILT<view.y0||Y-R*TILT>view.y1)return;
     const g=ctx.createRadialGradient(X,Y,0,X,Y,R);g.addColorStop(0,m.d?'rgba(60,50,30,.07)':'rgba(255,250,225,.07)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(X,Y,R,R*TILT,0,0,7);ctx.fill();});
   // 建物陰影（正午短而深、早晚長而淡，傍晚偏紫；外圈加一層柔邊）
   {const a=.16+.09*(1-Math.abs(SUNX)),col=DUSK>.1?'52,30,90':'28,30,72';ctx.fillStyle=`rgba(${col},${a})`;ctx.strokeStyle=`rgba(${col},${a*.45})`;ctx.lineWidth=PPU*.9;ctx.lineJoin='round';
@@ -1547,17 +1550,17 @@ let gradeCol='rgba(255,196,140,.32)';
 function post(dt,camDX,camDY){
   const W=canvas.width,H=canvas.height,s1=FX.s1,s2=FX.s2;
   if(!W||!H)return; // 視窗尺寸為 0（背景分頁、隱藏的嵌入框）時跳過，避免 drawImage 丟錯中斷主迴圈
-  FX.c1.drawImage(canvas,0,0,s1.width,s1.height);FX.c2.drawImage(s1,0,0,s2.width,s2.height);
+  if(QLV>=1){FX.c1.drawImage(canvas,0,0,s1.width,s1.height);FX.c2.drawImage(s1,0,0,s2.width,s2.height);
   const cb=FX.cb;cb.globalCompositeOperation='source-over';cb.clearRect(0,0,W,H);cb.imageSmoothingEnabled=true;cb.drawImage(s2,0,0,W,H);
   cb.globalCompositeOperation='destination-in';const m=cb.createLinearGradient(0,0,0,H);m.addColorStop(0,'rgba(0,0,0,1)');m.addColorStop(.3,'rgba(0,0,0,0)');m.addColorStop(.7,'rgba(0,0,0,0)');m.addColorStop(1,'rgba(0,0,0,.95)');cb.fillStyle=m;cb.fillRect(0,0,W,H);
   ctx.drawImage(FX.blur,0,0);
   // 柔光（Orton）
-  ctx.globalCompositeOperation='screen';ctx.globalAlpha=.16;ctx.drawImage(s2,0,0,W,H);ctx.globalAlpha=1;
-  // 泛光：小圖自乘一次，只留下亮部，再疊回畫面
-  {const c3=FX.c3;c3.globalCompositeOperation='copy';c3.drawImage(s2,0,0);c3.globalCompositeOperation='multiply';c3.drawImage(s2,0,0);c3.drawImage(s2,0,0);
+  ctx.globalCompositeOperation='screen';ctx.globalAlpha=.16;ctx.drawImage(s2,0,0,W,H);ctx.globalAlpha=1;}
+  // 泛光：小圖自乘一次，只留下亮部，再疊回畫面（高畫質）
+  if(QLV>=2){const c3=FX.c3;c3.globalCompositeOperation='copy';c3.drawImage(s2,0,0);c3.globalCompositeOperation='multiply';c3.drawImage(s2,0,0);c3.drawImage(s2,0,0);
    ctx.globalCompositeOperation='screen';ctx.globalAlpha=.28+DUSK*.08;ctx.drawImage(FX.s3,0,0,W,H);ctx.globalAlpha=1;}
   // 光束：方向跟著太陽（早上從右上、下午從左上），傍晚變橘、雨天沒有
-  if(!RAIN){const sl=H*.55*(SUNX>=0?1:-1)*(.35+.65*Math.abs(SUNX)),dk=DUSK,bc=`${255},${Math.round(244-60*dk)},${Math.round(215-105*dk)}`,ba=.13+.09*dk;
+  if(!RAIN&&QLV>=1){const sl=H*.55*(SUNX>=0?1:-1)*(.35+.65*Math.abs(SUNX)),dk=DUSK,bc=`${255},${Math.round(244-60*dk)},${Math.round(215-105*dk)}`,ba=.13+.09*dk;
    for(let i=0;i<3;i++){const x0=(SUNX>=0?W*(.05+i*.28):W*(.95-i*.28)-W*(.07+i*.03))+Math.sin(clock*.2+i)*W*.03,wd=W*(.07+i*.03);const g=ctx.createLinearGradient(x0,0,x0+sl,H);g.addColorStop(0,`rgba(${bc},${ba})`);g.addColorStop(1,`rgba(${bc},0)`);
     ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(x0,0);ctx.lineTo(x0+wd,0);ctx.lineTo(x0+wd+sl,H);ctx.lineTo(x0+sl,H);ctx.closePath();ctx.fill();}}
   // 色調
@@ -1567,13 +1570,13 @@ function post(dt,camDX,camDY){
   {const hc=DUSK>.02?`${Math.round(225+30*DUSK)},${Math.round(238-40*DUSK)},${Math.round(255-60*DUSK)}`:'225,238,255';const hz=ctx.createLinearGradient(0,0,0,H*.4);hz.addColorStop(0,`rgba(${hc},.34)`);hz.addColorStop(.55,`rgba(${hc},.1)`);hz.addColorStop(1,`rgba(${hc},0)`);ctx.fillStyle=hz;ctx.fillRect(0,0,W,H*.4);}
   const v=ctx.createRadialGradient(W/2,H*.52,Math.min(W,H)*.35,W/2,H*.52,Math.hypot(W,H)*.62);v.addColorStop(0,'rgba(20,14,50,0)');v.addColorStop(1,'rgba(20,14,50,.5)');ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
   // 光點
-  MOTES.forEach(p=>{p.y-=p.v*dt;p.x-=camDX/W*.35;p.y-=camDY/H*.35;p.x=(p.x%1+1)%1;p.y=(p.y%1+1)%1;const a=.35+.35*Math.sin(clock*2+p.p);
+  if(QLV>=1)MOTES.forEach((p,i)=>{if(QLV===1&&i%2)return;p.y-=p.v*dt;p.x-=camDX/W*.35;p.y-=camDY/H*.35;p.x=(p.x%1+1)%1;p.y=(p.y%1+1)%1;const a=.35+.35*Math.sin(clock*2+p.p);
     ctx.fillStyle=`rgba(255,244,190,${a})`;ctx.beginPath();ctx.arc(p.x*W,p.y*H,p.r*DPR,0,7);ctx.fill();});
 }
 
 /* ---------- 尺寸 ---------- */
 function resize(){
-  VW=innerWidth;VH=innerHeight;DPR=Math.min(devicePixelRatio||1,isTouch?1.75:2);
+  VW=innerWidth;VH=innerHeight;DPR=Math.min(devicePixelRatio||1,QLV>=2?(isTouch?1.75:2):QLV===1?1.5:1);
   canvas.width=Math.round(VW*DPR);canvas.height=Math.round(VH*DPR);
   PPU=Math.max(12,Math.min(22,Math.min(VW,VH)/30))*DPR;
   FX.s1.width=Math.ceil(canvas.width/4);FX.s1.height=Math.ceil(canvas.height/4);FX.s2.width=Math.ceil(canvas.width/10);FX.s2.height=Math.ceil(canvas.height/10);FX.s3.width=FX.s2.width;FX.s3.height=FX.s2.height;GLOW.cv={};FX.blur.width=canvas.width;FX.blur.height=canvas.height;
@@ -2149,7 +2152,7 @@ const GLOW={cv:{}};
 function glowSprite(kind){if(GLOW.cv[kind])return GLOW.cv[kind];const u=PPU,c=document.createElement('canvas'),R=kind==='pool'?u*3.2:kind==='head'?u*1.4:u*2.2;c.width=Math.ceil(R*2);c.height=Math.ceil(kind==='head'?R*2:R*2*TILT);const x=c.getContext('2d');
   x.translate(c.width/2,c.height/2);x.scale(1,c.height/c.width);const g=x.createRadialGradient(0,0,0,0,0,R);const col=kind==='head'?'255,236,180':'255,200,120';g.addColorStop(0,`rgba(${col},.9)`);g.addColorStop(.35,`rgba(${col},.45)`);g.addColorStop(1,`rgba(${col},0)`);x.fillStyle=g;x.beginPath();x.arc(0,0,R,0,7);x.fill();return GLOW.cv[kind]=c;}
 const LAMPS=[[-26.8,-15.8],[15.2,-15.8],[15.2,7.8],[3.2,7.8],[-32.8,-9.8],[10.7,-26.3],[-19.3,-20.3]].filter(([x,z])=>!blocked(x*K,z*K)&&!KEEP.some(([a,b,r])=>Math.hypot(a-x,b-z)<Math.min(r,2))).map(([x,z])=>({x:x*K,z:z*K}));
-HOOK.ground.push(()=>{if(DUSK<.02)return;ctx.globalCompositeOperation='lighter';
+HOOK.ground.push(()=>{if(DUSK<.02||QLV<1)return;ctx.globalCompositeOperation='lighter';
   const gw=glowSprite('win');ctx.globalAlpha=Math.min(1,DUSK*.7);
   BUILD.forEach(B=>{if(!B.glow||B.maxx*PPU<view.x0-PPU*6||B.minx*PPU>view.x1+PPU*6)return;B.glow.forEach(([x,z,s])=>{const X=PX(x),Y=PY(z);if(Y<view.y0-PPU*3||Y>view.y1+PPU*3)return;ctx.drawImage(gw,X-gw.width*s/2,Y-gw.height*s/2,gw.width*s,gw.height*s);});});
   const gp=glowSprite('pool');ctx.globalAlpha=Math.min(1,DUSK*.8);LAMPS.forEach(l=>{const X=PX(l.x),Y=PY(l.z);if(X<view.x0-PPU*4||X>view.x1+PPU*4||Y<view.y0-PPU*4||Y>view.y1+PPU*4)return;ctx.drawImage(gp,X-gp.width/2,Y-gp.height/2);});
@@ -2181,11 +2184,11 @@ function bushSprite(v){if(BUSH.cv[v])return BUSH.cv[v];const u=PPU,c=document.cr
   for(let i=0;i<14;i++){const a=r()*Math.PI,d=r()*u*.75;x.fillStyle='rgba(190,235,150,.35)';x.beginPath();x.arc(cx+Math.cos(a)*d*1.2,by-u*.55-Math.sin(a)*d*.6,u*.07,0,7);x.fill();}
   if(v>=2){const fc=v===2?['#ff7aa2','#ffd1dc']:['#ffd84a','#ffffff'];for(let i=0;i<9;i++){const a=r()*Math.PI,d=(.3+r()*.6)*u;x.fillStyle=fc[i%2];x.beginPath();x.arc(cx+Math.cos(a)*d,by-u*.5-Math.sin(a)*d*.55,u*.09,0,7);x.fill();}}
   return BUSH.cv[v]=c;}
-HOOK.actors.push(add=>{if(!BUSH.list&&!TASKS.length)return;bushList().forEach(b=>{const X=PX(b.x),Y=PY(b.z);if(X<view.x0-PPU*3||X>view.x1+PPU*3||Y<view.y0-PPU*3||Y>view.y1+PPU*3)return;
+HOOK.actors.push(add=>{if(QLV<1||!BUSH.list&&!TASKS.length)return;bushList().forEach(b=>{const X=PX(b.x),Y=PY(b.z);if(X<view.x0-PPU*3||X>view.x1+PPU*3||Y<view.y0-PPU*3||Y>view.y1+PPU*3)return;
   add(b.x,b.z,()=>{const cv=bushSprite(b.v),w=cv.width*b.s,h=cv.height*b.s;ctx.fillStyle='rgba(28,40,50,.22)';ctx.beginPath();ctx.ellipse(X+PPU*.15,Y,PPU*1.05*b.s,PPU*.38*b.s,0,0,7);ctx.fill();ctx.drawImage(cv,X-w/2,Y-h+PPU*.3*b.s,w,h);});});});
 // 草坪上的樹影光斑
 const DAP=[...Array(16)].map((_,i)=>({x:(-30+((i*29)%44))*K,z:(-28+((i*17)%34))*K,r:(1.4+(i%4)*.5)*K,p:i*1.7}));
-HOOK.ground.push(()=>{ctx.save();ctx.beginPath();LAWNS.forEach(L=>{L.forEach(([x,z],i)=>i?ctx.lineTo(PX(x),PY(z)):ctx.moveTo(PX(x),PY(z)));ctx.closePath();});ctx.clip();
+HOOK.ground.push(()=>{if(QLV<1)return;ctx.save();ctx.beginPath();LAWNS.forEach(L=>{L.forEach(([x,z],i)=>i?ctx.lineTo(PX(x),PY(z)):ctx.moveTo(PX(x),PY(z)));ctx.closePath();});ctx.clip();
   ctx.globalCompositeOperation='screen';DAP.forEach(d=>{const X=PX(d.x+Math.sin(clock*.35+d.p)*1.2*K),Y=PY(d.z+Math.cos(clock*.3+d.p)*.8*K),R=d.r*PPU*(1+.15*Math.sin(clock*.8+d.p));
     const g=ctx.createRadialGradient(X,Y,0,X,Y,R);g.addColorStop(0,`rgba(255,250,205,${RAIN?.03:.16})`);g.addColorStop(1,'rgba(255,250,205,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(X,Y,R,R*TILT,0,0,7);ctx.fill();});
   ctx.restore();});
@@ -2223,9 +2226,20 @@ HOOK.update.push(dt=>{if(lpx===null){lpx=pos.x;lpz=pos.z;}const vx=(pos.x-lpx)/M
   const k=Math.hypot(vx,vz)>40?0:.3;CAMLEAD.x+=(vx*k-CAMLEAD.x)*Math.min(1,dt*2.5);CAMLEAD.z+=(vz*k-CAMLEAD.z)*Math.min(1,dt*2.5);});
 
 /* ---------- 小動態：落葉與花瓣、飛鳥、在校園走動的同學 ---------- */
+// 自動畫質：每 4 秒量一次實際幀率，太慢就降一級（只降不升，避免忽高忽低）
+const QF={t0:0,n:0,skip:3};
+HOOK.update.push(()=>{if(QUAL!=='auto'||QLV===0||document.hidden)return;const now=performance.now();
+  if(!QF.t0){QF.t0=now;QF.n=0;return;}QF.n++;const el=(now-QF.t0)/1000;if(el<4)return;const fps=QF.n/el;QF.t0=now;QF.n=0;
+  if(QF.skip>0){QF.skip--;return;}if(fps<38){QLV--;QF.skip=2;resize();toast(`🎨 畫面有點卡，已自動調成「${['低','中','高'][QLV]}」畫質（選單 → 畫質可以調整）`,3200);}});
+function setQuality(q){QUAL=q;try{localStorage.setItem('nanshan-q',q);}catch(e){}QLV=q==='high'?2:q==='mid'?1:q==='low'?0:2;QF.t0=0;QF.skip=3;resize();}
+function qualityMenu(){
+  const L=[['auto','🤖 自動（建議）','先用高畫質，太卡時自動降低'],['high','✨ 高','完整光影：景深、柔光、泛光、光束、光點、灌木、地面深淺'],['mid','🙂 中','解析度降一點，關掉泛光，保留主要光影'],['low','⚡ 低','最流暢：關掉後製特效、灌木與落葉，適合舊手機或平板']];
+  dialog({title:'🎨 畫質',por:ICON_SCHOOL,html:`<div class="oinfo">目前：${L.find(x=>x[0]===QUAL)[1]}${QUAL==='auto'?`（實際為「${['低','中','高'][QLV]}」）`:''}</div><div class="menu">${L.map(([k,n,d])=>`<button data-q="${k}" title="${d}">${n}</button>`).join('')}</div><div class="gl">${L.map(([k,n,d])=>`<div class="oinfo"><b>${n}</b>：${d}</div>`).join('')}</div>`,btn:'關閉'});
+  document.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{setQuality(b.dataset.q);close();toast(`🎨 畫質：${L.find(x=>x[0]===QUAL)[1]}`,1800);});
+}
 const LEAVES=[];let leafT=0;
 HOOK.update.push(dt=>{const kind=(month===7||month===8)?'petal':(month>=2&&month<=4)?'leaf':'green';leafT+=dt*(kind==='green'?1.2:4);
-  while(leafT>1){leafT--;if(LEAVES.length<70)LEAVES.push({kind,x:cam.x+(Math.random()-.5)*70,z:cam.z+(Math.random()-.75)*45,y:8+Math.random()*6,r:Math.random()*7,vr:(Math.random()-.5)*5,p:Math.random()*7,t:0,c:Math.floor(Math.random()*3)});}
+  while(leafT>1){leafT--;if(LEAVES.length<[15,40,70][QLV])LEAVES.push({kind,x:cam.x+(Math.random()-.5)*70,z:cam.z+(Math.random()-.75)*45,y:8+Math.random()*6,r:Math.random()*7,vr:(Math.random()-.5)*5,p:Math.random()*7,t:0,c:Math.floor(Math.random()*3)});}
   for(let i=LEAVES.length-1;i>=0;i--){const l=LEAVES[i];if(l.y>0){l.y-=dt*1.5;l.x+=Math.sin(clock*1.5+l.p)*dt*2+dt*1.2;l.r+=l.vr*dt;}else{l.y=0;l.t+=dt;}if(l.t>4)LEAVES.splice(i,1);}});
 const LEAFC={petal:['#ffc6d9','#ffb0c8','#fff0f5'],leaf:['#e8833a','#d95f2b','#f2b134'],green:['#7cc35a','#5fae4a','#9bd66f']};
 HOOK.overlay.push(()=>LEAVES.forEach(l=>{const X=PX(l.x),Y=PY(l.z)-l.y*PPU;if(X<view.x0||X>view.x1||Y<view.y0||Y>view.y1)return;ctx.globalAlpha=l.t>3?4-l.t:1;
@@ -2343,11 +2357,11 @@ function openMenu(){
   if(paused)return;sfx('open');
   dialog({title:'☰ 選單',por:ICON_SCHOOL,html:`<div class="menu">
 <button data-m="stamp">📒 集章冊</button><button data-m="find">🔎 找地點</button><button data-m="off">🏢 處室名冊</button><button data-m="floor">📍 樓層導覽</button>
-<button data-m="song">🎵 校歌</button><button data-m="gloss">📖 南山小辭典</button><button data-m="course">📚 特色課程</button><button data-m="honor">🏅 南山榮譽榜</button><button data-m="tour">🏫 360° 導覽</button>
+<button data-m="song">🎵 校歌</button><button data-m="gloss">📖 南山小辭典</button><button data-m="course">📚 特色課程</button><button data-m="qual">🎨 畫質</button><button data-m="honor">🏅 南山榮譽榜</button><button data-m="tour">🏫 360° 導覽</button>
 <button data-m="map">🗺️ 校園地圖</button><button data-m="hist">🏛️ 校史時光碑</button><button data-m="ach">🏆 成就徽章</button><button data-m="album">📷 南山相簿</button><button data-m="reset">🔄 重新開始</button></div>`.replace(/\n/g,''),btn:'關閉'});
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;close();
     if(m==='stamp')stampBook();else if(m==='find')findPlace();else if(m==='off')officeDirectory();else if(m==='floor')floorGuide();else if(m==='song')showAnthem();
-    else if(m==='gloss')glossary();else if(m==='course')courseBook();else if(m==='map')bigMap();else if(m==='hist')historyBook();else if(m==='ach')achBook();else if(m==='album')album();else if(m==='honor')$('coins').click();else if(m==='tour')window.open('https://my.matterport.com/show/?m=Z6YwRxKy3kZ','_blank','noopener');
+    else if(m==='gloss')glossary();else if(m==='course')courseBook();else if(m==='qual')qualityMenu();else if(m==='map')bigMap();else if(m==='hist')historyBook();else if(m==='ach')achBook();else if(m==='album')album();else if(m==='honor')$('coins').click();else if(m==='tour')window.open('https://my.matterport.com/show/?m=Z6YwRxKy3kZ','_blank','noopener');
     else if(m==='reset'){dialog({title:'🔄 重新開始',por:ICON_SCHOOL,html:'<div class="oinfo">確定要清除進度、回到開始畫面嗎？集章、星星和榮譽都會歸零。</div><button class="btn" id="rsok" style="width:100%">確定，重新開始</button>',btn:'不要，繼續玩'});$('rsok').onclick=()=>{clearSave();location.reload();};}});
 }
 $('menubtn').addEventListener('click',openMenu);
