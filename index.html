@@ -394,43 +394,99 @@ function drawWall(x,B,w){
   if(LITPASS){if(B.o.nowin)return;const fl=Math.max(1,Math.round(h/3.6)),fh=h/fl,cols=Math.max(1,Math.floor(w.L/(B.o.colw||2.6)));
     for(let k=0;k<fl;k++)for(let c=0;c<cols;c++){if(((k*7+c*13+(B.cx|0))%5+5)%5>2)continue;const t0=(c+.16)/cols,t1=(c+.84)/cols,y0=k*fh+fh*.3,y1=k*fh+fh*.84;
       quad(x,[wallPt(w,t0,y0),wallPt(w,t1,y0),wallPt(w,t1,y1),wallPt(w,t0,y1)],'rgba(255,214,130,.95)');}return;}
-  const A0=wallPt(w,0,0),B0=wallPt(w,1,0),B1=wallPt(w,1,h),A1=wallPt(w,0,h);
+  const A0=wallPt(w,0,0),B0=wallPt(w,1,0),B1=wallPt(w,1,h),A1=wallPt(w,0,h),Q=(t0,t1,y0,y1,f)=>quad(x,[wallPt(w,t0,y0),wallPt(w,t1,y0),wallPt(w,t1,y1),wallPt(w,t0,y1)],f);
   const top=Math.min(A1[1],B1[1]),bot=Math.max(A0[1],B0[1]);
   const g=x.createLinearGradient(0,top,0,bot);g.addColorStop(0,shade(B.wall,lit*1.06));g.addColorStop(.8,shade(B.wall,lit*.93));g.addColorStop(1,shade(B.wall,lit*.8));
   quad(x,[A0,B0,B1,A1],g);
-  const lw=Math.max(1,PPU*.05);
+  const lw=Math.max(1,PPU*.05),fine=!B.o.nowin&&!B.o.plain&&h>2.5,dt=v=>v/w.L; // dt：把世界長度換成牆面比例
+  let sd=Math.abs((B.cx*131+w.mz*977)|0)%2147483646+1;const rnd=()=>(sd=sd*16807%2147483647)/2147483647;
+  if(fine){ // 外牆質感：磁磚橫紋、洗石子斑點、牆角暗部
+    x.save();poly(x,[A0,B0,B1,A1]);x.clip();
+    x.strokeStyle='rgba(70,50,45,.075)';x.lineWidth=Math.max(.6,PPU*.025);x.beginPath();
+    for(let y=.6;y<h;y+=.6){const a=wallPt(w,0,y),b=wallPt(w,1,y);x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);}x.stroke();
+    const N=Math.min(1400,Math.round(w.L*h*1.6)),sz=Math.max(1,PPU*.07);
+    for(let i=0;i<N;i++){const p=wallPt(w,rnd(),rnd()*h);x.fillStyle=rnd()>.5?'rgba(255,255,255,.09)':'rgba(50,35,35,.07)';x.fillRect(p[0],p[1],sz,sz);}
+    const ex=x.createLinearGradient(A0[0],0,B0[0],0),ec=Math.min(.12,dt(1.2));
+    ex.addColorStop(0,'rgba(255,255,255,.16)');ex.addColorStop(ec,'rgba(255,255,255,0)');ex.addColorStop(1-ec,'rgba(25,20,40,0)');ex.addColorStop(1,'rgba(25,20,40,.2)');
+    x.fillStyle=ex;x.fillRect(Math.min(A0[0],B0[0])-2,top-2,Math.abs(B0[0]-A0[0])+4,bot-top+4);
+    x.restore();
+  }
   if(!B.o.nowin){
     const fl=Math.max(1,Math.round(h/3.6)),fh=h/fl,cols=Math.max(1,Math.floor(w.L/(B.o.colw||2.6)));
     const gl=x.createLinearGradient(0,top,0,bot);gl.addColorStop(0,shade(B.win,1.4));gl.addColorStop(.45,B.win);gl.addColorStop(1,shade(B.win,.72));
+    if(fine&&cols>=3){const pw=dt(.34),every=cols>=8?2:1; // 壁柱：窗與窗之間凸出的柱子
+      for(let c=0;c<=cols;c+=every){const t=c/cols;if(t<pw||t>1-pw)continue;Q(t-pw/2,t+pw/2,.7,h,shade(B.wall,lit*1.07));Q(t+pw/2,t+pw/2+dt(.1),.7,h,'rgba(25,20,40,.13)');}}
     for(let k=0;k<fl;k++){
-      if(k>0){const p=wallPt(w,0,k*fh),q=wallPt(w,1,k*fh);x.strokeStyle=shade(B.wall,lit*.82);x.lineWidth=Math.max(1,PPU*.07);x.beginPath();x.moveTo(p[0],p[1]);x.lineTo(q[0],q[1]);x.stroke();}
+      if(k>0){ // 樓板簷：上緣受光、下方投影
+        const y=k*fh;if(fine){Q(0,1,y-.34,y-.12,'rgba(25,20,40,.12)');Q(0,1,y-.12,y+.12,shade(B.wall,lit*1.12));Q(0,1,y+.08,y+.12,'rgba(255,255,255,.35)');}
+        else{const p=wallPt(w,0,y),q=wallPt(w,1,y);x.strokeStyle=shade(B.wall,lit*.82);x.lineWidth=Math.max(1,PPU*.07);x.beginPath();x.moveTo(p[0],p[1]);x.lineTo(q[0],q[1]);x.stroke();}}
       for(let c=0;c<cols;c++){
         const door=k===0&&!B.o.nodoor&&w.nz>.6&&(c===Math.floor(cols/2)||(cols>9&&c===Math.floor(cols/5)));
-        const t0=(c+.16)/cols,t1=(c+.84)/cols;let y0=k*fh+fh*.3,y1=k*fh+fh*.84;if(door){y0=0;y1=fh*.82;}
+        const t0=(c+.16)/cols,t1=(c+.84)/cols,tw=t1-t0;let y0=k*fh+fh*.3,y1=k*fh+fh*.84;if(door){y0=0;y1=fh*.82;}
         const q=[wallPt(w,t0,y0),wallPt(w,t1,y0),wallPt(w,t1,y1),wallPt(w,t0,y1)];
+        if(fine&&!door){Q(t0-dt(.12),t1+dt(.12),y0-.42,y0-.16,'rgba(25,20,40,.12)');} // 窗台投影
         quad(x,q,door?'#3d4d60':gl);
-        if(!door)quad(x,[wallPt(w,t0,y1-(y1-y0)*.3),wallPt(w,t1,y1-(y1-y0)*.3),wallPt(w,t1,y1),wallPt(w,t0,y1)],'rgba(255,255,255,.22)');
+        if(fine){
+          const ih=Math.min(.3,(y1-y0)*.14);
+          if(door){Q(t0-dt(.25),t1+dt(.25),y1,y1+.22,shade(B.wall,lit*1.18));Q(t0-dt(.25),t1+dt(.25),y1-.2,y1,'rgba(25,20,40,.25)');Q(t0+tw*.48,t0+tw*.52,0,y1,'rgba(255,230,160,.55)');}
+          else{
+            if(rnd()<.28)Q(t0,t0+tw*(.25+rnd()*.25),y0,y1,'rgba(246,238,222,.55)'); // 部分窗戶拉上窗簾
+            const ta=t0+tw*.58;quad(x,[wallPt(w,ta,y1),wallPt(w,ta+tw*.13,y1),wallPt(w,ta-tw*.12,y0),wallPt(w,ta-tw*.25,y0)],'rgba(255,255,255,.2)'); // 玻璃反光
+            Q(t0,t1,y1-ih,y1,'rgba(20,25,45,.38)');Q(t0,t0+dt(.1),y0,y1-ih,'rgba(20,25,45,.22)'); // 窗洞內凹陰影
+            x.strokeStyle='rgba(235,240,248,.75)';x.lineWidth=Math.max(1,PPU*.045);x.beginPath();
+            const m0=wallPt(w,t0+tw/2,y0),m1=wallPt(w,t0+tw/2,y1-ih),r0=wallPt(w,t0,y0+(y1-y0)*.62),r1=wallPt(w,t1,y0+(y1-y0)*.62);
+            x.moveTo(m0[0],m0[1]);x.lineTo(m1[0],m1[1]);x.moveTo(r0[0],r0[1]);x.lineTo(r1[0],r1[1]);x.stroke(); // 窗框分隔
+            Q(t0-dt(.12),t1+dt(.12),y0-.16,y0,shade(B.wall,lit*1.2)); // 窗台
+          }
+        }else if(!door)quad(x,[wallPt(w,t0,y1-(y1-y0)*.3),wallPt(w,t1,y1-(y1-y0)*.3),wallPt(w,t1,y1),wallPt(w,t0,y1)],'rgba(255,255,255,.22)');
         x.strokeStyle=door?'rgba(255,230,160,.85)':'rgba(255,255,255,.6)';x.lineWidth=lw;poly(x,q);x.stroke();
       }
     }
   }
-  quad(x,[wallPt(w,0,0),wallPt(w,1,0),wallPt(w,1,.7),wallPt(w,0,.7)],'rgba(30,25,45,.16)');
+  if(fine){Q(0,1,h-.3,h,shade(B.wall,lit*1.14));Q(0,1,h-.42,h-.3,'rgba(25,20,40,.12)');} // 頂部壓簷
+  quad(x,[wallPt(w,0,0),wallPt(w,1,0),wallPt(w,1,.7),wallPt(w,0,.7)],fine?shade(B.wall,lit*.72):'rgba(30,25,45,.16)'); // 牆基
+  if(fine){Q(0,1,.7,.8,'rgba(255,255,255,.25)');const ao=x.createLinearGradient(0,bot-PPU*1.2,0,bot);ao.addColorStop(0,'rgba(25,20,40,0)');ao.addColorStop(1,'rgba(25,20,40,.22)');
+    x.save();poly(x,[A0,B0,B1,A1]);x.clip();x.fillStyle=ao;x.fillRect(Math.min(A0[0],B0[0]),bot-PPU*1.2,Math.abs(B0[0]-A0[0]),PPU*1.2);x.restore();}
   if(B.o.facade)B.o.facade(x,B,w);
   x.strokeStyle='rgba(40,30,55,.5)';x.lineWidth=lw;poly(x,[A0,B0,B1,A1]);x.stroke();
 }
+// 往內縮的多邊形（女兒牆內側用）
+function insetPts(P,d){const n=P.length,cx=P.reduce((s,p)=>s+p[0],0)/n,cz=P.reduce((s,p)=>s+p[1],0)/n;
+  const N=P.map((a,i)=>{const b=P[(i+1)%n];let nx=-(b[1]-a[1]),nz=b[0]-a[0];const L=Math.hypot(nx,nz)||1;nx/=L;nz/=L;
+    if(!inPoly((a[0]+b[0])/2+nx*.05,(a[1]+b[1])/2+nz*.05,P)){nx=-nx;nz=-nz;}return [nx,nz];});
+  return P.map((p,i)=>{const a=N[(i-1+n)%n],b=N[i];const k=d/Math.max(.35,1+a[0]*b[0]+a[1]*b[1]);return [p[0]+(a[0]+b[0])*k,p[1]+(a[1]+b[1])*k];});}
 function drawRoof(x,B){
   if(LITPASS)return;
   const R=B.pts.map(p=>[PX(p[0]),PY(p[1],B.h)]);const ys=R.map(p=>p[1]);
   const g=x.createLinearGradient(0,Math.min(...ys),0,Math.max(...ys));g.addColorStop(0,shade(B.roof,1.14));g.addColorStop(1,shade(B.roof,.9));
-  poly(x,R);x.fillStyle=g;x.fill();
-  if(!B.o.nowin){x.strokeStyle=shade(B.roof,1.4);x.lineWidth=Math.max(1.5,PPU*.3);x.stroke();}
+  const fine=!B.o.nowin&&!B.o.plain&&B.h>2.5&&B.maxx-B.minx>3*K&&B.maxz-B.minz>3*K;
+  if(fine){ // 女兒牆：外圈受光、內側立面、凹下去的屋頂板
+    const ph=Math.min(.6,B.h*.05),I=insetPts(B.pts,.5*K),Ri=I.map(p=>[PX(p[0]),PY(p[1],B.h)]),Rd=I.map(p=>[PX(p[0]),PY(p[1],B.h-ph)]);
+    poly(x,R);x.fillStyle=shade(B.roof,1.32);x.fill();
+    poly(x,Ri);x.fillStyle=shade(B.roof,.72);x.fill();
+    x.save();poly(x,Ri);x.clip();poly(x,Rd);x.fillStyle=g;x.fill();
+    let sd=Math.abs((B.cx*71+B.cz*37)|0)%2147483646+1;const rnd=()=>(sd=sd*16807%2147483647)/2147483647;
+    const cx=Rd.reduce((s,p)=>s+p[0],0)/Rd.length,cy=Rd.reduce((s,p)=>s+p[1],0)/Rd.length,sw=Math.abs(R[1][0]-R[0][0])+Math.abs(R[2][0]-R[1][0]);
+    for(let i=0;i<5;i++){const X=cx+(rnd()-.5)*sw*.7,Y=cy+(rnd()-.5)*PPU*4,r=PPU*(1+rnd()*2.2);const rg=x.createRadialGradient(X,Y,0,X,Y,r);rg.addColorStop(0,'rgba(40,35,50,.09)');rg.addColorStop(1,'rgba(40,35,50,0)');x.fillStyle=rg;x.fillRect(X-r,Y-r,r*2,r*2);} // 水漬
+    x.strokeStyle='rgba(30,25,45,.07)';x.lineWidth=Math.max(.6,PPU*.03);x.beginPath(); // 屋頂板接縫
+    for(let k=-12;k<=12;k++){const X=cx+k*PPU*1.6;x.moveTo(X,cy-PPU*12);x.lineTo(X,cy+PPU*12);}x.stroke();
+    x.restore();
+    x.strokeStyle='rgba(255,255,255,.35)';x.lineWidth=Math.max(1,PPU*.05);poly(x,R);x.stroke();
+  }else{poly(x,R);x.fillStyle=g;x.fill();if(!B.o.nowin){x.strokeStyle=shade(B.roof,1.4);x.lineWidth=Math.max(1.5,PPU*.3);x.stroke();}}
   x.strokeStyle='rgba(30,25,45,.55)';x.lineWidth=Math.max(1,PPU*.05);poly(x,R);x.stroke();
   if(B.o.roofFx)B.o.roofFx(x,B,R);
-  else if(!B.o.nowin&&B.h>8&&!B.o.plain){
-    const cx=R.reduce((s,p)=>s+p[0],0)/R.length,cy=ys.reduce((s,p)=>s+p,0)/R.length;
-    [[-.9,-.2],[.7,.25],[1.9,-.1]].forEach(([dx,dy])=>{const X=cx+dx*PPU*2,Y=cy+dy*PPU*2;
-      x.fillStyle='rgba(30,25,45,.18)';x.fillRect(X-PPU*.7+PPU*.25,Y-PPU*.4+PPU*.2,PPU*1.4,PPU*.9);
-      x.fillStyle='#e4e6ea';x.fillRect(X-PPU*.7,Y-PPU*.8,PPU*1.4,PPU*.9);x.fillStyle='#c4c8cf';x.fillRect(X-PPU*.7,Y+PPU*.1-PPU*.3,PPU*1.4,PPU*.3);});
+  else if(!B.o.nowin&&B.h>8&&!B.o.plain){ // 屋頂設備：冷氣機組與水塔
+    const cx=R.reduce((s,p)=>s+p[0],0)/R.length,cy=ys.reduce((s,p)=>s+p,0)/R.length,u=PPU;
+    [[-.9,-.2],[.7,.25]].forEach(([dx,dy])=>{const X=cx+dx*u*2,Y=cy+dy*u*2;
+      x.fillStyle='rgba(30,25,45,.2)';x.fillRect(X-u*.6,Y+u*.1,u*1.6,u*.5);
+      x.fillStyle='#c4c8cf';x.fillRect(X-u*.7,Y-u*.35,u*1.4,u*.55);x.fillStyle='#eef0f3';x.fillRect(X-u*.7,Y-u*.85,u*1.4,u*.5);
+      x.fillStyle='#8f96a1';x.beginPath();x.arc(X-u*.3,Y-u*.6,u*.17,0,7);x.arc(X+u*.3,Y-u*.6,u*.17,0,7);x.fill();
+      x.strokeStyle='rgba(30,25,45,.4)';x.lineWidth=Math.max(1,u*.04);x.strokeRect(X-u*.7,Y-u*.85,u*1.4,u*1.05);});
+    const X=cx+1.9*u*2,Y=cy-.1*u*2,r=u*.62; // 水塔
+    x.fillStyle='rgba(30,25,45,.2)';x.beginPath();x.ellipse(X+u*.25,Y+u*.15,r,r*.45,0,0,7);x.fill();
+    const tg=x.createLinearGradient(X-r,0,X+r,0);tg.addColorStop(0,'#e9edf1');tg.addColorStop(.4,'#ffffff');tg.addColorStop(1,'#a9b2bd');
+    x.fillStyle=tg;x.beginPath();x.moveTo(X-r,Y-u*1.3);x.lineTo(X-r,Y);x.ellipse(X,Y,r,r*.45,0,Math.PI,0,true);x.lineTo(X+r,Y-u*1.3);x.closePath();x.fill();
+    x.fillStyle='#dfe4ea';x.beginPath();x.ellipse(X,Y-u*1.3,r,r*.45,0,0,7);x.fill();x.strokeStyle='rgba(30,25,45,.4)';x.lineWidth=Math.max(1,u*.04);x.stroke();
   }
 }
 function plate(x,text,X,Y,fs,bg='rgba(20,26,52,.85)',fg='#ffffff',bd='rgba(255,216,74,.95)'){
