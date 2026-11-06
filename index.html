@@ -65,6 +65,12 @@ html,body{margin:0;height:100%;overflow:hidden;background:#8db57a;font-family:"H
 .fb{font-size:15px;min-height:1.2em;margin-bottom:10px}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 #start .box{text-align:center}
+#coach{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translateX(-50%);z-index:7;padding:10px 14px;width:min(520px,calc(100vw - 32px));max-width:60vw;font-size:15px;line-height:1.6;display:none}
+@media (max-width:900px){#coach{max-width:none;width:min(440px,calc(100vw - 340px));min-width:280px;font-size:14px;top:auto;bottom:calc(44px + env(safe-area-inset-bottom))}}
+#coach .cb{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}#coach .btn{padding:4px 12px;font-size:14px}
+.sfoot{margin-top:10px;font-size:13px;color:#6b6478}.sfoot a{color:#2f6b5a;text-decoration:none;font-weight:bold;margin:0 6px;cursor:pointer}
+.demob{display:inline-block;background:#d8343f;color:#fff;border-radius:999px;padding:2px 12px;font-size:13px;font-weight:bold;margin-bottom:6px}
+#idlew{position:fixed;inset:0;z-index:60;background:rgba(18,24,48,.72);display:flex;align-items:center;justify-content:center;color:#fff;text-align:center;font-size:22px;line-height:1.7}
 #start h1{margin:4px 0 4px;font-size:25px;line-height:1.35;letter-spacing:.5px}
 #start .ln{display:inline-block;font-size:12px;font-weight:bold;color:#fff;background:#d8343f;border-radius:6px;padding:2px 8px;margin-bottom:4px}
 #start .subt{font-size:15px;font-weight:bold;color:#2f6b5a;margin-bottom:10px}
@@ -134,6 +140,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#8db57a;font-family:"H
 <div id="joy"><div id="knob"></div></div>
 <button id="jump">跳</button>
 <button id="talk" class="panel"></button>
+<div id="coach" class="panel"></div>
 <div id="hint" class="panel">WASD／方向鍵移動・Shift 衝刺・空白鍵跳・E 對話</div>
 
 <div id="dlg" class="overlay hidden"><div id="vnL" class="vn"></div><div id="vnR" class="vn"></div><div class="box">
@@ -156,8 +163,11 @@ html,body{margin:0;height:100%;overflow:hidden;background:#8db57a;font-family:"H
   <div class="pick"><b>身分</b><button data-g="v" class="opt">🔍 小六體驗</button><button data-g="j" class="opt sel">🎒 國一新生</button><button data-g="s" class="opt">📘 高一新生</button></div>
   <div id="gdesc" class="keys" style="margin:-2px 0 10px"></div>
   <div class="pick"><b>性別</b><button data-x="m" class="opt sel">👦 男生・藍</button><button data-x="f" class="opt">👧 女生・紅</button></div>
+  <div class="pick"><b>長度</b><button data-l="full" class="opt sel">📅 完整一年</button><button data-l="quick" class="opt">⏱ 快速體驗・約 15 分鐘</button></div>
   <button id="go" class="btn main">開始冒險</button>
   <button id="cont" class="btn" style="width:100%;margin-top:8px;display:none">↺ 繼續上次進度</button>
+  <button id="fsbtn" class="btn" style="width:100%;margin-top:8px;display:none">⛶ 全螢幕</button>
+  <div class="sfoot"><a id="credlink">🎬 製作群</a>・<a id="demolink">🏫 展示模式（擺攤用）</a></div>
 </div></div>
 
 <script>
@@ -705,6 +715,9 @@ let G='j'; // j=國一新生, s=高一新生
 const T=v=>typeof v==='function'?v(G):v;
 const GRADE=()=>G==='j'?'國一':'高一';
 let VISIT=false; // 小六參觀：走國中部（國一）路線
+let QUICK=false; // 快速體驗：每個月只做一個代表任務（約 15 分鐘）
+const QUICK_IDS=new Set(['gate','clubfair','relay','history','dec','lantern','hbl','bookfair','april','club','final']);
+const DEMO=/[?&]demo=1\b/.test(location.search); // 展示模式：網址加 ?demo=1；不存檔、閒置自動回開始畫面
 const J=(a,b)=>()=>G==='j'?a:b;
 // NPC 站位
 // 站位：A 大草坪、B 自強大樓前、C 行健樓前、D 熊祥南側、E 大中至正樓前（高一二）、F 草坪北側、G 曹俊大樓西側（高三）、H 熊祥大樓前（國一）、I 崇智樓前（國二、國三）、J 曹俊大樓東側（國三，教室在曹俊 2–4F）。正常教學：國三一律稱「國三學長姐」，不分班別
@@ -1158,7 +1171,7 @@ let coinCount=0,decoC=false,decoL=false;
 /* ---------- 介面 ---------- */
 let hudMin=isTouch;
 $('hud').addEventListener('click',()=>{hudMin=!hudMin;renderHud();});
-const inMonth=t=>t.m===month&&(!t.only||t.only===G);
+const inMonth=t=>t.m===month&&(!t.only||t.only===G)&&(!QUICK||QUICK_IDS.has(t.id));
 const monthTasks=()=>TASKS.filter(inMonth);
 function renderHud(){
   const mt=monthTasks(),req=mt.filter(t=>!t.opt),done=req.filter(t=>t.done).length;
@@ -1314,7 +1327,7 @@ function endRun(win){
 }
 
 function trigger(t){
-  t.cool=true;
+  t.cool=true;if(TUT.on&&TUT.step===1)setTimeout(tutNext,0);
   const title=T(t.title);
   if(t.TY==='talk') dialog({title,text:T(t.text),btn:'好！',onDone:()=>complete(t)});
   else if(t.TY==='quiz') dialog({title,text:T(t.q),opts:T(t.opts),ans:T(t.ans),ex:T(t.ex),onDone:()=>complete(t)});
@@ -1326,9 +1339,9 @@ function trigger(t){
   else if(t.TY==='final'){
     const left=monthTasks().filter(x=>x!==t&&!x.done&&!x.opt);
     if(left.length){dialog({title,text:`校長：先去${left.map(x=>x.N).join('、')}，再回來找我吧！`,btn:'好！'});return;}
-    if(VISIT){dialog({title:'🏆 南山體驗完成！',text:`校長：歡迎你，小六的南山豹！記得：「自己跟自己比，一次比一次好。」從新生報到、社團博覽會、80 週年校慶，到畢業典禮，你已經體驗了南山國中部的一整年，也解鎖了 ${honorsGot.length} 項南山榮譽。明年，期待在南山見到你！\n（入學資訊請見南山中學官網）`,btn:'領取體驗紀念卡 🎉',onDone:()=>{complete(t);confetti();setTimeout(stampBook,2600);}});return;}
+    if(VISIT){dialog({title:'🏆 南山體驗完成！',text:`校長：歡迎你，小六的南山豹！記得：「自己跟自己比，一次比一次好。」從新生報到、社團博覽會、80 週年校慶，到畢業典禮，你已經體驗了南山國中部的一整年，也解鎖了 ${honorsGot.length} 項南山榮譽。明年，期待在南山見到你！\n（入學資訊請見南山中學官網）`,btn:'領取體驗紀念卡 🎉',onDone:()=>{complete(t);confetti();setTimeout(stampBook,2600);setTimeout(()=>toast('🎓 體驗完成！選單 → 🎬 製作群',3200),600);}});return;}
     const next=G==='j'?'國二':'高二';
-    dialog({title:'🏆 這一年也太充實了吧！',text:`校長：從${G==='j'?'7/31':'7/27'}新生入學、80 週年校慶、民俗季點燈，到畢業典禮歡送學長姐，你的${GRADE()}走完一整年了！你也解鎖了 ${honorsGot.length} 項南山榮譽。祝你升上${next}，繼續「自己跟自己比，一次比一次好」，自強不息！`,btn:'領取一年紀念 🎉',onDone:()=>{complete(t);confetti();setTimeout(stampBook,3200);setTimeout(()=>toast('🎓 恭喜完成南山的一年！',3500),600);}});
+    dialog({title:'🏆 這一年也太充實了吧！',text:`校長：從${G==='j'?'7/31':'7/27'}新生入學、80 週年校慶、民俗季點燈，到畢業典禮歡送學長姐，你的${GRADE()}走完一整年了！你也解鎖了 ${honorsGot.length} 項南山榮譽。祝你升上${next}，繼續「自己跟自己比，一次比一次好」，自強不息！`,btn:'領取一年紀念 🎉',onDone:()=>{complete(t);confetti();setTimeout(stampBook,3200);setTimeout(()=>toast('🎓 恭喜完成南山的一年！（選單 → 🎬 製作群）',3500),600);}});
   }
 }
 
@@ -1673,10 +1686,11 @@ const STAMP_ICON=['🏫','📚','🎉','🏛️','🎭','🏮','🏀','📖','�
 
 /* ---------- 存檔（瀏覽器本機） ---------- */
 const SAVE_KEY='nanshan-panther-save-v1';
-function saveGame(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({G,SEX,VISIT,month,done:TASKS.filter(t=>t.done).map(t=>t.id),hon:honorsGot,stamps:STAMPS,stars:STARS,club:CLUB,q:[...QDONE],nick:NICK,ach:[...ACH],vis:[...VISITED],hist:[...HIST],talk:[...TALKED],bseen:[...BSEEN],bch:BCHOICE}));}catch(e){}}
+function saveGame(){if(DEMO)return;try{localStorage.setItem(SAVE_KEY,JSON.stringify({G,SEX,VISIT,quick:QUICK,month,done:TASKS.filter(t=>t.done).map(t=>t.id),hon:honorsGot,stamps:STAMPS,stars:STARS,club:CLUB,q:[...QDONE],nick:NICK,ach:[...ACH],vis:[...VISITED],hist:[...HIST],talk:[...TALKED],bseen:[...BSEEN],bch:BCHOICE}));}catch(e){}}
 function loadSave(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');return s&&typeof s.month==='number'?s:null;}catch(e){return null;}}
 function clearSave(){try{localStorage.removeItem(SAVE_KEY);}catch(e){}}
 function applySave(s){
+  QUICK=!!s.quick;
   TASKS.forEach(t=>{if(s.done.includes(t.id))t.done=true;});
   (s.hon||[]).forEach(i=>{if(coins[i]&&!coins[i].got){coins[i].got=true;honorsGot.push(i);}});
   (s.stamps||[]).forEach((v,i)=>STAMPS[i]=v);STARS=s.stars||0;CLUB=s.club||'';NICK=s.nick||'';(s.q||[]).forEach(q=>QDONE.add(q));
@@ -1784,6 +1798,42 @@ HOOK.update.push(dt=>{if(!DRILL)return;
   if(paused)return;DRILL.time+=dt;$('timer').textContent=`🚨 疏散中 ${DRILL.time.toFixed(1)} 秒`;
   const [wx,wz]=DRILL.route[0],last=DRILL.route.length===1,dd=Math.hypot(pos.x-wx*K,pos.z-wz*K);
   if(last&&dd<6.5)finishDrill();else if(!last&&dd<4){DRILL.route.shift();drillNav();}});
+
+/* ---------- 開場新手引導（第一次玩時；展示模式每次都有） ---------- */
+const TUT={on:false,step:0,dist:0,last:null};
+function tutWanted(){if(DEMO)return true;try{return localStorage.getItem('nanshan-tut')!=='1';}catch(e){return true;}}
+const TUT_STEPS=[
+ {t:()=>isTouch?'👈 用左下角的搖桿走走看！':'⌨️ 用 WASD 或方向鍵走走看！（Shift 衝刺、空白鍵跳）'},
+ {t:()=>'⭐ 地上發光的圈圈就是任務。跟著地上的藍色光線，走進最近的圈圈！'},
+ {t:()=>(isTouch?'💬 走近主任，點右下角的 💬 就能進辦公室聊天。':'💬 走近主任按 E，就能進辦公室聊天。')+'左上角是本月任務，全部完成就會進入下個月。',btn:'下一步'},
+ {t:()=>'☰ 右上角「選單」有集章冊、找地點、校園地圖和小辭典。迷路時就點「🔎 找地點」！',btn:'開始冒險！'}];
+function tutStart(){Object.assign(TUT,{on:true,step:0,dist:0,last:null});tutShow();}
+function tutDone(){TUT.on=false;$('coach').style.display='none';if(!DEMO)try{localStorage.setItem('nanshan-tut','1');}catch(e){}}
+function tutShow(){const st=TUT_STEPS[TUT.step],c=$('coach');
+  c.innerHTML=`<div><b>新手引導 ${TUT.step+1}/${TUT_STEPS.length}</b>　${st.t()}</div><div class="cb">${st.btn?`<button id="cnext" class="btn">${st.btn}</button>`:''}<button id="cskip" class="btn">略過引導</button></div>`;
+  c.style.display='block';$('cskip').onclick=()=>{sfx('click');tutDone();};if(st.btn)$('cnext').onclick=()=>{sfx('click');tutNext();};
+  if(TUT.step===1){const ts=monthTasks().filter(t=>!t.done&&!t.opt);if(ts.length){const d=t=>Math.hypot(pos.x-t.X,pos.z-t.Z),n=ts.reduce((a,b)=>d(a)<d(b)?a:b);NAV={label:n.N,where:'',x:n.X,z:n.Z};}}}
+function tutNext(){if(!TUT.on)return;TUT.step++;if(TUT.step>=TUT_STEPS.length){tutDone();toast('🎉 準備好了！開始你的南山一年吧',2400);return;}tutShow();}
+HOOK.update.push(()=>{if(!TUT.on)return;const hide=paused||!$('start').classList.contains('hidden');$('coach').style.visibility=hide?'hidden':'visible';if(hide)return;
+  if(TUT.step===0){if(TUT.last)TUT.dist+=Math.hypot(pos.x-TUT.last[0],pos.z-TUT.last[1]);TUT.last=[pos.x,pos.z];if(TUT.dist>8*K){sfx('step+');tutNext();}}});
+/* ---------- 展示模式：閒置 90 秒跳提醒，再 10 秒沒人碰就回到開始畫面 ---------- */
+if(DEMO){const IDLE=90,GRACE=10;let last=performance.now(),warn=null;
+  const bump=()=>{last=performance.now();if(warn){warn.remove();warn=null;}};
+  ['pointerdown','keydown','touchstart','wheel'].forEach(e=>addEventListener(e,bump,{passive:true,capture:true}));
+  setInterval(()=>{if(!$('start').classList.contains('hidden')){last=performance.now();return;}const idle=(performance.now()-last)/1000;
+    if(idle<IDLE)return;const left=Math.ceil(IDLE+GRACE-idle);if(left<=0){location.reload();return;}
+    if(!warn){warn=document.createElement('div');warn.id='idlew';document.body.appendChild(warn);}
+    warn.innerHTML=`<div>👀 還有人在玩嗎？<br><b style="font-size:40px">${left}</b> 秒後回到開始畫面<br><span style="font-size:16px">點一下畫面就能繼續玩</span></div>`;},400);}
+/* ---------- 製作群 ---------- */
+function credits(){dialog({title:'🎬 製作群',por:ICON_SCHOOL,html:`<div class="gl">
+<div class="oinfo"><b>《我的校園生活就是這麼自強不息！～成為南山豹的我，這一年也太充實了吧～》</b><br>新北市南山高級中學・115 學年度 AI 導入數位教學示範學校</div>
+<div class="oinfo"><b>企劃・文字・遊戲設計</b><br>國文科召集人　闕宏宇老師</div>
+<div class="oinfo"><b>AI 協作開發</b><br>Claude（Anthropic）<br>Gemini（Google）<br>老師規劃與審訂內容，AI 協助撰寫程式、繪製畫面與音效。</div>
+<div class="oinfo"><b>背景音樂</b><br>AI 生成（主題曲、校慶、段考、畢業）</div>
+<div class="oinfo"><b>字型</b><br>jf open 粉圓（Huninn）・SIL Open Font License</div>
+<div class="oinfo"><b>資料來源</b><br>南山中學官網（校史、大事紀、各處室）、學校行事曆、社團活動簡介、課程計畫、地震避難疏散路線圖</div>
+<div class="oinfo"><b>特別感謝</b><br>南山中學董事會、校長、各處室與全體師生</div>
+<div class="oinfo" style="opacity:.75">遊戲中的同學（例如林小安、陳阿哲）為虛構人物。</div></div>`,btn:'關閉'});}
 
 /* ---------- 各科小教室（加分題，不影響月份進度） ---------- */
 function askMulti(t){
@@ -2370,11 +2420,11 @@ function openMenu(){
   if(paused)return;sfx('open');
   dialog({title:'☰ 選單',por:ICON_SCHOOL,html:`<div class="menu">
 <button data-m="stamp">📒 集章冊</button><button data-m="find">🔎 找地點</button><button data-m="off">🏢 處室名冊</button><button data-m="floor">📍 樓層導覽</button>
-<button data-m="song">🎵 校歌</button><button data-m="gloss">📖 南山小辭典</button><button data-m="course">📚 特色課程</button><button data-m="qual">🎨 畫質</button><button data-m="honor">🏅 南山榮譽榜</button><button data-m="tour">🏫 360° 導覽</button>
+<button data-m="song">🎵 校歌</button><button data-m="gloss">📖 南山小辭典</button><button data-m="course">📚 特色課程</button><button data-m="qual">🎨 畫質</button><button data-m="cred">🎬 製作群</button><button data-m="honor">🏅 南山榮譽榜</button><button data-m="tour">🏫 360° 導覽</button>
 <button data-m="map">🗺️ 校園地圖</button><button data-m="hist">🏛️ 校史時光碑</button><button data-m="ach">🏆 成就徽章</button><button data-m="album">📷 南山相簿</button><button data-m="reset">🔄 重新開始</button></div>`.replace(/\n/g,''),btn:'關閉'});
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;close();
     if(m==='stamp')stampBook();else if(m==='find')findPlace();else if(m==='off')officeDirectory();else if(m==='floor')floorGuide();else if(m==='song')showAnthem();
-    else if(m==='gloss')glossary();else if(m==='course')courseBook();else if(m==='qual')qualityMenu();else if(m==='map')bigMap();else if(m==='hist')historyBook();else if(m==='ach')achBook();else if(m==='album')album();else if(m==='honor')$('coins').click();else if(m==='tour')window.open('https://my.matterport.com/show/?m=Z6YwRxKy3kZ','_blank','noopener');
+    else if(m==='gloss')glossary();else if(m==='course')courseBook();else if(m==='qual')qualityMenu();else if(m==='cred')credits();else if(m==='map')bigMap();else if(m==='hist')historyBook();else if(m==='ach')achBook();else if(m==='album')album();else if(m==='honor')$('coins').click();else if(m==='tour')window.open('https://my.matterport.com/show/?m=Z6YwRxKy3kZ','_blank','noopener');
     else if(m==='reset'){dialog({title:'🔄 重新開始',por:ICON_SCHOOL,html:'<div class="oinfo">確定要清除進度、回到開始畫面嗎？集章、星星和榮譽都會歸零。</div><button class="btn" id="rsok" style="width:100%">確定，重新開始</button>',btn:'不要，繼續玩'});$('rsok').onclick=()=>{clearSave();location.reload();};}});
 }
 $('menubtn').addEventListener('click',openMenu);
@@ -2388,10 +2438,20 @@ const GDESC={v:'🔍 給想讀南山的小六生：用國一新生的身分，�
 const showG=()=>{$('gdesc').textContent=GDESC[pickG]+(pickG==='v'?'':'（國中、高中兩條路線的任務與課程完全不同）');};showG();
 document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{pickG=b.dataset.g;document.querySelectorAll('[data-g]').forEach(x=>x.classList.toggle('sel',x===b));showG();});
 document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{pickX=b.dataset.x;document.querySelectorAll('[data-x]').forEach(x=>x.classList.toggle('sel',x===b));});
-function start(g,x,sv){audioInit();VISIT=g==='v';G=VISIT?'j':g;SEX=x;P=makeChar(pantherCfg(x),3.2);setupTasks();$('start').classList.add('hidden');
-  if(sv){applySave(sv);enterMonth(sv.month);}else{clearSave();enterMonth(0);}}
+let pickL='full';
+document.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{pickL=b.dataset.l;document.querySelectorAll('[data-l]').forEach(x=>x.classList.toggle('sel',x===b));});
+const selPick=(attr,v)=>document.querySelectorAll(`[data-${attr}]`).forEach(x=>{if(x.dataset[attr]===v)x.click();});
+function start(g,x,sv){audioInit();VISIT=g==='v';G=VISIT?'j':g;SEX=x;P=makeChar(pantherCfg(x),3.2);
+  if(sv){QUICK=!!sv.quick;setupTasks();$('start').classList.add('hidden');applySave(sv);enterMonth(sv.month);}
+  else{QUICK=pickL==='quick';setupTasks();$('start').classList.add('hidden');clearSave();enterMonth(0);if(tutWanted())tutStart();}}
 $('go').onclick=()=>start(pickG,pickX);
-{const sv=loadSave();if(sv){const b=$('cont');b.style.display='block';b.textContent=`↺ 繼續上次進度（${sv.visit||sv.VISIT?'小六體驗':sv.G==='j'?'國一':'高一'}・${MONTHS[sv.month].name.split('・')[0]}）`;b.onclick=()=>start(sv.VISIT?'v':sv.G,sv.SEX,sv);}}
+$('credlink').onclick=e=>{e.preventDefault();credits();};
+$('demolink').textContent=DEMO?'🚪 結束展示模式':'🏫 展示模式（擺攤用）';
+$('demolink').onclick=e=>{e.preventDefault();const u=new URL(location.href);if(DEMO)u.searchParams.delete('demo');else u.searchParams.set('demo','1');location.href=u.toString();};
+if(DEMO){const bd=document.createElement('div');bd.className='demob';bd.textContent='🏫 展示模式・不存檔・閒置 90 秒自動重來';$('start').querySelector('.box').prepend(bd);
+  selPick('g','v');selPick('l','quick');const fs=$('fsbtn');fs.style.display='block';
+  fs.onclick=()=>{const d=document.documentElement;(d.requestFullscreen||d.webkitRequestFullscreen||(()=>{})).call(d);};}
+{const sv=DEMO?null:loadSave();if(sv){const b=$('cont');b.style.display='block';b.textContent=`↺ 繼續上次進度（${sv.visit||sv.VISIT?'小六體驗':sv.G==='j'?'國一':'高一'}・${MONTHS[sv.month].name.split('・')[0]}${sv.quick?'・快速體驗':''}）`;b.onclick=()=>start(sv.VISIT?'v':sv.G,sv.SEX,sv);}}
 })();
 </script>
 </body>
