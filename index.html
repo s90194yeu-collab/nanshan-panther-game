@@ -718,6 +718,7 @@ let VISIT=false; // 小六參觀：走國中部（國一）路線
 let QUICK=false; // 快速體驗：每個月只做一個代表任務（約 15 分鐘）
 const QUICK_IDS=new Set(['gate','clubfair','relay','history','dec','lantern','hbl','bookfair','april','club','final']);
 const DEMO=/[?&]demo=1\b/.test(location.search); // 展示模式：網址加 ?demo=1；不存檔、閒置自動回開始畫面
+const FAST=()=>DEMO||QUICK; // 展示模式與快速體驗：走路、打字、月份轉場、進下個月都加快
 const J=(a,b)=>()=>G==='j'?a:b;
 // NPC 站位
 // 站位：A 大草坪、B 自強大樓前、C 行健樓前、D 熊祥南側、E 大中至正樓前（高一二）、F 草坪北側、G 曹俊大樓西側（高三）、H 熊祥大樓前（國一）、I 崇智樓前（國二、國三）、J 曹俊大樓東側（國三，教室在曹俊 2–4F）。正常教學：國三一律稱「國三學長姐」，不分班別
@@ -1306,10 +1307,10 @@ function enterMonth(i){
 function complete(t){
   t.done=true;renderHud();toast(`✅ 完成「${t.N}」`);sfx('complete');shake(.35);fxPop(pos.x,pos.z,'✅','#8ff0a4');
   const allReq=!t.opt&&monthTasks().filter(x=>!x.opt).every(x=>x.done);
-  if(allReq&&!STAMPS[month]){STAMPS[month]=1;const mn=MONTHS[month].name.split('・')[0],ic=STAMP_ICON[month];setTimeout(()=>{stampAnim(ic,mn);toast(`📒 ${mn} 集章成功！（選單 → 集章冊）`,2400);},1900);}
+  if(allReq&&!STAMPS[month]){STAMPS[month]=1;const mn=MONTHS[month].name.split('・')[0],ic=STAMP_ICON[month];setTimeout(()=>{stampAnim(ic,mn);toast(`📒 ${mn} 集章成功！（選單 → 集章冊）`,2400);},FAST()?1000:1900);}
   saveGame();
   if(allReq&&month<MONTHS.length-1){
-    const adv=()=>{if(run)return;if(!$('dlg').classList.contains('hidden')||!$('mg').classList.contains('hidden')){setTimeout(adv,600);return;}enterMonth(month+1);};setTimeout(adv,1300);
+    const adv=()=>{if(run)return;if(!$('dlg').classList.contains('hidden')||!$('mg').classList.contains('hidden')){setTimeout(adv,600);return;}enterMonth(month+1);};setTimeout(adv,FAST()?700:1300);
   }
 }
 
@@ -1609,7 +1610,7 @@ function update(dt){
   if(!paused){if(keys.KeyW||keys.ArrowUp)iy+=1;if(keys.KeyS||keys.ArrowDown)iy-=1;if(keys.KeyA||keys.ArrowLeft)ix-=1;if(keys.KeyD||keys.ArrowRight)ix+=1;ix+=joyV.x;iy+=joyV.y;}
   let l=Math.hypot(ix,iy);if(l>1){ix/=l;iy/=l;l=1;}
   const mx=ix,mz=-iy;
-  const sprint=(!DRILL&&(keys.ShiftLeft||keys.ShiftRight||l>.95&&isTouch))?1.45:1,sp=10*sprint*l;
+  const sprint=(!DRILL&&(keys.ShiftLeft||keys.ShiftRight||l>.95&&isTouch))?1.45:1,sp=10*sprint*l*(FAST()?1.3:1);
   if(l>.05){
     const nx=pos.x+mx/l*sp*dt,nz=pos.z+mz/l*sp*dt;
     if(!blocked(nx,pos.z))pos.x=nx;if(!blocked(pos.x,nz))pos.z=nz;
@@ -2360,7 +2361,7 @@ HOOK.actors.push(add=>AMB.forEach(a=>add(a.x,a.z,()=>{drawChar(a.C,a.x,a.z,0,a.d
 let TYPING=null;
 function typeText(t){const el=$('dP');clearInterval(typeText.iv);t=String(t??'');el.textContent='';let i=0;const n=t.length;
   const fin=()=>{clearInterval(typeText.iv);el.textContent=t;TYPING=null;};TYPING=fin;
-  typeText.iv=setInterval(()=>{i=Math.min(n,i+2);el.textContent=t.slice(0,i);if(i%6===0)sfx('type');if(i>=n)fin();},26);}
+  const st=FAST()?3:2;typeText.iv=setInterval(()=>{i=Math.min(n,i+st);el.textContent=t.slice(0,i);if(i%6<st)sfx('type');if(i>=n)fin();},FAST()?18:26);}
 $('dP').addEventListener('click',()=>{if(TYPING)TYPING();});
 function vnStands(cfg,show){const L=$('vnL'),Rr=$('vnR');
   if(!show&&!cfg){L.classList.remove('on');Rr.classList.remove('on');return;}
@@ -2370,7 +2371,7 @@ function vnStands(cfg,show){const L=$('vnL'),Rr=$('vnR');
 /* ---------- 月份轉場：翻日曆＋上課鐘聲 ---------- */
 function monthIntro(M,cb){bgmSync();const [a,b]=M.name.split('・');paused=true;const el=document.createElement('div');el.id='mintro';
   el.innerHTML=`<div class="cal"><div class="ring"><i></i><i></i></div><div class="yy">南山 115 學年</div><div class="mm">${a}</div><div class="tt">${b||''}</div></div>`;document.body.appendChild(el);
-  sfx('page');setTimeout(()=>sfx('bell'),300);const end=()=>{if(!el.isConnected)return;el.remove();cb();};el.onclick=end;setTimeout(()=>el.classList.add('out'),1700);setTimeout(end,2100);}
+  sfx('page');setTimeout(()=>sfx('bell'),300);const end=()=>{if(!el.isConnected)return;el.remove();cb();};el.onclick=end;const f=FAST();setTimeout(()=>el.classList.add('out'),f?950:1700);setTimeout(end,f?1350:2100);}
 
 /* ---------- 同班夥伴：林小安、陳阿哲（虛構角色）的一年故事 ---------- */
 const BUDDY=[
