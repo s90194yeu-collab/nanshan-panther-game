@@ -1,6 +1,7 @@
 /* 校園地圖輪廓產生器（給老師列印、手寫修改用）
  * 用法：把 index.html 複製一份，在最後的 `})();` 前面加上
  *   window.MAPDATA=()=>({K,BUILD,GATES,SIDEDOORS,OFFNPC,SP,HISTORY,TASKS,LAWNS,FIELD,COURT,GOB,PARK,PARK2,THEATRE,ROAD1,ROAD2,PTSK,ZH2,GTEXT,QLOC,LAMPS,MONTHS,BINFO,FONT,GZONES,PARK3,ZS,
+ *     LANES:[['下凹車道',LANE2,'#6b6e76',2.6],['石磚路',BRICK,'#c9b8a0',3.6],['通漳二小路',LANE3,'#cdbf9f',1.6]],
  *     tc:(g,t)=>{const o=G;G=g;const r=[T(t.x),T(t.z),T(t.name),T(t.type)];G=o;return r;}});
  * 再載入本檔，執行 mapOutline(MAPDATA()) 取得 {base, tasks, csv}（兩張 PNG 的 dataURL 與一份 CSV 文字）。
  * 座標一律用「未放大」的值（遊戲程式裡寫的數字），x 往右變大、z 往下變大。
@@ -46,6 +47,7 @@ function mapOutline(D){
     const named=D.BUILD.filter(B=>B.name&&!B.o.plain);
     named.forEach(B=>{const at=B.o.labAt?tu(...B.o.labAt):tm(B.cx,B.cz);lab(m,B.name,at[0],at[1],fade?22:26,fade?'rgba(255,255,255,.6)':'rgba(255,255,255,.92)',fade?'#555':'#1d1d28');});
     {const [x,y]=tm(D.THEATRE.lx||D.THEATRE.x,D.THEATRE.lz||D.THEATRE.z);lab(m,'天馬劇場',x,y,fade?20:23,'rgba(255,255,255,.85)',fade?'#555':'#1d1d28');}
+    if(!fade)(D.LANES||[]).forEach(([n,L,c,w])=>{m.beginPath();L.forEach(([x,z],i)=>{const [a,b]=tu(x,z);i?m.lineTo(a,b):m.moveTo(a,b);});m.strokeStyle=c;m.lineWidth=w*S;m.lineCap='round';m.lineJoin='round';m.stroke();const q=L[Math.floor(L.length/2)],[a,b]=tu(q[0],q[1]);lab(m,n,a,b,15,'rgba(255,255,255,.85)','#3a3a46',true);});
     if(!fade)(D.GZONES||[]).forEach(g=>{if(!g.n||g.n==='石板路')return;const c=g.P.reduce((a,p)=>[a[0]+p[0]/g.P.length,a[1]+p[1]/g.P.length],[0,0]);const [x,y]=tm(...c);lab(m,g.n,x,y,15,'rgba(255,255,255,.8)','#2b4a3a',true);});
     if(!fade)D.GTEXT.forEach(([t,x,z])=>{if(/路 /.test(t))return;const [a,b]=tm(x,z);lab(m,t,a,b,16,'rgba(255,255,255,.7)','#3a3a46',false);});
     // 路名
