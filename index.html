@@ -602,8 +602,8 @@ building('曹俊大樓',-32.4,-27.6,40,9,24,'#efe3d3','#9c6b4a',{rot:TH,nobox:1,
     x.fillStyle='rgba(40,40,60,.55)';x.fillRect(d[0]-PPU*.18,d[1]-PPU*1.4-r*.9,PPU*.36,r*.85);},labAt:[-30,-24]});
 {const B=finishB({name:'精宏館',pts:[...Array(16)].map((_,i)=>[-50*K+6*K*Math.cos(i/16*Math.PI*2),-18.2*K+6*K*Math.sin(i/16*Math.PI*2)]),h:24,wall:'#efe3d3',roof:'#9c6b4a',win:'#6d9bd1',o:{},cx:-50*K,cz:-18.2*K,r:6*K,draw:drawCyl});
  addBox(-50*K,-18.2*K,9.2*K,9.2*K);mapB.push({x:-50*K,z:-18.2*K,circle:6*K,name:'精宏館',color:'#ffffff'});}
-building('正德大樓',-29,-21.2,30,5.5,14,'#e9dccb','#7b8aa6',{rot:TH,nobox:1,facade:(x,B,w)=>{if(w.nz<.6)return;const t0=(15-2.1-1.5)/30,t1=(15-2.1+1.5)/30;quad(x,[wallPt(w,t0,0),wallPt(w,t1,0),wallPt(w,t1,4),wallPt(w,t0,4)],'rgba(40,46,60,.85)');plate(x,'穿堂',...wallPt(w,(t0+t1)/2,4.8),Math.max(8,PPU*.45),'rgba(47,107,90,.9)');}});
-// 穿堂：曹俊、正德大樓一樓中間可以穿過去（老師 2026-11-06）
+building('正德大樓',-29,-21.2,30,5.5,14,'#e9dccb','#7b8aa6',{rot:TH,nobox:1,facade:(x,B,w)=>{if(w.nz<.6)return;const t0=(15-2.1-1.5)/30,t1=(15-2.1+1.5)/30;quad(x,[wallPt(w,t0,0),wallPt(w,t1,0),wallPt(w,t1,4),wallPt(w,t0,4)],'rgba(40,46,60,.85)');plate(x,'川堂',...wallPt(w,(t0+t1)/2,4.8),Math.max(8,PPU*.45),'rgba(47,107,90,.9)');}});
+// 川堂：曹俊、正德大樓一樓中間可以穿過去（老師 2026-11-06）
 {const pass=(cx,cz,W,D,lc)=>{const c=Math.cos(TH),s=Math.sin(TH);[[-W/2,lc-1.5],[lc+1.5,W/2]].forEach(([a,b])=>{const m=(a+b)/2;addBox((cx+m*c)*K,(cz-m*s)*K,(b-a)*K,D*K,TH);});};pass(-29,-21.2,30,5.5,2.1);pass(-32.4,-27.6,40,9,2.1);}
 building('幼保樓',0,-31,20,13,9,'#ffe7d6','#d9776a',{rot:-.25,win:'#8fc3e8'});
 // 熊祥大樓：口字形，中庭為全國最大圍棋圖案，東側川堂可進入
@@ -664,7 +664,7 @@ building('崇智樓',61.4,14.4,13,42,21,'#f4ead0','#5f8a5a',{rot:-.05,labAt:[61.
 const PTS=[[-76,-9.06],[-15.6,-43.2],[3.6,-45.6],[21.6,-11.4],[73.2,-9.6],[71.6,50.5],[55.2,50.5],[54,22.8],[-76,22.8]]; // 2026-11-06：西側停車帶（外牆 x -76）、崇智樓南側（魚池、南工門）納入校園
 const PTSK=PTS.map(([x,z])=>[x*K,z*K]);
 const GATES=[{seg:0,t:.2232,w:8,name:'廣福門'},{seg:4,t:.86,w:8,name:'南工門'}]; // 廣福門在廣福路（正門），南工門在東側南工路
-const DOORGAP=[{seg:7,x:33,z:22.8},{seg:7,x:-59,z:22.8,w:34}],DOORW=3,NOWALL=new Set([6]); // 第 6 段（崇智樓西側、南側）不是牆，是花圃（老師 2026-11-06） // 第三筆：熊祥大樓南側（x -69.6～-42）不設圍牆，停車場直接接校車車道 // 第三個：崇智樓南側通往漳二籃球場 // 南側圍牆的兩個小門（自強大樓西側、行健籃球場東側），通往漳二校區
+const DOORGAP=[{seg:7,x:44.5,z:22.8,w:18},{seg:7,x:33,z:22.8},{seg:7,x:-58.25,z:22.8,w:35.5}],DOORW=3,NOWALL=new Set([6]); // 第 6 段（崇智樓西側、南側）不是牆，是花圃（老師 2026-11-06） // 第三筆：熊祥大樓南側（x -69.6～-42）不設圍牆，停車場直接接校車車道 // 第三個：崇智樓南側通往漳二籃球場 // 南側圍牆的兩個小門（自強大樓西側、行健籃球場東側），通往漳二校區
 const ZH2={x0:-66,x1:55,z0:22.8,z1:50.5,xd:-13,zr:27,xw:-76,zp:34.6}; // zp：光電球場北側圍牆（北邊是停車場） // xw：西側停車帶的外牆 // zr：車道南緣＝光電球場北側圍牆 // xd：光電球場與籃球場（校車停駐處）之間的隔牆 // 東邊接崇智樓旁的圍牆（PTS 第 6 段） // 漳二校區（風雨光電操場）的範圍
 (function(){
   const piece=(ax,az,bx,bz)=>{const dx=bx-ax,dz=bz-az,L=Math.hypot(dx,dz);if(L<.2)return;const rot=-Math.atan2(dz,dx);
@@ -717,17 +717,21 @@ const ROAD1=(()=>{const p0=[-70.8,-12],p1=[-15.6,-43.2],ux=.8705,uz=-.4921,nx=-.
   return {road:scaleP([P(p0,-45,2.4),P(p1,35,2.4),P(p1,35,13.4),P(p0,-45,13.4)]),walk:scaleP([P(p0,-45,.4),P(p1,35,.4),P(p1,35,2.4),P(p0,-45,2.4)]),
     mid:scaleP([P(p0,-45,7.9),P(p1,35,7.9)]),lab:scaleP([P(p0,18,7.9)])[0]};})();
 const ROAD2={road:rectK(81,10,11,140),walk:rectK(74.6,10,1.8,140),mid:scaleP([[81,-60],[81,80]]),lab:[81*K,-2*K]};
-const LAWNS=[rectK(-8.5,-1.75,46,16.5),rectK(3.25,-19.75,17.5,10.5),rectK(4.5,-30,18,7,-.25)]; // 第二塊：司令台右側是草皮
-const SLAB=scaleP([[-18,-25],[-5.5,-25],[-5.5,-14.5],[14.5,-14.5],[14.5,-10],[-31.5,-10],[-31.5,-14.5],[-18,-14.5]]); // 草坪北半是石板路（老師 2026-11-06）
+const LAWNS=[rectK(-8.5,-1.75,46,16.5),rectK(-3.5,-19.75,29,10.5),rectK(4.5,-30,18,7,-.25)]; // 第二塊：升旗台四周是草皮，中間有石板路 // 第二塊：司令台右側是草皮
+const SLAB=rectK(-8.5,-12.25,46,4.5); // 草坪北緣的石板路
+const SLABPATH=[[[-11,-16.2],[-15,-18.4],[-20.4,-22]],[[6.5,-24.6],[11,-19.5],[15.5,-14.5],[20,-10.2],[23.5,-7]]]; // 石板嵌泥土的小路：司令台→正德大樓、幼保樓→大中至正樓（老師 2026-11-06） // 草坪北半是石板路（老師 2026-11-06）
 const FIELD=rectK(-40,42.1,50,13.8),PARK4=rectK(-40,30.8,50,7.6),COURT=rectK(18,34,32,15),GYMFLOOR=rectK(GYM.x,GYM.z,GYM.w-2.4,GYM.d-2.4),GOB=rectK(-54,4.8,11,11),PARK=rectK(-54,20.4,23,4.8),PARK2=rectK(-70.85,9.5,10.3,23),PARK3=rectK(-71,39,10,22); // 教師停車場：熊祥南側、熊祥西側、光電球場西側
 const THEATRE={x:43.5*K,z:1.2*K,r:15*K,a:.62}; // 天馬劇場：扇形，舞台在北端（扇心），座位一階一階往南升高
 THEATRE.pts=[[THEATRE.x,THEATRE.z],...[...Array(13)].map((_,i)=>{const t=Math.PI/2-THEATRE.a+2*THEATRE.a*i/12;return [THEATRE.x+Math.cos(t)*THEATRE.r,THEATRE.z+Math.sin(t)*THEATRE.r];})];THEATRE.lx=THEATRE.x;THEATRE.lz=THEATRE.z+THEATRE.r*.55;
 const POND=rectK(28.7,-3.7,5.4,3.8),FISHPOND=rectK(61.5,47.2,8,4.6); // 大中至正樓西北角水池、崇智樓南側魚池
-const GZONES=[{n:'石板路',P:SLAB,c:'#b9b8b2'},{n:'水池',P:POND,c:'#8cc4e8'},{n:'魚池',P:FISHPOND,c:'#8cc4e8'},{n:'回收場',P:rectK(71,-2.5,3.4,11),c:'#c8d3c0'},{n:'機車停車區',P:rectK(70.9,20.5,3,25),c:'#c3c6cc'},{n:'機車',P:rectK(-73.1,-5.6,5.2,4.6),c:'#c3c6cc'},{n:'花圃',P:rectK(52.9,19.8,2.8,4.8),c:'#b9dca0'},{n:'花圃',P:scaleP([[51.2,23.6],[54,23.6],[54,35.6],[56,35.6],[56,39.6],[51.2,39.6]]),c:'#b9dca0'},{n:'花圃',P:rectK(54,47.3,4,5.6),c:'#b9dca0'},{n:'花圃',P:scaleP([[37,24.2],[49.8,24.2],[49.8,38.3],[48.6,38.3],[43.5,35.4],[38.9,30],[36.6,25.6]]),c:'#c5e2ae'},{n:'涼亭',P:rectK(41,20.3,6,2.2),c:'#b8d8c0'},{n:'空橋',P:rectK(28,1.05,6,3.9),c:'#dfe5ec'},{n:'',P:PARK3,c:'#c3c6cc'},{n:'',P:PARK4,c:'#c3c6cc'},{n:'童軍精神堡壘',P:rectK(-25.5,-4.2,2.2,2.2),c:'#e8e0cc'},{n:'飛馬裝置藝術',P:rectK(17,-3.5,3.4,2.2),c:'#d9d6cf'},{n:'木棉樹（多棵）',P:rectK(-21,-10.4,19,.8),c:'#e8a08a'},{n:'停車場門',P:rectK(-64.7,-11.8,.6,5.2),c:'#d8343f'},{n:'警衛室',P:rectK(69.6,48.4,2.6,2.4),c:'#f4f1ea'}];
+// 天馬廣場（扇形）兩側的花圃
+const FANBEDS=[-1,1].map(sd=>{const t=Math.PI/2+sd*(THEATRE.a+.12),u=[Math.cos(t),Math.sin(t)],n=[-u[1]*sd,u[0]*sd],a=3.5*K,b=15.5*K,w=1.3*K,o=.4*K;
+  const p=(r,d)=>[THEATRE.x+u[0]*r+n[0]*d,THEATRE.z+u[1]*r+n[1]*d];return {n:'花圃',P:[p(a,o),p(b,o),p(b,o+w),p(a,o+w)],c:'#b9dca0'};});
+const GZONES=[{n:'石板路',P:SLAB,c:'#b9b8b2'},{n:'水池',P:POND,c:'#8cc4e8'},{n:'魚池',P:FISHPOND,c:'#8cc4e8'},{n:'回收場',P:rectK(71,-2.5,3.4,11),c:'#c8d3c0'},{n:'機車停車區',P:rectK(70.9,20.5,3,25),c:'#c3c6cc'},{n:'機車',P:rectK(-73.1,-5.6,5.2,4.6),c:'#c3c6cc'},{n:'花圃',P:rectK(53.6,37.7,4.8,3.8),c:'#b9dca0'},{n:'花圃',P:rectK(54,47.3,4,5.6),c:'#b9dca0'},...FANBEDS,{n:'廣場',P:rectK(46,36.6,18,27.6),c:'#e6dcc8'},{n:'涼亭',P:rectK(41,20.3,6,2.2),c:'#b8d8c0'},{n:'空橋',P:rectK(28,1.05,6,3.9),c:'#dfe5ec'},{n:'',P:PARK3,c:'#c3c6cc'},{n:'',P:PARK4,c:'#c3c6cc'},{n:'童軍精神堡壘',P:rectK(-25.5,-4.2,2.2,2.2),c:'#e8e0cc'},{n:'飛馬裝置藝術',P:rectK(11.5,-4,3.4,2.2),c:'#d9d6cf'},{n:'木棉樹（多棵）',P:rectK(-21,-10.4,19,.8),c:'#e8a08a'},{n:'停車場門',P:rectK(-64.7,-11.8,.6,5.2),c:'#d8343f'},{n:'警衛室',P:rectK(69.6,48.4,2.6,2.4),c:'#f4f1ea'}];
 const GTEXT=[['廣福路 Guangfu Rd.',...ROAD1.lab,'rgba(60,60,70,.85)'],['南工路 Nangong Rd.',...ROAD2.lab,'rgba(60,60,70,.85)'],['漳二光電球場（全區不開放）',-40*K,37.6*K,'rgba(60,60,70,.8)'],['漳二籃球場（C 集合場）',18*K,30*K,'rgba(60,60,70,.8)'],['🚌 校車停駐處',19.5*K,42.8*K,'rgba(200,140,20,.9)'],
-  ['🅿️ 教師停車場',-55*K,19*K,'rgba(47,95,181,.9)'],['🅿️',-70.2*K,9*K,'rgba(47,95,181,.9)'],['🅿️',-71*K,28.6*K,'rgba(47,95,181,.9)'],['🅿️ 停車場',-40*K,28.4*K,'rgba(47,95,181,.9)'],['🛵 機車',-73*K,-2.6*K,'rgba(47,95,181,.9)'],['🛵 機車停車區',69.4*K,7*K,'rgba(47,95,181,.9)'],['♻️ 回收場',70.6*K,3.8*K,'rgba(60,90,60,.9)'],['石板路',-2*K,-22.4*K,'rgba(110,100,80,.8)'],['🚌 校車車道（往漳二籃球場）',-38*K,25.6*K,'rgba(60,60,70,.85)'],['🗑️ 垃圾子母車',-71.4*K,-8.5*K,'rgba(60,90,60,.9)'],['中庭・全國最大圍棋圖案',-54*K,(4.8+6.6)*K,'rgba(60,60,70,.8)'],['大草坪（A 集合場）',-20*K,-8.4*K,'rgba(47,107,90,.85)']];
+  ['🅿️ 教師停車場',-55*K,19*K,'rgba(47,95,181,.9)'],['🅿️',-70.2*K,9*K,'rgba(47,95,181,.9)'],['🅿️',-71*K,28.6*K,'rgba(47,95,181,.9)'],['🅿️ 停車場',-40*K,28.4*K,'rgba(47,95,181,.9)'],['🛵 機車',-73*K,-2.6*K,'rgba(47,95,181,.9)'],['🛵 機車停車區',69.4*K,7*K,'rgba(47,95,181,.9)'],['♻️ 回收場',70.6*K,3.8*K,'rgba(60,90,60,.9)'],['石板路',-22*K,-12.2*K,'rgba(110,100,80,.8)'],['🚌 校車車道（往漳二籃球場）',-38*K,25.6*K,'rgba(60,60,70,.85)'],['🗑️ 垃圾子母車',-69.6*K,-9.7*K,'rgba(60,90,60,.9)'],['中庭・全國最大圍棋圖案',-54*K,(4.8+6.6)*K,'rgba(60,60,70,.8)'],['大草坪（A 集合場）',-20*K,-8.4*K,'rgba(47,107,90,.85)']];
 /* --- 樹 --- */
-const KEEP=[[69.6,48.4,3],[52,43.8,3],[47,45.6,3],[42,46.6,3],[53,30,4],[53,46,4],[56,42,4],[60,42,3],[66,42,4],[70,42,3],[48,41,3],[42,37.5,3],[37,31.5,3],[-73,-1,3],[-71.6,-10,3],[-64.7,-8,3],[70,5,3],[69,30,4],[41,20.2,4],[47,34,2],[51,23,5],[28.7,-3.7,4],[17,-3.5,4],[17,-8,5],[26,1,5],[61.5,47.2,5],[63,42,5],[71,-2.5,6],[70.9,20.5,13],[-73,-5.6,4],[-71,5,7],[-71,16,7],[-71,39,12],[-60,26,5],[45,32,6],[19.5,46,10],[46.5,19.5,3],[6,8,3],[-45,0,3],[8.5,34,3],[3.2,34,2],[-10.6,1.6,3],[-2,-6,3],[-53,2,3],[36,1.5,3],[-56,20,9],[-67.7,6,6],[-67.7,16,5],[-67.7,-4,5],[-67,-12,3],[58,37,3],[63,37,3],[68,37,3],[69,30,3],[69,20,3],[69,14,3],[-44.5,-14.5,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-13,-27,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],[-30,-6,2],[-6,-22,2],[-49,-11,2],[-12.5,-19.5,2],[9,2,2],[-42,-10,2],[-17.5,-2,2],[-50.5,8,2],
+const KEEP=[[-11,-16.2,2.8],[-13,-17.3,2.8],[-15,-18.4,2.8],[-17.7,-20.2,2.8],[-20.4,-22,2.8],[6.5,-24.6,2.8],[8.7,-22,2.8],[11,-19.5,2.8],[13.2,-17,2.8],[15.5,-14.5,2.8],[17.7,-12.3,2.8],[20,-10.2,2.8],[23.5,-7,2.8],[69.6,48.4,3],[52,43.8,3],[47,45.6,3],[42,46.6,3],[53,30,6],[50,10,5],[37,10,5],[53.6,37.7,3],[53,46,4],[56,42,4],[60,42,3],[66,42,4],[70,42,3],[48,41,4],[42,37.5,4],[38,32,4],[36.4,28.6,4],[44,30,6],[-73,-1,3],[-69.7,-11.6,3],[-64.7,-8,3],[70,5,3],[69,30,4],[41,20.2,4],[47,34,2],[51,23,5],[28.7,-3.7,4],[11.5,-4,4],[17,-8,5],[12.6,-12.4,2],[26,1,5],[61.5,47.2,5],[63,42,5],[71,-2.5,6],[70.9,20.5,13],[-73,-5.6,4],[-71,5,7],[-71,16,7],[-71,39,12],[-60,26,5],[45,32,6],[19.5,46,10],[46.5,19.5,3],[6,8,3],[-45,0,3],[8.5,34,3],[3.2,34,2],[-10.6,1.6,3],[-2,-6,3],[-53,2,3],[36,1.5,3],[-56,20,9],[-67.7,6,6],[-67.7,16,5],[-67.7,-4,5],[-67,-12,3],[58,37,3],[63,37,3],[68,37,3],[69,30,3],[69,20,3],[69,14,3],[-44.5,-14.5,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-13,-27,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],[-30,-6,2],[-6,-22,2],[-49,-11,2],[-12.5,-19.5,2],[9,2,2],[-42,-10,2],[-17.5,-2,2],[-50.5,8,2],
   [-59,-10.5,6],[-3,-19,3],[-34,-1.5,3],[-45,4.8,4],[22,1,3],[4,1,3],[-54,4.8,7],[-8.4,-12,5],[-12,-6,5],[13,1,8],[44,9,11],[14,4,6],[24,4,6],[34,4,6],[50.5,10,5],[-26,-17,9],[-14,0,5],[-30,0,5],[-41,0,4],[-46,-10,7],[5,-20,4],[-2,-12,4],[-62,-14,4],[-57,-12,4],[-50,19.5,4],[-10,-24,3],[12,-22,3],[-14,-15.6,4],[-63,-11,4],
   [-52,-10.5,3],[-35.6,-12.3,3],[-26.8,-17,3],[-31.2,-14.7,3],[-23,-1.5,3],[-41,13,3],[-8,-1.5,3],[-19.7,-20.8,3],[-23.2,-18.9,3],[50.5,0,3],[-41,24,3],[-41,34,3],[-46,-59,3],[-59,13,3],[-10.5,1,3],[24,1,3],
   [-25,-10,2],[32,6,2],[-48,-12,2],[46,20,2],[-30,-4,2],[-46,20,2],[0,16,2],[35,15,2],[48,18,2],[-66,-14,2],[-50,1,2],[-36,-6,2],[39,5,3],[5,-20,3],[-4,-1.5,3],[-2,-12,3],
@@ -1412,7 +1416,7 @@ const BINFO=[
  {name:'大中至正樓',at:[20,3],floors:[['10F','生物實驗室 ×2・研究室'],['9F','化學實驗室・理化實驗室・研究室'],['8F','物理實驗室・地科實驗室・研究室'],['7F','實驗設備組辦公室・電子電路實習工廠・數位專題實習工廠'],['4–6F','高二'],['2–4F','高一'],['1F','挑高通透空間（西側有水池）・東側 4 間跑班教室'],['B1','美術教室'],['B2','SH150 樂活區：投籃機・手足球檯・撞球檯・Xbox・電子飛鏢・拳擊沙包']]},
  {name:'崇智樓',at:[51,6],floors:[['頂樓','地科教室・氣象觀測站・仙人掌溫室'],['6F','人文講堂'],['5F','創意教室 B／C・生活科技教室・創意庫・數理專科教室'],['3–4F','國三・國二・專任辦公室'],['1–2F','學務處（1F）・川堂（往南工門）・電氣室・國二']]},
  {name:'幼保樓',at:[2,-23],floors:[['','南山幼兒園・幼兒游泳池']]},
- {name:'天馬劇場',at:[40,4.5],floors:[['','扇形下凹式戶外劇場（一階一階往下）'],['舞台','「飛吧！思想，乘著金色的翅膀。」']]},
+ {name:'天馬劇場',at:[40,4.5],floors:[['','扇形下凹式戶外劇場（一階一階往下）'],['扇形下方','「飛吧！思想，乘著金色的翅膀。」']]},
  {name:'南山藝廊',at:[-45,-12.5],floors:[['','曹俊大樓一樓西側・藝術展覽・緊鄰廣福路，社區民眾也能看展']]},
  {name:'教師停車場',at:[-56,19],floors:[['','熊祥大樓西側與南側'],['車道','校車從這裡經熊祥大樓與光電球場之間的車道，開到漳二籃球場停車'],['入口旁','垃圾子母車（校門進來右轉，靠廣福路）']]},
  {name:'漳二籃球場',at:[18,30],floors:[['','籃球場（C 集合場）・校車停駐處'],['光電球場','西側，全區不開放（北邊一排是停車場）'],['小門','行健籃球場東側通往校園；下方小門通往中和路 217 巷（上放學時段可進出）']]},
@@ -1535,7 +1539,7 @@ function drawGround(){
   [ROAD1,ROAD2].forEach(R=>{gfill(R.walk,PAT.walk);gfill(R.road,PAT.road);gline(R.mid[0],R.mid[1],'rgba(255,214,90,.85)',PPU*.15,[PPU*1.6,PPU*1.2]);});
   gfill(FIELD,PAT.grass);gpath(FIELD);ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=PPU*.12;ctx.stroke();gline([-40*K,35.2*K],[-40*K,49*K],'rgba(255,255,255,.75)',PPU*.12);
   ctx.beginPath();ctx.ellipse(PX(-40*K),PY(42.1*K),3.4*K*PPU,3.4*K*PPU*TILT*ZS,0,0,7);ctx.stroke();
-  gfill(COURT,'#d9774a');gpath(COURT);ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=PPU*.1;ctx.stroke();gline([18*K,26.5*K],[18*K,41.5*K],'rgba(255,255,255,.8)',PPU*.1);
+  gfill(COURT,'#d9774a');gpath(COURT);ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=PPU*.1;ctx.stroke();gline([18*K,26.5*K],[18*K,41.5*K],'rgba(255,255,255,.8)',PPU*.1);[10,26].forEach(x=>{gline([x*K,26.5*K],[x*K,41.5*K],'rgba(255,255,255,.55)',PPU*.08);ctx.beginPath();ctx.ellipse(PX(x*K),PY(34*K),1.8*K*PPU,1.8*K*PPU*TILT*ZS,0,0,7);ctx.stroke();});
   // 校內鋪面
   gfill(PTSK,PAT.pave);
   gfill(PARK,'#a7a9ad');gfill(PARK2,'#a7a9ad');gfill(PARK3,'#a7a9ad');gfill(PARK4,'#a7a9ad');for(let i=0;i<=12;i++){const x=(-64+i*4)*K;gline([x,30.6*K],[x,34.4*K],'rgba(255,255,255,.75)',PPU*.1);}for(let i=0;i<=8;i++){const x=(-65.5+i*23/8)*K;gline([x,18.3*K],[x,22.4*K],'rgba(255,255,255,.75)',PPU*.1);}
@@ -1545,6 +1549,9 @@ function drawGround(){
     gpath(L);ctx.lineJoin='round';ctx.strokeStyle='rgba(60,55,45,.25)';ctx.lineWidth=PPU*.62;ctx.stroke();ctx.strokeStyle='#d8d3c8';ctx.lineWidth=PPU*.42;ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=PPU*.1;ctx.stroke();});
   // 石板路（草坪北半）
   gfill(SLAB,PAT.slab);gpath(SLAB);ctx.lineJoin='round';ctx.strokeStyle='rgba(90,70,45,.45)';ctx.lineWidth=PPU*.3;ctx.stroke();
+  // 石板嵌泥土的小路，兩側是泥土與草皮
+  SLABPATH.forEach(L=>{ctx.lineCap='round';ctx.lineJoin='round';const pth=()=>{ctx.beginPath();L.forEach(([x,z],i)=>i?ctx.lineTo(PX(x*K),PY(z*K)):ctx.moveTo(PX(x*K),PY(z*K)));};
+    pth();ctx.strokeStyle=PAT.grass;ctx.lineWidth=PPU*5.6*K;ctx.stroke();pth();ctx.strokeStyle='#8a6e4e';ctx.lineWidth=PPU*3.6*K;ctx.stroke();pth();ctx.strokeStyle=PAT.slab;ctx.lineWidth=PPU*2.6*K;ctx.stroke();ctx.lineCap='butt';});
   // 體育館地板
   gfill(GYMFLOOR,PAT.wood);gpath(GYMFLOOR);ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=PPU*.1;ctx.stroke();
   gline([GYM.x*K,(GYM.z-GYM.d/2+1.2)*K],[GYM.x*K,(GYM.z+GYM.d/2-1.2)*K],'rgba(255,255,255,.85)',PPU*.1);
@@ -1561,7 +1568,7 @@ function drawGround(){
      if(i){ctx.save();fan(R);ctx.clip();ctx.strokeStyle='rgba(60,50,40,.35)';ctx.lineWidth=PPU*.5;ctx.beginPath();ctx.ellipse(X,Y-PPU*.22,R*PPU,R*PPU*TILT*ZS,0,Math.PI/2-a,Math.PI/2+a);ctx.stroke();ctx.restore();}}
    {const g=ctx.createRadialGradient(X,Y,0,X,Y,r*PPU*.8);g.addColorStop(0,'rgba(40,30,20,.3)');g.addColorStop(1,'rgba(40,30,20,0)');ctx.fillStyle=g;fan(r);ctx.fill();}
    ctx.beginPath();ctx.ellipse(X,Y,r0*PPU,r0*PPU*TILT*ZS,0,0,Math.PI);ctx.closePath();ctx.fillStyle='#b9b0a0';ctx.fill();
-   {const fs=Math.max(9,PPU*.62),ty=Y+r0*PPU*TILT*ZS*.45;ctx.font=`bold ${fs}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=fs*.22;ctx.strokeStyle='rgba(70,50,20,.75)';ctx.strokeText('飛吧！思想，乘著金色的翅膀。',X,ty);ctx.fillStyle='#ffd45a';ctx.fillText('飛吧！思想，乘著金色的翅膀。',X,ty);}ctx.strokeStyle='rgba(90,80,70,.5)';ctx.lineWidth=Math.max(1,PPU*.08);ctx.stroke();
+   {const fs=Math.max(9,PPU*.7),ty=PY(z+r+1.1*K);ctx.font=`bold ${fs}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=fs*.22;ctx.strokeStyle='rgba(70,50,20,.75)';ctx.strokeText('飛吧！思想，乘著金色的翅膀。',X,ty);ctx.fillStyle='#ffd45a';ctx.fillText('飛吧！思想，乘著金色的翅膀。',X,ty);} // 扇形下方的題字ctx.strokeStyle='rgba(90,80,70,.5)';ctx.lineWidth=Math.max(1,PPU*.08);ctx.stroke();
    ctx.strokeStyle='rgba(120,105,85,.5)';ctx.lineWidth=PPU*.14;[-1,1].forEach(sd=>{const t=Math.PI/2+sd*a*.5;ctx.beginPath();ctx.moveTo(X+Math.cos(t)*r0*PPU,Y+Math.sin(t)*r0*PPU*TILT*ZS);ctx.lineTo(X+Math.cos(t)*r*PPU,Y+Math.sin(t)*r*PPU*TILT*ZS);ctx.stroke();});} // 走道
   // 大範圍深淺變化
   if(QLV>=2)MACRO.forEach(m=>{const X=PX(m.x),Y=PY(m.z),R=m.r*PPU;if(X+R<view.x0||X-R>view.x1||Y+R*TILT<view.y0||Y-R*TILT>view.y1)return;
@@ -2007,7 +2014,7 @@ if(DEMO){const IDLE=90,GRACE=10;let last=performance.now(),warn=null;
     if(!warn){warn=document.createElement('div');warn.id='idlew';document.body.appendChild(warn);}
     warn.innerHTML=`<div>👀 還有人在玩嗎？<br><b style="font-size:40px">${left}</b> 秒後回到開始畫面<br><span style="font-size:16px">點一下畫面就能繼續玩</span></div>`;},400);}
 /* ---------- 校園小動作：漳二籃球場投籃、行健／自強地下運動區 ---------- */
-const HOOPS=[{x:3.2,z:34,d:1},{x:32.8,z:34,d:-1}],RIM_H=3.7; // d：籃框朝向（1＝朝東）
+const HOOPS=[{x:3.2,z:34,d:1},{x:16.6,z:34,d:-1},{x:19.4,z:34,d:1},{x:32.8,z:34,d:-1},{x:GYM.x-GYM.w/2+1.6,z:GYM.z,d:1},{x:GYM.x+GYM.w/2-1.6,z:GYM.z,d:-1}],RIM_H=3.7; // 漳二籃球場兩面球場、行健樓體育館 // d：籃框朝向（1＝朝東）
 const SHOT={on:false,n:0,made:0,ph:0,pw:0,ball:null,wait:0,best:0};
 try{SHOT.best=+localStorage.getItem('nanshan-hoop')||0;}catch(e){}
 const ACTS=[
@@ -2124,7 +2131,7 @@ const FIND=(()=>{const L=[],seen=new Set();const push=(label,where,x,z,kw='')=>{
   push('校長室','自強大樓 6F',-14,0.6,'蔡銘城');push('司令台（升旗台）','大草坪北側',-8.4,-12.4,'拱門 舞台');push('校歌碑','升旗台西側',-14.5,-13.6);
   push('大草坪（A 集合場）','校園中央',-10,-6);push('廣福門（正門）','廣福路',GATES[0].x/K,GATES[0].z/K+3);push('南工門（側門）','南工路',GATES[1].x/K-3,GATES[1].z/K);
   push('全國最大圍棋圖案','熊祥大樓中庭',-54,4.8);push('南山藝廊','曹俊大樓一樓西側',-44.5,-12.5);
-  push('小門（往漳二籃球場）','行健籃球場東側',33,20.8);push('涼亭','天馬劇場南側',41,18,'休息');push('穿堂','曹俊、正德大樓一樓',-27.1,-20.8,'通道');push('停車場門','廣福門進來右轉、熊祥大樓西北角',-63,-10,'停車');push('電話亭','崇智樓西南側',47,32.4,'公用電話');push('花圃・羽松','崇智樓西側',49,22,'花 樹');push('回收場','崇智樓東側（北段）',69.6,4.4,'資源回收 垃圾');push('機車停車區','崇智樓東側、廣福門旁',68.5,20,'機車 停車');push('水池','大中至正樓一樓西側',28.7,-.6);push('魚池','崇智樓南側、南工門旁',58,43,'魚');push('南工門警衛室','南工門內側',67.5,46.5,'警衛');push('下凹車道','崇智樓西南側',40,32,'車道');push('通漳二小路','崇智樓南側往西',45,46,'小路');push('空橋','大中至正樓與行健樓之間',28,1);push('石板路','大草坪北側、升旗台前',-14,-20,'升旗台');push('童軍精神堡壘','大草坪西側',-25.5,-2,'童軍');push('飛馬裝置藝術','大草坪東側、大中至正樓前',17,-1,'飛馬 天馬');push('木棉樹','大草坪北側',-20,-9,'樹 木棉');push('垃圾子母車','校門進來右轉、停車場門內（靠廣福路）',-70.5,-8.3,'垃圾 回收');push('校車車道','熊祥大樓與光電球場之間',-38,24.9,'校車');push('校車停駐處','漳二籃球場南側',19.5,43,'交通車 校車');push('漳二光電球場','學校西南側（全區不開放）',-38,20.8);push('小門（往中和路 217 巷）','光電球場與籃球場之間的小路盡頭',-10.5,48,'上放學 小路');push('天馬劇場','大中至正樓南側',44,9);
+  push('小門（往漳二籃球場）','行健籃球場東側',33,20.8);push('涼亭','天馬劇場南側',41,18,'休息');push('川堂','曹俊、正德大樓一樓',-27.1,-20.8,'通道');push('停車場門','廣福門進來右轉、熊祥大樓西北角',-63,-10,'停車');push('電話亭','崇智樓西南側',47,32.4,'公用電話');push('花圃・羽松','崇智樓西側',49,22,'花 樹');push('回收場','崇智樓東側（北段）',69.6,4.4,'資源回收 垃圾');push('機車停車區','崇智樓東側、廣福門旁',68.5,20,'機車 停車');push('水池','大中至正樓一樓西側',28.7,-.6);push('魚池','崇智樓南側、南工門旁',58,43,'魚');push('南工門警衛室','南工門內側',67.5,46.5,'警衛');push('下凹車道','崇智樓西南側（往地下室）',44,36,'車道 地下室');push('崇智樓西側廣場','崇智樓西側',48,28,'廣場');push('通漳二小路','崇智樓南側往西',45,46,'小路');push('空橋','大中至正樓與行健樓之間',28,1);push('石板路','大草坪北側',-14,-12,'升旗台');push('石板小路（往正德大樓）','升旗台西側',-15,-18.4,'石板');push('石板小路（幼保樓往大中至正樓）','幼保樓東南側',13,-17,'石板');push('童軍精神堡壘','大草坪西側',-25.5,-2,'童軍');push('飛馬裝置藝術','大草坪東側（草皮上）',11.5,-1.4,'飛馬 天馬');push('木棉樹','大草坪北側',-20,-9,'樹 木棉');push('垃圾子母車','校門進來右轉、停車場門內（靠廣福路）',-69.2,-9.6,'垃圾 回收');push('校車車道','熊祥大樓與光電球場之間',-38,24.9,'校車');push('校車停駐處','漳二籃球場南側',19.5,43,'交通車 校車');push('漳二光電球場','學校西南側（全區不開放）',-38,20.8);push('小門（往中和路 217 巷）','光電球場與籃球場之間的小路盡頭',-10.5,48,'上放學 小路');push('天馬劇場','大中至正樓南側',44,9);
   return L;})();
 function findPlace(){
   if(paused)return;
@@ -2277,7 +2284,7 @@ function drawCar(c){ // 汽車：車身、車窗、輪胎、車燈（停車格�
   ctx.fillStyle=shade(c.c,.7);[X0-u*.12,X0+W-u*.02].forEach(a=>{rr(ctx,a,PY(cz1,hb)-u*.1,u*.14,u*.22,u*.06);ctx.fill();}); // 後照鏡
 }
 HOOK.actors.push(add=>CARS.forEach(c=>add(c.x*K,c.z*K+(c.side?.95:1.65)*K,()=>drawCar(c))));
-[0,1].forEach(i=>building('',-72.6+i*1.9*Math.cos(TH),-9.7-i*1.9*Math.sin(TH),1.7,1.3,1.7,'#3a7d44','#2e6337',{rot:TH,nomap:1,nowin:1,nodoor:1}));
+[0,1].forEach(i=>building('',-70.6+i*1.9*Math.cos(TH),-11.1-i*1.9*Math.sin(TH),1.7,1.3,1.7,'#3a7d44','#2e6337',{rot:TH,nomap:1,nowin:1,nodoor:1}));
 // 校車停駐處的三輛校車
 [7.5,19.5,31.5].forEach(x=>building('',x,46,10,3.2,3.6,'#f2c230','#f5cf4a',{nomap:1,colw:1.6,win:'#9fc7e8',nodoor:1,roofFx:(x,B,R)=>{const c=[(R[0][0]+R[2][0])/2,(R[0][1]+R[2][1])/2];plate(x,'校車',c[0],c[1],Math.max(8,PPU*.55),'rgba(60,40,0,.85)','#ffe9a8','#ffe9a8');}}));
 /* ---------- 2026-11-06 第二張手寫地圖：大草坪北側很多木棉樹、西側大樹、童軍精神堡壘、飛馬裝置藝術 ---------- */
@@ -2286,8 +2293,8 @@ setTimeout(()=>{const avoid=(x,z,d)=>TASKS.some(t=>['j','s'].some(g=>{const o=G;
  {const x=-29.8,z=-3.4;TREES.push({x:x*K,z:z*K,s:1.75,v:1});addBox(x*K,z*K,1.4,1.4);}},0); // 等時光碑等資料建立後再避開
 building('',-25.5,-4.2,2.2,2.2,7.5,'#e8e0cc','#8c7a5a',{nomap:1,nodoor:1,nowin:1,facade:(x,B,w)=>{if(w.nz<.6)return;const p=wallPt(w,.5,4.6),r=PPU*.75;x.fillStyle='#2f6b5a';x.beginPath();x.arc(p[0],p[1],r,0,7);x.fill();x.fillStyle='#ffd84a';x.font=`bold ${r*1.3}px ${FONT}`;x.textAlign='center';x.textBaseline='middle';x.fillText('⚜',p[0],p[1]+r*.05);},
   roofFx:(x,B,R)=>{const c=[(R[0][0]+R[2][0])/2,(R[0][1]+R[2][1])/2];plate(x,'童軍精神堡壘',c[0],c[1]-PPU*1.2,Math.max(8,PPU*.5),'rgba(47,107,90,.9)');}});
-building('',17,-3.5,3.4,2.2,2.2,'#d9d6cf','#bdb8ad',{nomap:1,nodoor:1,nowin:1});
-HOOK.actors.push(add=>add(17*K,-2.4*K,()=>{const X=PX(17*K),Y=PY(-3.5*K,2.2),u=PPU*1.7,t=Math.sin(clock*1.6)*.06;ctx.save();ctx.translate(X,Y-u*1.6);
+building('',11.5,-4,3.4,2.2,2.2,'#d9d6cf','#bdb8ad',{nomap:1,nodoor:1,nowin:1});
+HOOK.actors.push(add=>add(11.5*K,-2.9*K,()=>{const X=PX(11.5*K),Y=PY(-4*K,2.2),u=PPU*1.7,t=Math.sin(clock*1.6)*.06;ctx.save();ctx.translate(X,Y-u*1.6);
   ctx.fillStyle='#ffd45a';[[-1,1],[1,.85]].forEach(([d,k])=>{ctx.beginPath();ctx.moveTo(-u*.2,-u*.3);ctx.quadraticCurveTo(d*u*.6,-u*2.4*k,d*u*1.9,-u*(2.2+t*8)*k);ctx.quadraticCurveTo(d*u*1.1,-u*1.2,u*.3,-u*.1);ctx.closePath();ctx.fill();});
   ctx.fillStyle='#f7f7f7';ctx.strokeStyle='rgba(60,60,80,.45)';ctx.lineWidth=Math.max(1,u*.06);ctx.beginPath();ctx.ellipse(0,0,u*1.15,u*.5,0,0,7);ctx.fill();ctx.stroke();
   ctx.beginPath();ctx.moveTo(u*.8,-u*.2);ctx.lineTo(u*1.3,-u*1.2);ctx.lineTo(u*1.7,-u*1.1);ctx.lineTo(u*1.15,u*.1);ctx.closePath();ctx.fill();ctx.stroke();
@@ -2324,9 +2331,10 @@ HOOK.actors.push(add=>add(PAVI.x*K,(PAVI.z+PAVI.d/2)*K,()=>{const c=PAVI,hw=c.w/
 // 電話亭（原本校車停的位置）
 building('',47,34,1.4,1.4,2.9,'#2f8a5a','#226646',{nomap:1,nodoor:1,colw:1.4,win:'#d6ecf7',roofFx:(x,B,R)=>{const c=[(R[0][0]+R[2][0])/2,(R[0][1]+R[2][1])/2];plate(x,'☎️ 電話亭',c[0],c[1]-PPU*.8,Math.max(8,PPU*.5),'rgba(34,102,70,.92)');}});
 // 花圃與羽松（崇智樓西側）
-const PINES=[[52.6,18.2],[52.6,21],[52.6,25],[52.6,28.6],[52.6,32.2],[52.6,36.2],[54.4,46],[54.4,49]];
+const PINES=[];FANBEDS.forEach(b=>{const [p0,p1,p2,p3]=b.P;for(let k=0;k<4;k++){const f=(k+.5)/4;PINES.push([((p0[0]+p3[0])/2+((p1[0]+p2[0])/2-(p0[0]+p3[0])/2)*f)/K,((p0[1]+p3[1])/2+((p1[1]+p2[1])/2-(p0[1]+p3[1])/2)*f)/K]);}});PINES.push([54.4,46],[54.4,49]);
 PINES.forEach(([x,z])=>addBox(x*K,z*K,.8,.8));
-addBox(52.9*K,19.8*K,2.8*K,4.8*K);addBox(52.6*K,31.6*K,2.8*K,16*K);addBox(55*K,37.6*K,2*K,4*K);addBox(54*K,47.3*K,4*K,5.6*K); // 花圃不能踩
+addBox(53.6*K,37.7*K,4.8*K,3.8*K);addBox(54*K,47.3*K,4*K,5.6*K); // 花圃不能踩
+HOOK.ground.push(()=>{gfill(GZONES.find(g=>g.n==='廣場').P,PAT.pave);});
 HOOK.ground.push(()=>{GZONES.filter(g=>g.n==='花圃').forEach((g,k)=>{const P=g.P;gfill(P,'#6d5a3f');gpath(P);ctx.lineJoin='round';ctx.strokeStyle='#b8ab92';ctx.lineWidth=PPU*.3;ctx.stroke();
   const xs=P.map(p=>p[0]),zs=P.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs),r=seeded(41+k),fl=['#ff8fab','#ffd84a','#ffffff','#e85d75','#b78cff'];
   const n=Math.min(260,Math.round((x1-x0)*(z1-z0)/(K*K)*2.2));for(let i=0;i<n;i++){const x=x0+r()*(x1-x0),z=z0+r()*(z1-z0);if(!inPoly(x,z,P))continue;ctx.fillStyle=i%3?'#4f9e45':fl[i%5];ctx.beginPath();ctx.ellipse(PX(x),PY(z),PPU*(i%3?.32:.2),PPU*(i%3?.22:.15),0,0,7);ctx.fill();}});});
@@ -2336,7 +2344,7 @@ function drawPine(x,z){const X=PX(x*K),Y=PY(z*K),u=PPU;
   [[2.6,1.05,'#2e6b3f'],[3.9,.85,'#357a48'],[5,.62,'#3f8a52'],[5.9,.38,'#4c9a5e']].forEach(([h,w,c],i)=>{ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(X-w*u*1.2,Y-u*(h-1.9+i*.2));ctx.quadraticCurveTo(X,Y-u*(h-1.5),X+w*u*1.2,Y-u*(h-1.9+i*.2));ctx.lineTo(X,Y-u*(h+.5));ctx.closePath();ctx.fill();
     ctx.fillStyle='rgba(255,255,220,.14)';ctx.beginPath();ctx.moveTo(X-w*u*.9,Y-u*(h-1.8+i*.2));ctx.lineTo(X,Y-u*(h+.4));ctx.lineTo(X-w*u*.2,Y-u*(h-1.7));ctx.closePath();ctx.fill();});}
 HOOK.actors.push(add=>PINES.forEach(([x,z])=>add(x*K,z*K,()=>drawPine(x,z))));
-HOOK.actors.push(add=>add(52.6*K,23.4*K,()=>plate(ctx,'🌸 花圃・羽松',PX(52.6*K),PY(23.4*K)-PPU*1.2,Math.max(8,PPU*.5),'rgba(47,107,90,.88)')));
+HOOK.actors.push(add=>add(54*K,9*K,()=>plate(ctx,'🌸 天馬廣場花圃・羽松',PX(54*K),PY(9*K)-PPU*1.2,Math.max(8,PPU*.5),'rgba(47,107,90,.88)')));
 // 回收場（崇智樓東側北段）
 {const g=GZONES.find(g=>g.n==='回收場');addBox(71*K,-2.5*K,3.4*K,11*K);
  [['#2f5fb5','#244a8f','紙類'],['#3a9a4a','#2c7a39','塑膠'],['#e0a020','#b07d14','鐵鋁'],['#8c8c96','#6c6c75','一般']].forEach(([c,c2,t],i)=>building('',71,-6+i*2.6,2,1.7,1.9,c,c2,{nomap:1,nowin:1,nodoor:1,roofFx:(x,B,R)=>{const m=[(R[0][0]+R[2][0])/2,(R[0][1]+R[2][1])/2];plate(x,t,m[0],m[1],Math.max(7,PPU*.42),'rgba(30,30,40,.75)');}}));
@@ -2365,18 +2373,26 @@ function drawWater(P,fish){gpath(P);ctx.lineJoin='round';ctx.strokeStyle='#9c958
 HOOK.ground.push(()=>{drawWater(POND,false);drawWater(FISHPOND,true);});
 HOOK.actors.push(add=>{add(28.7*K,-1.7*K,()=>plate(ctx,'水池',PX(28.7*K),PY(-3.7*K)-PPU*.4,Math.max(8,PPU*.5),'rgba(40,90,140,.85)'));add(61.5*K,49.5*K,()=>plate(ctx,'🐟 魚池',PX(61.5*K),PY(47.2*K)-PPU*.4,Math.max(8,PPU*.5),'rgba(40,90,140,.85)'));});
 // 小路：行健籃球場東側小門 → 往南 → 彎到崇智樓南側小門 → 南工門
-const LANE2=[[33,23.4],[34.8,27],[37,31.5],[42,37.5],[48,41],[54.8,42]],BRICK=[[53,42],[62,42],[71,42]],LANE3=[[52.4,43.8],[47,45.6],[42,46.6],[38,47.4]];
+const LANE2=[[36.4,28.6],[38,32],[42,37.5],[48,41],[54.8,42]],BRICK=[[53,42],[62,42],[71,42]],LANE3=[[52.4,43.8],[47,45.6],[42,46.6],[38,47.4]];
 function strokeLane(L,w,col,edge){ctx.lineCap='round';ctx.lineJoin='round';const path=()=>{ctx.beginPath();L.forEach(([x,z],i)=>i?ctx.lineTo(PX(x*K),PY(z*K)):ctx.moveTo(PX(x*K),PY(z*K)));};
   path();ctx.strokeStyle=edge;ctx.lineWidth=PPU*(w+.5)*K;ctx.stroke();path();ctx.strokeStyle=col;ctx.lineWidth=PPU*w*K;ctx.stroke();return path;}
 HOOK.ground.push(()=>{
   // 下凹車道：柏油、兩側擋土牆的陰影
+  {const pth=()=>{ctx.beginPath();LANE2.forEach(([x,z],i)=>i?ctx.lineTo(PX(x*K),PY(z*K)):ctx.moveTo(PX(x*K),PY(z*K)));};ctx.lineCap='butt';ctx.lineJoin='round';
+   pth();ctx.strokeStyle='#b8ab92';ctx.lineWidth=PPU*6.4*K;ctx.stroke();pth();ctx.strokeStyle='#6d5a3f';ctx.lineWidth=PPU*6*K;ctx.stroke(); // 車道兩側的線形花圃
+   const r=seeded(91),fl=['#ff8fab','#ffd84a','#ffffff','#e85d75','#b78cff'];for(let k=0;k<LANE2.length-1;k++){const [a,b]=[LANE2[k],LANE2[k+1]],L=Math.hypot(b[0]-a[0],b[1]-a[1]),nx=-(b[1]-a[1])/L,nz=(b[0]-a[0])/L;
+     for(let i=0;i<L*5;i++){const f=r(),sd=r()>.5?1:-1,d=(1.75+r()*1.1)*sd,x=(a[0]+(b[0]-a[0])*f+nx*d)*K,z=(a[1]+(b[1]-a[1])*f+nz*d)*K;ctx.fillStyle=i%3?'#4f9e45':fl[i%5];ctx.beginPath();ctx.ellipse(PX(x),PY(z),PPU*(i%3?.3:.2),PPU*(i%3?.2:.14),0,0,7);ctx.fill();}}}
   let p=strokeLane(LANE2,2.6,'#5d6068','#c9c2b4');p();ctx.strokeStyle='rgba(0,0,0,.28)';ctx.lineWidth=PPU*2*K;ctx.stroke();p();ctx.strokeStyle='#6b6e76';ctx.lineWidth=PPU*1.5*K;ctx.stroke();
   p();ctx.strokeStyle='rgba(255,214,90,.8)';ctx.lineWidth=Math.max(1,PPU*.09);ctx.setLineDash([PPU*1.2,PPU*.9]);ctx.stroke();ctx.setLineDash([]);
+  // 地下室入口（車道往下進地下室）
+  {const [a,b]=LANE2,L=Math.hypot(b[0]-a[0],b[1]-a[1]),ux=(b[0]-a[0])/L,uz=(b[1]-a[1])/L,nx=-uz,nz=ux,w=1.6,P=[[a[0]+nx*w,a[1]+nz*w],[a[0]-nx*w,a[1]-nz*w],[a[0]-nx*w+ux*2.4,a[1]-nz*w+uz*2.4],[a[0]+nx*w+ux*2.4,a[1]+nz*w+uz*2.4]].map(([x,z])=>[x*K,z*K]);
+   const g=ctx.createLinearGradient(PX(P[2][0]),PY(P[2][1]),PX(P[0][0]),PY(P[0][1]));g.addColorStop(0,'rgba(70,72,80,.2)');g.addColorStop(1,'rgba(10,10,16,.92)');gfill(P,g);}
   // 石磚路（花圃中間，通往南工門）
   p=strokeLane(BRICK,3.6,'#c9b8a0','rgba(110,90,60,.35)');ctx.save();p();ctx.lineWidth=PPU*3.6*K;ctx.strokeStyle='rgba(120,95,65,.35)';ctx.setLineDash([Math.max(1,PPU*.06),PPU*.9]);ctx.stroke();ctx.restore();
   // 通漳二小路
   p=strokeLane(LANE3,1.6,'#cdbf9f','rgba(110,90,60,.3)');p();ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=Math.max(1,PPU*.08);ctx.setLineDash([PPU*.9,PPU*.7]);ctx.stroke();ctx.setLineDash([]);ctx.lineCap='butt';});
-HOOK.actors.push(add=>{add(40*K,33.6*K,()=>plate(ctx,'下凹車道',PX(40*K),PY(33.6*K),Math.max(8,PPU*.45),'rgba(60,60,70,.8)'));add(44*K,47.2*K,()=>plate(ctx,'通漳二小路',PX(44*K),PY(46.6*K),Math.max(8,PPU*.45),'rgba(120,90,40,.85)'));});
+{const [a]=LANE2;addBox(a[0]*K,a[1]*K,3.4*K,1.6*K);}
+HOOK.actors.push(add=>{add(36.4*K,28.6*K,()=>plate(ctx,'⬇ 地下室入口',PX(36.4*K),PY(28.6*K)-PPU*.8,Math.max(8,PPU*.45),'rgba(30,30,40,.85)'));add(40*K,33.6*K,()=>plate(ctx,'下凹車道',PX(42*K),PY(35*K),Math.max(8,PPU*.45),'rgba(60,60,70,.8)'));add(44*K,47.2*K,()=>plate(ctx,'通漳二小路',PX(44*K),PY(46.6*K),Math.max(8,PPU*.45),'rgba(120,90,40,.85)'));});
 // 南工門警衛室（門內南側）
 building('',69.6,48.4,2.6,2.4,3.6,'#f4f1ea','#8a9aa8',{nomap:1,nodoor:1,colw:1.3,win:'#9fc7e8',roofFx:(x,B,R)=>{const c=[(R[0][0]+R[2][0])/2,(R[0][1]+R[2][1])/2];plate(x,'警衛室',c[0],c[1],Math.max(8,PPU*.5),'rgba(47,107,90,.9)');}});
 // 往中和路 217 巷的小路：在光電球場（隔牆西側，不開放）和籃球場之間，只有這條小路可以走到小門
@@ -2384,7 +2400,7 @@ HOOK.ground.push(()=>{const x0=(ZH2.xd+.4)*K,x1=(ZH2.xd+4.6)*K,z0=ZH2.z0*K,z1=ZH
   ctx.strokeStyle='rgba(120,100,70,.35)';ctx.lineWidth=Math.max(1,PPU*.05);for(let z=z0;z<z1;z+=1.6*K){const X0=PX(x0),X1=PX(x1),Y=PY(z);ctx.beginPath();ctx.moveTo(X0,Y);ctx.lineTo(X1,Y);ctx.stroke();}
   if(!GTXT_CV.lane)GTXT_CV.lane=tagCanvas('小路・往中和路 217 巷','rgba(120,90,40,.9)',11);drawUI(GTXT_CV.lane,PX((x0+x1)/2),PY(40*K));});
 const SIDEDOORS=[
- {n:'小門・往光電球場',x:-41,z:22.8,closed:1,d:'🚪 自強大樓西側的小門，通往漳二光電球場。光電球場全區不開放，這扇門平常是關著的喔。'},
+ {n:'小門・往光電球場',x:-41,z:22.8,d:'🚪 自強大樓西側的小門，可以走到校車車道和光電球場北側的停車場。光電球場本身全區不開放喔！'},
  {n:'小門・往漳二籃球場',x:33,z:22.8,d:'🚪 行健籃球場東側的小門，通往漳二籃球場，也是校車停駐處。搭校車的同學上下學都從這裡走喔！'},
  {n:'小門・往中和路 217 巷',x:-10.5,z:50.5,closed:1,route:1,d:'🎒 這是漳二校區下方的小門，外面就是中和路 217 巷。上放學時段可以從這裡進出，走這條捷徑要注意安全喔！'},
 ];
@@ -2428,7 +2444,7 @@ const HISTORY=[
  {y:'1998',x:-42,z:-10,t:'曹俊大樓啟用',d:'1998 年曹俊大樓啟用。2001 年創校 55 週年時，校史館也在這裡啟用。'},
  {y:'2006',x:-17.5,z:-2,t:'自強大樓、行健館啟用',d:'2006 年慶祝創校 60 週年（甲子校慶），自強大樓和行健館一起啟用。'},
  {y:'2010',x:-50.5,z:8,t:'全國最大圍棋圖案',d:'2010 年整修熊祥大樓中庭，畫上全國最大的圍棋圖案。南山 2007 年開辦南山盃青少年圍棋公開賽，2008 年起推動圍棋特色，下棋成了南山的招牌之一。'},
- {y:'2013',x:21,z:-14.5,t:'大中至正樓落成',d:'2013 年大中至正樓（科學館）落成啟用，是由原本的美育大樓改建的。'},
+ {y:'2013',x:12.6,z:-12.4,t:'大中至正樓落成',d:'2013 年大中至正樓（科學館）落成啟用，是由原本的美育大樓改建的。'},
  {y:'2026',x:-4,z:-16,t:'創校 80 週年',d:'2026 年，南山創校 80 週年！10 月有校慶運動競賽、校慶典禮和大隊接力，全校一起慶生。'},
 ];
 const ICON_HIST='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="88" height="88"><path d="M6 28h20v-3H6Z" fill="#8a7b5e" stroke="#1a1a24"/><path d="M9 25V9q7-6 14 0v16Z" fill="#b5651d" stroke="#1a1a24"/><path d="M12 14h8M12 18h8M12 22h5" stroke="#ffe9a8" stroke-width="1.6" stroke-linecap="round"/></svg>';

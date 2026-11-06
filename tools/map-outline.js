@@ -1,7 +1,8 @@
 /* 校園地圖輪廓產生器（給老師列印、手寫修改用）
  * 用法：把 index.html 複製一份，在最後的 `})();` 前面加上
  *   window.MAPDATA=()=>({K,BUILD,GATES,SIDEDOORS,OFFNPC,SP,HISTORY,TASKS,LAWNS,FIELD,COURT,GOB,PARK,PARK2,THEATRE,ROAD1,ROAD2,PTSK,ZH2,GTEXT,QLOC,LAMPS,MONTHS,BINFO,FONT,GZONES,PARK3,ZS,
- *     LANES:[['下凹車道',LANE2,'#6b6e76',2.6],['石磚路',BRICK,'#c9b8a0',3.6],['通漳二小路',LANE3,'#cdbf9f',1.6]],
+ *     LANES:[['下凹車道',LANE2,'#6b6e76',2.6],['石磚路',BRICK,'#c9b8a0',3.6],['通漳二小路',LANE3,'#cdbf9f',1.6],
+ *       ['石板小路',SLABPATH[0],'#9d9c96',2.6],['石板小路',SLABPATH[1],'#9d9c96',2.6]],
  *     tc:(g,t)=>{const o=G;G=g;const r=[T(t.x),T(t.z),T(t.name),T(t.type)];G=o;return r;}});
  * 再載入本檔，執行 mapOutline(MAPDATA()) 取得 {base, tasks, csv}（兩張 PNG 的 dataURL 與一份 CSV 文字）。
  * 座標一律用「未放大」的值（遊戲程式裡寫的數字），x 往右變大、z 往下變大。
