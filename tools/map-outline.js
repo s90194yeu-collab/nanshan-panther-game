@@ -1,15 +1,15 @@
 /* 校園地圖輪廓產生器（給老師列印、手寫修改用）
  * 用法：把 index.html 複製一份，在最後的 `})();` 前面加上
- *   window.MAPDATA=()=>({K,BUILD,GATES,SIDEDOORS,OFFNPC,SP,HISTORY,TASKS,LAWNS,FIELD,COURT,GOB,PARK,PARK2,THEATRE,ROAD1,ROAD2,PTSK,ZH2,GTEXT,QLOC,LAMPS,MONTHS,BINFO,FONT,GZONES,PARK3,
+ *   window.MAPDATA=()=>({K,BUILD,GATES,SIDEDOORS,OFFNPC,SP,HISTORY,TASKS,LAWNS,FIELD,COURT,GOB,PARK,PARK2,THEATRE,ROAD1,ROAD2,PTSK,ZH2,GTEXT,QLOC,LAMPS,MONTHS,BINFO,FONT,GZONES,PARK3,ZS,
  *     tc:(g,t)=>{const o=G;G=g;const r=[T(t.x),T(t.z),T(t.name),T(t.type)];G=o;return r;}});
  * 再載入本檔，執行 mapOutline(MAPDATA()) 取得 {base, tasks, csv}（兩張 PNG 的 dataURL 與一份 CSV 文字）。
  * 座標一律用「未放大」的值（遊戲程式裡寫的數字），x 往右變大、z 往下變大。
  */
 function mapOutline(D){
-  const K=D.K,X0=-80,X1=84,Z0=-50,Z1=54,S=17,OX=90,OY=175,MW=(X1-X0)*S,MH=(Z1-Z0)*S,LW=1000,W=OX+MW+50+LW,H=OY+MH+90;
+  const K=D.K,ZS=D.ZS||1,X0=-80,X1=84,Z0=-50,Z1=54,S=17,OX=90,OY=175,MW=(X1-X0)*S,MH=(Z1-Z0)*S*ZS,LW=1000,W=OX+MW+50+LW,H=OY+MH+90;
   const F=D.FONT||'sans-serif';
-  const tm=(x,z)=>[OX+(x/K-X0)*S,OY+(z/K-Z0)*S];          // 已放大座標 → 畫布
-  const tu=(x,z)=>[OX+(x-X0)*S,OY+(z-Z0)*S];              // 未放大座標 → 畫布
+  const tm=(x,z)=>[OX+(x/K-X0)*S,OY+(z/K-Z0)*S*ZS];          // 已放大座標 → 畫布
+  const tu=(x,z)=>[OX+(x-X0)*S,OY+(z-Z0)*S*ZS];              // 未放大座標 → 畫布
   const r1=v=>Math.round(v*10)/10, un=v=>r1(v/K);
   const rr=(m,x,y,w,h,r)=>{m.beginPath();m.moveTo(x+r,y);m.arcTo(x+w,y,x+w,y+h,r);m.arcTo(x+w,y+h,x,y+h,r);m.arcTo(x,y+h,x,y,r);m.arcTo(x,y,x+w,y,r);m.closePath();};
   const mk=()=>{const c=document.createElement('canvas');c.width=W;c.height=H;const m=c.getContext('2d');m.fillStyle='#fffdf8';m.fillRect(0,0,W,H);return [c,m];};
@@ -31,13 +31,13 @@ function mapOutline(D){
     poly(m,D.PARK,'#dde0e6','#9aa0aa',1.5);poly(m,D.PARK2,'#dde0e6','#9aa0aa',1.5);if(D.PARK3)poly(m,D.PARK3,'#dde0e6','#9aa0aa',1.5);
     (D.GZONES||[]).forEach(g=>poly(m,g.P,g.c,'#8a8070',1.2));
     const XW=(D.ZH2.xw||-69.6)*K;poly(m,[[XW,22.8*K],[D.ZH2.xd*K,22.8*K],[D.ZH2.xd*K,D.ZH2.zr*K],[XW,D.ZH2.zr*K]],'#d3d5da');
-    if(D.THEATRE.pts){poly(m,D.THEATRE.pts,'#e6dccb','#a39373',2);const T=D.THEATRE,[x,y]=tm(T.x,T.z);m.strokeStyle='#a39373';m.lineWidth=1.5;[.75,.5,.25].forEach(f=>{m.beginPath();m.arc(x,y,T.r/K*S*f,Math.PI/2-T.a,Math.PI/2+T.a);m.stroke();});}
+    if(D.THEATRE.pts){poly(m,D.THEATRE.pts,'#e6dccb','#a39373',2);const T=D.THEATRE,[x,y]=tm(T.x,T.z);m.strokeStyle='#a39373';m.lineWidth=1.5;[.75,.5,.25].forEach(f=>{m.beginPath();m.ellipse(x,y,T.r/K*S*f,T.r/K*S*f*ZS,0,Math.PI/2-T.a,Math.PI/2+T.a);m.stroke();});}
     else{const [x,y]=tm(D.THEATRE.x,D.THEATRE.z);m.fillStyle='#e6dccb';m.strokeStyle='#a39373';m.lineWidth=2;m.beginPath();m.arc(x,y,D.THEATRE.r/K*S,0,7);m.fill();m.stroke();}
     // 建物（不含校外背景建物；汽車畫成小方塊）
     D.BUILD.forEach(B=>{if(B.o.plain)return;const car=B.h<1.2&&B.o.nowin&&B.o.roofFx;const wall=B.o.nowin&&!car&&B.h<3;
       if(B.pts){poly(m,B.pts,car?'#9aa0aa':wall?'#cdbb96':'#ffffff',car?null:'#3d342c',wall?1:2.6);
         if(!car&&!wall){m.save();m.globalAlpha*=.22;poly(m,B.pts,B.roof);m.restore();}}
-      else if(B.r){const [x,y]=tm(B.cx,B.cz);m.fillStyle='#fff';m.strokeStyle='#3d342c';m.lineWidth=2.6;m.beginPath();m.arc(x,y,B.r/K*S,0,7);m.fill();m.stroke();}});
+      else if(B.r){const [x,y]=tm(B.cx,B.cz);m.fillStyle='#fff';m.strokeStyle='#3d342c';m.lineWidth=2.6;m.beginPath();m.ellipse(x,y,B.r/K*S,B.r/K*S*ZS,0,0,7);m.fill();m.stroke();}});
     m.globalAlpha=1;
     // 格線（未放大座標）
     for(let x=Math.ceil(X0/5)*5;x<=X1;x+=5){const [a]=tu(x,0),major=x%10===0;m.strokeStyle=major?'rgba(80,90,130,.32)':'rgba(80,90,130,.13)';m.lineWidth=major?1.4:1;m.beginPath();m.moveTo(a,OY);m.lineTo(a,OY+MH);m.stroke();}
@@ -50,7 +50,7 @@ function mapOutline(D){
     if(!fade)D.GTEXT.forEach(([t,x,z])=>{if(/路 /.test(t))return;const [a,b]=tm(x,z);lab(m,t,a,b,16,'rgba(255,255,255,.7)','#3a3a46',false);});
     // 路名
     m.fillStyle='#555';m.font=`bold 24px ${F}`;m.textAlign='center';m.textBaseline='middle';
-    {let [x,y]=tm(...D.ROAD1.lab);m.save();m.translate(x,y);m.rotate(Math.atan2(-.4921,.8705));m.fillText('廣福路',0,0);m.restore();[x,y]=tm(...D.ROAD2.lab);m.save();m.translate(x,y);m.rotate(Math.PI/2);m.fillText('南工路',0,0);m.restore();}
+    {let [x,y]=tm(...D.ROAD1.lab);m.save();m.translate(x,y);m.rotate(Math.atan2(-.4921*ZS,.8705));m.fillText('廣福路',0,0);m.restore();[x,y]=tm(...D.ROAD2.lab);m.save();m.translate(x,y);m.rotate(Math.PI/2);m.fillText('南工路',0,0);m.restore();}
     // 校門
     D.GATES.forEach(g=>{const [x,y]=tm(g.x,g.z);pin(m,'🚪 '+g.name,x,y,'#2f6b5a',18,'pill');});
     m.restore();

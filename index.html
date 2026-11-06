@@ -185,11 +185,12 @@ const HOOK={ground:[],actors:[],overlay:[],screen:[],update:[],map:[]};
 const FONT='"Huninn","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif';
 const K=1.8;            // 校園放大倍率（比 3D 版寬 1.8 倍）
 const HS=.46,TILT=.74;  // 建物高度比例、地面俯視壓縮
+const ZS=1.2;           // 南北向拉長倍率（老師 2026-11-06）：座標資料不變，畫面、走路時間、地圖的南北向都拉長 1.2 倍
 let DPR=1,VW=0,VH=0,PPU=20;
 // 畫質：QUAL 是玩家的選擇（auto 自動／high／mid／low，記在本機），QLV 是實際等級（2 高、1 中、0 低）
 let QUAL='auto';try{QUAL=localStorage.getItem('nanshan-q')||'auto';}catch(e){}
 let QLV=QUAL==='high'?2:QUAL==='mid'?1:QUAL==='low'?0:((navigator.hardwareConcurrency||8)<=4?1:2);
-const PX=x=>x*PPU,PY=(z,y=0)=>z*PPU*TILT-y*HS*PPU;
+const PX=x=>x*PPU,PY=(z,y=0)=>z*PPU*TILT*ZS-y*HS*PPU;
 function rr(x,X,Y,w,h,r){r=Math.min(r,w/2,h/2);x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();}
 const hexRGB=h=>{h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];};
 function shade(h,f){const [r,g,b]=hexRGB(h);const m=v=>Math.max(0,Math.min(255,Math.round(f<1?v*f:v+(255-v)*(f-1))));return `rgb(${m(r)},${m(g)},${m(b)})`;}
@@ -1444,21 +1445,19 @@ function talk(){if(SHOT.on){shootRelease();return;}if(paused||!nearTalk)return;i
 const cam={x:pos.x,z:pos.z};
 
 /* ---------- 小地圖 ---------- */
-const mc=$('map').getContext('2d');const MX0=-80*K,MZ0=-50*K,SC=316/(166*K);
-const toMap=(x,z)=>[(x-MX0)*SC,(z-MZ0)*SC];
+const mc=$('map').getContext('2d');const SC=Math.min(316/166,184/(100*ZS))/K,MX0=2*K-158/SC,MZ0=-48*K;
+const toMap=(x,z)=>[(x-MX0)*SC,(z-MZ0)*SC*ZS];
 function drawMap(){
   mc.clearRect(0,0,316,184);
   mc.fillStyle='rgba(134,190,110,.75)';rr(mc,2,2,312,180,16);mc.fill();
   mc.fillStyle='rgba(215,203,180,.95)';mc.beginPath();PTSK.forEach(([x,z],i)=>{const [a,b]=toMap(x,z);i?mc.lineTo(a,b):mc.moveTo(a,b);});mc.closePath();mc.fill();
   mc.strokeStyle='#8a7b5e';mc.lineWidth=2;mc.stroke();
-  let [a,b]=toMap(-31.5*K,-10*K);mc.fillStyle='#79c95e';mc.fillRect(a,b,46*K*SC,16.5*K*SC);
   const mpoly=(P,f)=>{mc.beginPath();P.forEach(([x,z],i)=>{const [a,b]=toMap(x,z);i?mc.lineTo(a,b):mc.moveTo(a,b);});mc.closePath();mc.fillStyle=f;mc.fill();};
-  GZONES.forEach(g=>mpoly(g.P,g.c));mpoly(THEATRE.pts,'#cbc3b4');
+  LAWNS.forEach(L=>mpoly(L,'#79c95e'));GZONES.forEach(g=>mpoly(g.P,g.c));mpoly(THEATRE.pts,'#cbc3b4');
   mapB.forEach(B=>{
     const [x,z]=toMap(B.x,B.z);mc.fillStyle=B.color;mc.strokeStyle='rgba(0,0,0,.35)';mc.lineWidth=1.5;
-    if(B.circle){mc.beginPath();mc.arc(x,z,B.circle*SC,0,7);mc.fill();mc.stroke();return;}
-    mc.save();mc.translate(x,z);mc.rotate(-(B.rot||0));mc.fillRect(-B.w*SC/2,-B.d*SC/2,B.w*SC,B.d*SC);mc.strokeRect(-B.w*SC/2,-B.d*SC/2,B.w*SC,B.d*SC);
-    if(B.ring){mc.fillStyle='#d9a85a';mc.fillRect(-6*K*SC,-6*K*SC,12*K*SC,12*K*SC);}mc.restore();});
+    if(B.circle){mc.beginPath();mc.ellipse(x,z,B.circle*SC,B.circle*SC*ZS,0,0,7);mc.fill();mc.stroke();return;}
+    mc.beginPath();rectPts(B.x,B.z,B.w,B.d,B.rot||0).forEach(([a,b],i)=>{const [p,q]=toMap(a,b);i?mc.lineTo(p,q):mc.moveTo(p,q);});mc.closePath();mc.fill();mc.stroke();});
   TASKS.forEach(t=>{if(!inMonth(t)||t.done)return;const [x,z]=toMap(t.X,t.Z);mc.fillStyle=t.id==='final'?'#ff8fab':t.opt?'#7fd3ff':'#ffd84a';mc.beginPath();mc.arc(x,z,6,0,7);mc.fill();mc.strokeStyle='#2a2a38';mc.lineWidth=2;mc.stroke();});
   OFFNPC.forEach(n=>{const [x,z]=toMap(n.x,n.z);mc.fillStyle=n.kind==='leader'?'#c9a227':'#8c3b2e';mc.fillRect(x-3,z-3,6,6);});
   {const [x,z]=toMap(ANTHEM.x,ANTHEM.z);mc.fillStyle='#2f6b5a';mc.font='bold 11px sans-serif';mc.textAlign='center';mc.textBaseline='middle';mc.fillText('♪',x,z);}
@@ -1541,12 +1540,12 @@ function drawGround(){
     [[3,3,1],[15,15,1],[15,3,0],[3,15,0],[4,5,1],[5,3,0],[16,13,1],[13,16,0],[9,9,1],[10,8,0],[2,13,1],[13,2,0],[8,15,1],[16,7,0]].forEach(([i,j,k])=>{const X=PX(x0+(x1-x0)*i/18),Y=PY(z0+(z1-z0)*j/18);
       ctx.fillStyle=k?'#1d1d1d':'#fbfbf7';ctx.beginPath();ctx.ellipse(X,Y,PPU*.42,PPU*.42*TILT,0,0,7);ctx.fill();ctx.strokeStyle='rgba(0,0,0,.3)';ctx.lineWidth=1;ctx.stroke();});}
   // 天馬劇場：扇形下凹式階梯，舞台在北端（扇心）
-  {const {x,z,r,a}=THEATRE,X=PX(x),Y=PY(z),N=7,r0=r*.22,fan=(R,dy=0)=>{ctx.beginPath();ctx.moveTo(X,Y+dy);ctx.ellipse(X,Y+dy,R*PPU,R*PPU*TILT,0,Math.PI/2-a,Math.PI/2+a);ctx.closePath();};
+  {const {x,z,r,a}=THEATRE,X=PX(x),Y=PY(z),N=7,r0=r*.22,fan=(R,dy=0)=>{ctx.beginPath();ctx.moveTo(X,Y+dy);ctx.ellipse(X,Y+dy,R*PPU,R*PPU*TILT*ZS,0,Math.PI/2-a,Math.PI/2+a);ctx.closePath();};
    for(let i=0;i<N;i++){const R=r-(r-r0)*i/N;fan(R);ctx.fillStyle=shade(i%2?'#d8d2c6':'#cbc3b4',1-i*.06);ctx.fill();ctx.strokeStyle='rgba(90,80,70,.35)';ctx.lineWidth=Math.max(1,PPU*.06);ctx.stroke();
-     if(i){ctx.save();fan(R);ctx.clip();ctx.strokeStyle='rgba(60,50,40,.35)';ctx.lineWidth=PPU*.5;ctx.beginPath();ctx.ellipse(X,Y-PPU*.22,R*PPU,R*PPU*TILT,0,Math.PI/2-a,Math.PI/2+a);ctx.stroke();ctx.restore();}}
+     if(i){ctx.save();fan(R);ctx.clip();ctx.strokeStyle='rgba(60,50,40,.35)';ctx.lineWidth=PPU*.5;ctx.beginPath();ctx.ellipse(X,Y-PPU*.22,R*PPU,R*PPU*TILT*ZS,0,Math.PI/2-a,Math.PI/2+a);ctx.stroke();ctx.restore();}}
    {const g=ctx.createRadialGradient(X,Y,0,X,Y,r*PPU*.8);g.addColorStop(0,'rgba(40,30,20,.3)');g.addColorStop(1,'rgba(40,30,20,0)');ctx.fillStyle=g;fan(r);ctx.fill();}
-   ctx.beginPath();ctx.ellipse(X,Y,r0*PPU,r0*PPU*TILT,0,0,Math.PI);ctx.closePath();ctx.fillStyle='#b9b0a0';ctx.fill();ctx.strokeStyle='rgba(90,80,70,.5)';ctx.lineWidth=Math.max(1,PPU*.08);ctx.stroke();
-   ctx.strokeStyle='rgba(120,105,85,.5)';ctx.lineWidth=PPU*.14;[-1,1].forEach(sd=>{const t=Math.PI/2+sd*a*.5;ctx.beginPath();ctx.moveTo(X+Math.cos(t)*r0*PPU,Y+Math.sin(t)*r0*PPU*TILT);ctx.lineTo(X+Math.cos(t)*r*PPU,Y+Math.sin(t)*r*PPU*TILT);ctx.stroke();});} // 走道
+   ctx.beginPath();ctx.ellipse(X,Y,r0*PPU,r0*PPU*TILT*ZS,0,0,Math.PI);ctx.closePath();ctx.fillStyle='#b9b0a0';ctx.fill();ctx.strokeStyle='rgba(90,80,70,.5)';ctx.lineWidth=Math.max(1,PPU*.08);ctx.stroke();
+   ctx.strokeStyle='rgba(120,105,85,.5)';ctx.lineWidth=PPU*.14;[-1,1].forEach(sd=>{const t=Math.PI/2+sd*a*.5;ctx.beginPath();ctx.moveTo(X+Math.cos(t)*r0*PPU,Y+Math.sin(t)*r0*PPU*TILT*ZS);ctx.lineTo(X+Math.cos(t)*r*PPU,Y+Math.sin(t)*r*PPU*TILT*ZS);ctx.stroke();});} // 走道
   // 大範圍深淺變化
   if(QLV>=2)MACRO.forEach(m=>{const X=PX(m.x),Y=PY(m.z),R=m.r*PPU;if(X+R<view.x0||X-R>view.x1||Y+R*TILT<view.y0||Y-R*TILT>view.y1)return;
     const g=ctx.createRadialGradient(X,Y,0,X,Y,R);g.addColorStop(0,m.d?'rgba(60,50,30,.07)':'rgba(255,250,225,.07)');g.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(X,Y,R,R*TILT,0,0,7);ctx.fill();});
@@ -1661,7 +1660,7 @@ function update(dt){
   const mx=ix,mz=-iy;
   const sprint=(!DRILL&&(keys.ShiftLeft||keys.ShiftRight||l>.95&&isTouch))?1.45:1,sp=10*sprint*l*(FAST()?1.3:1);
   if(l>.05){
-    const nx=pos.x+mx/l*sp*dt,nz=pos.z+mz/l*sp*dt;
+    const nx=pos.x+mx/l*sp*dt,nz=pos.z+mz/l*sp*dt/ZS; // 南北向拉長：z 方向走慢一點，畫面上速度一致
     if(!blocked(nx,pos.z))pos.x=nx;if(!blocked(pos.x,nz))pos.z=nz;
     face=Math.atan2(mx,mz);
     P.dir=['front','fl','left','bl','back','br','right','fr','front'][Math.round(Math.atan2(mx,-mz)/(Math.PI/4))+4]; // 8 方向
@@ -1715,7 +1714,7 @@ function render(dt){
   items.sort((a,b)=>a.s-b.s||a.z-b.z);
   // 遮擋淡化
   const pX=PX(pos.x),pY=PY(pos.z);
-  BSORT.forEach((B,i)=>{let tgt=1;if(pos.x>B.minx-.8&&pos.x<B.maxx+.8&&B.h>2.5){const fz=frontZ(B,Math.max(B.minx,Math.min(B.maxx,pos.x)));if(pos.z<fz&&pY>PY(B.minz,B.h)-PPU*.5&&pos.z>B.minz-B.h*HS/TILT-4)tgt=.3;}B.fade+=(tgt-B.fade)*Math.min(1,dt*8);});
+  BSORT.forEach((B,i)=>{let tgt=1;if(pos.x>B.minx-.8&&pos.x<B.maxx+.8&&B.h>2.5){const fz=frontZ(B,Math.max(B.minx,Math.min(B.maxx,pos.x)));if(pos.z<fz&&pY>PY(B.minz,B.h)-PPU*.5&&pos.z>B.minz-B.h*HS/(TILT*ZS)-4)tgt=.3;}B.fade+=(tgt-B.fade)*Math.min(1,dt*8);});
   items.forEach(it=>{if(it.B){const B=it.B;if(B.fade<.99)ctx.globalAlpha=B.fade;ctx.drawImage(B.cv,B.X0,B.Y0);if(B.lit&&DUSK>.02){ctx.globalAlpha=DUSK*B.fade;ctx.drawImage(B.lit,B.X0,B.Y0);}ctx.globalAlpha=1;}else it.draw();});
   if(decoC)drawCelebrate();
   // 名牌與泡泡
@@ -1726,7 +1725,7 @@ function render(dt){
   if(nearTalk==='anthem')plate(ctx,isTouch?'點 💬 聽校歌':'按 E 聽校歌',PX(ANTHEM.x),PY(ANTHEM.z)-PPU*4.6,PPU*.7,'rgba(255,216,74,.95)','#3a2a00','#2a2a38');
   HOOK.overlay.forEach(f=>f());
   ctx.setTransform(1,0,0,1,0,0);
-  post(dt,(cam.x-pcx)*PPU,(cam.z-pcz)*PPU*TILT);HOOK.screen.forEach(f=>f(dt));
+  post(dt,(cam.x-pcx)*PPU,(cam.z-pcz)*PPU*TILT*ZS);HOOK.screen.forEach(f=>f(dt));
   conf.forEach(p=>{ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-4*DPR,-6*DPR,8*DPR,12*DPR);ctx.restore();});
 }
 let mapT=0;
@@ -2423,7 +2422,7 @@ function bigMap(){
   if(paused)return;
   dialog({title:'🗺️ 南山校園地圖',por:ICON_SCHOOL,html:`<canvas id="bigmap" width="1000" height="650"></canvas><div class="oinfo" style="margin-top:8px;font-size:13px">🟡 本月任務　🔵 加分任務　🟫 主任　🟢 同學　🔶 時光碑　▲ 你在這裡。<b>點地圖上的地點</b>，地上會出現導引光線。</div>`,btn:'關閉'});
   $('dlg').querySelector('.box').classList.add('wide');vnStands(null,false);canvas.style.transform='scale(.96)';
-  const cv=$('bigmap'),m=cv.getContext('2d'),X0=-80*K,Z0=-50*K,S=1000/(164*K),tm=(x,z)=>[(x-X0)*S,(z-Z0)*S];
+  const cv=$('bigmap'),m=cv.getContext('2d'),S=Math.min(1000/164,650/(102*ZS))/K,X0=2*K-500/S,Z0=-50*K,tm=(x,z)=>[(x-X0)*S,(z-Z0)*S*ZS];
   const polyM=(P,f,st)=>{m.beginPath();P.forEach(([x,z],i)=>{const [a,b]=tm(x,z);i?m.lineTo(a,b):m.moveTo(a,b);});m.closePath();m.fillStyle=f;m.fill();if(st){m.strokeStyle=st;m.lineWidth=2;m.stroke();}};
   const lab=(t,x,z,fs=15,bg='rgba(25,32,64,.85)',fg='#fff')=>{m.font=`bold ${fs}px ${FONT}`;const w=m.measureText(t).width;m.fillStyle=bg;rr(m,x-w/2-6,z-fs*.75,w+12,fs*1.5,6);m.fill();m.fillStyle=fg;m.textAlign='center';m.textBaseline='middle';m.fillText(t,x,z+1);};
   m.fillStyle='#9cc58a';m.fillRect(0,0,1000,650);
@@ -2432,9 +2431,9 @@ function bigMap(){
   LAWNS.forEach(L=>polyM(L,'#7fca62'));polyM(FIELD,'#3c5378');polyM(COURT,'#6f9fd0');polyM(GOB,'#d9a85a');polyM(PARK,'#b8bcc4');polyM(PARK2,'#b8bcc4');polyM([[ZH2.xw*K,22.8*K],[ZH2.xd*K,22.8*K],[ZH2.xd*K,ZH2.zr*K],[ZH2.xw*K,ZH2.zr*K]],'#8d8f96');
   GZONES.forEach(g=>polyM(g.P,g.c));polyM(THEATRE.pts,'#bfb7a8');
   mapB.forEach(B=>{const [x,z]=tm(B.x,B.z);m.fillStyle=B.color==='#ffffff'?'#f7f3ea':B.color;m.strokeStyle='#4a4038';m.lineWidth=2;
-    if(B.circle){m.beginPath();m.arc(x,z,B.circle*S,0,7);m.fill();m.stroke();}
-    else{m.save();m.translate(x,z);m.rotate(-(B.rot||0));m.fillRect(-B.w*S/2,-B.d*S/2,B.w*S,B.d*S);m.strokeRect(-B.w*S/2,-B.d*S/2,B.w*S,B.d*S);if(B.ring){m.fillStyle='#d9a85a';m.fillRect(-6*K*S,-6*K*S,12*K*S,12*K*S);}m.restore();}});
-  m.fillStyle='rgba(255,255,255,.9)';m.font=`bold 15px ${FONT}`;m.textAlign='center';{let [x,z]=tm(...ROAD1.lab);m.save();m.translate(x,z);m.rotate(-TH);m.fillText('廣福路',0,0);m.restore();[x,z]=tm(...ROAD2.lab);m.save();m.translate(x,z);m.rotate(Math.PI/2);m.fillText('南工路',0,0);m.restore();}
+    if(B.circle){m.beginPath();m.ellipse(x,z,B.circle*S,B.circle*S*ZS,0,0,7);m.fill();m.stroke();}
+    else{m.beginPath();rectPts(B.x,B.z,B.w,B.d,B.rot||0).forEach(([a,b],i)=>{const [p,q]=tm(a,b);i?m.lineTo(p,q):m.moveTo(p,q);});m.closePath();m.fill();m.stroke();}});
+  m.fillStyle='rgba(255,255,255,.9)';m.font=`bold 15px ${FONT}`;m.textAlign='center';{let [x,z]=tm(...ROAD1.lab);m.save();m.translate(x,z);m.rotate(-Math.atan(Math.tan(TH)*ZS));m.fillText('廣福路',0,0);m.restore();[x,z]=tm(...ROAD2.lab);m.save();m.translate(x,z);m.rotate(Math.PI/2);m.fillText('南工路',0,0);m.restore();}
   const seen=n=>[...VISITED].some(v=>n.startsWith(v)||v.startsWith(n.replace(/（.*/,'')));
   mapB.forEach(B=>{if(!B.name||B.name==='警衛室')return;const [x,z]=tm(B.x,B.z);lab(B.name.replace(/（.*/,''),x,z,14,seen(B.name)?'rgba(25,32,64,.88)':'rgba(25,32,64,.5)');});
   {const [x,z]=tm(THEATRE.lx,THEATRE.lz);lab('天馬劇場',x,z,13,seen('天馬劇場')?'rgba(25,32,64,.88)':'rgba(25,32,64,.5)');}
