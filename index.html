@@ -2064,7 +2064,7 @@ let AC=null,SFXG=null,MUSG=null,SND=1; // 1 音樂＋音效、2 只有音效、0
 try{const v=localStorage.getItem('nanshan-snd');if(v!==null)SND=+v;}catch(e){}
 function audioInit(){
   if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
-    const M=AC.createDynamicsCompressor();M.connect(AC.destination);SFXG=AC.createGain();MUSG=AC.createGain();SFXG.connect(M);MUSG.connect(M);setInterval(musTick,90);}
+    const M=AC.createDynamicsCompressor();M.connect(AC.destination);SFXG=AC.createGain();MUSG=AC.createGain();SFXG.connect(M);MUSG.connect(M);setInterval(musTick,90);if(typeof BG!=='undefined'&&BG.cur)bgmNode(BG.cur);}
   if(AC.state==='suspended')AC.resume();applySnd();}
 function applySnd(){bgmSync();if(SFXG){SFXG.gain.value=SND?0.55:0;MUSG.gain.value=SND===1?0.18:0;}$('sndbtn').textContent=SND===1?'🔊 音樂':SND===2?'🔉 音效':'🔇 靜音';}
 function tone(f,t0,d,{type='sine',g=.3,dest=SFXG,f2=0,a=.006}={}){const o=AC.createOscillator(),v=AC.createGain();o.type=type;o.frequency.setValueAtTime(f,t0);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t0+d);
@@ -2109,10 +2109,23 @@ function sfx(n){if(!AC||!SND||AC.state!=='running')return;const t=AC.currentTime
   }}
 // 背景音樂：依月份換調性與速度，旋律用固定種子產生（每 4 小節重複一次）
 // 老師提供背景音樂後：把檔案放 assets/music/，填進 BGM（可以每月不同）；有音檔時就不播合成音樂
-const BGM={default:'',months:{}}; // 例：{default:'assets/music/main.mp3',months:{2:'assets/music/anniversary.mp3'}}
-let bgmEl=null;
-function bgmSync(){const src=BGM.months[month]||BGM.default;if(!src||SND!==1){if(bgmEl)bgmEl.pause();return;}
-  if(!bgmEl){bgmEl=new Audio();bgmEl.loop=true;bgmEl.volume=.45;}if(!bgmEl.src.endsWith(src)){bgmEl.src=src;}bgmEl.play().catch(()=>{});}
+// 老師提供的 AI 背景音樂（2026-11-06）：main 預設；10 月校慶 festival；11–12 月段考 study；6 月畢業 graduation
+const BGM={default:'assets/music/main.m4a',months:{2:'assets/music/festival.m4a',3:'assets/music/study.m4a',4:'assets/music/study.m4a',10:'assets/music/graduation.m4a'}};
+const BGV=.45,BGF=1.8; // 背景音樂音量、淡入淡出秒數（換月份、循環接回開頭、切靜音都會淡入淡出）
+const BG={cur:null};
+function bgmNode(el){if(AC&&!el._g){try{const src=AC.createMediaElementSource(el),g=AC.createGain();g.gain.value=el.volume;src.connect(g);g.connect(AC.destination);el._g=g;el.volume=1;}catch(e){}}}
+function bgmVol(el,to,sec,done){bgmNode(el);clearInterval(el._f);
+  if(el._g){const g=el._g.gain,t=AC.currentTime;g.cancelScheduledValues(t);g.setValueAtTime(g.value,t);g.linearRampToValueAtTime(to,t+sec);if(done)el._f=setTimeout(done,sec*1000+60);}
+  else{const from=el.volume,t0=performance.now();el._f=setInterval(()=>{const k=Math.min(1,(performance.now()-t0)/(sec*1000));el.volume=Math.max(0,Math.min(1,from+(to-from)*k));if(k>=1){clearInterval(el._f);done&&done();}},40);}} // iPhone 不能調 volume，所以優先走 Web Audio 增益
+function bgmStart(src){const el=new Audio(src);el.preload='auto';el.loop=false;el._src=src;el.volume=0;
+  el.addEventListener('timeupdate',()=>{if(BG.cur===el&&el.duration&&!el._end&&el.currentTime>el.duration-BGF-.3){el._end=1;bgmCross(src);}}); // 快播完時交叉淡入下一輪，循環不會斷
+  el.addEventListener('ended',()=>{if(BG.cur===el){el._end=0;el.currentTime=0;el.play().catch(()=>{});}});
+  el.play().catch(()=>{});bgmVol(el,BGV,BGF);return el;}
+function bgmCross(src){const old=BG.cur;if(old)bgmVol(old,0,BGF,()=>{old.pause();old.removeAttribute('src');old.load();});BG.cur=src?bgmStart(src):null;}
+function bgmSync(){const src=BGM.months[month]||BGM.default;
+  if(!src||SND!==1){if(BG.cur){const o=BG.cur;BG.cur=null;bgmVol(o,0,.8,()=>o.pause());}return;}
+  if(BG.cur&&BG.cur._src===src){if(BG.cur.paused)BG.cur.play().catch(()=>{});return;}
+  bgmCross(src);}
 let musT=0,musStep=0;
 const MUS=[ // [主音（半音）, 每分鐘拍數, 和弦進行]
  [0,100,'I V vi IV'],[2,104,'I IV V I'],[7,128,'I V vi IV'],[5,96,'vi IV I V'],[-3,88,'vi IV I V'],[-1,86,'I vi IV V'],
