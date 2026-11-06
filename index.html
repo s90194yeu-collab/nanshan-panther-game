@@ -216,7 +216,41 @@ const CAP=(x1,y1,x2,y2,r,fill,stroke=OL,sw=.8)=>P_(CAPp(x1,y1,x2,y2,r),fill,stro
 const PT=(d,fill,stroke=OL,sw=.8)=>P_(d,fill,stroke,sw);
 const LN=(d,stroke,sw=1)=>P_(d,'none',stroke,sw);
 
+// 南山豹斜向（3/4 側面）：fr＝右前、br＝右後；左前、左後用鏡像
+function pantherQ(c,qf,f){
+  const S=[],sw=[0,1,0,-1][f],fur='#2d2c3e',fur2='#43425c',farC=shade(fur,.82),top=c.shirt||'#fbfbf8',bottom=c.bottom,skirt=c.sex==='f',inner='#8f8b98',muz='#f8f4ea',iris='#f2a91e';
+  if(qf)S.push(LN('M12.5 32Q5 33.5 5 26Q5.2 22 7.8 21',fur,2.7),LN('M7.2 22Q7.4 21.3 7.8 21',fur2,2.7)); // 尾巴在身後
+  const lL=sw>0?1.4:0,lR=sw<0?1.4:0,aL=sw*1.1,aR=-sw*1.1;
+  S.push(CAP(14,32,13.4,43.4-lL,2.05,farC),EL(14.4,45-lL,2.8,1.5,farC)); // 遠側腿
+  S.push(CAP(19.2,32,19.6,43.4-lR,2.15,fur),EL(20.4,45-lR,3,1.6,fur)); // 近側腿
+  S.push(CAP(10.6,23,9.4+aL,30,1.6,farC),EL(9.4+aL,30.8,1.45,1.4,shade(fur2,.82))); // 遠側手臂
+  const bx=10,bw=12.4,sk=sw*.55;
+  S.push(RR(bx,21,bw,13,4,top),PT(qf?'M19.6 21.4Q22.4 21.6 22.4 25V30Q22.4 34 19.6 34Z':'M10 25Q10 21.6 12.8 21.4V34Q10 34 10 30Z','rgba(40,40,80,.12)',null));
+  if(skirt)S.push(PT(`M10 29.5H22.4L${24.6+sk} 36.6Q${16.8+sk} 38.3 ${8.4+sk} 36.6Z`,bottom),LN('M13 30.5L12 36.9M16.6 30.5V37.4M20 30.5L21 36.9','rgba(0,0,0,.35)',.55));
+  else S.push(RR(bx+.2,29.6,bw-.4,5.4,1.6,bottom),LN('M17.2 30.4V35','rgba(0,0,0,.25)',.5));
+  if(qf){
+    S.push(PT('M10 25Q10 21.3 12.4 21.2L17.4 26.8L20.6 21.2Q22.4 21.3 22.4 25V31.6Q16.2 33.4 10 31.6Z',c.vest||'#8f2130'));
+    if(c.sex==='m')S.push(PT('M13 21.1L17.4 23.3L15.9 24.5Z',shade(top,1.15),OL,.4),PT('M20.4 21.1L17.4 23.3L18.7 24.5Z',shade(top,1.15),OL,.4),PT('M16.7 22.8H18.1L18.5 26.4L17.4 27.6L16.3 26.4Z','#22305e',OL,.45));
+    else S.push(PT('M12.8 21.1Q12.6 23.8 15.6 23.7Q17.2 23.4 17.4 22.2Z','#fde3ea',OL,.45),PT('M20.6 21.1Q20.8 23.6 18.6 23.7Q17.5 23.4 17.4 22.2Z','#fde3ea',OL,.45));
+    S.push(PT('M18.5 28.4L19.05 27.4L19.6 28.4Z','#3aa655',null),PT('M19.6 28.4L20.15 27.4L20.7 28.4Z','#e0453c',null),PT('M20.7 28.4L21.25 27.4L21.8 28.4Z','#3f6fd1',null));
+  }else S.push(RR(bx,21.4,bw,10.8,3.2,c.vest||'#8f2130'));
+  S.push(CAP(21.8,23,23.4+aR,30.4,1.75,fur),EL(23.4+aR,31.2,1.6,1.5,fur2),CAP(21.8,22.8,22.3+aR*.3,25.4,2.1,top)); // 近側手臂
+  if(!qf)S.push(LN('M15 32Q14.5 39.5 9.5 37.6Q5.4 35.6 6.6 29.4',fur,2.9),LN('M6.3 30.6Q6.4 29.8 6.6 29.4',fur2,2.9)); // 背面看得到尾巴
+  if(qf){
+    S.push(EL(9.6,5.6,3.4,3.4,fur),EL(23.8,5.2,3.6,3.6,fur),EL(9.8,5.8,1.9,1.9,inner,null),EL(23.7,5.4,2.1,2.1,inner,null));
+    S.push(EL(16.6,13,11.1,9.6,fur),EL(13.4,8.2,4.4,2.2,'rgba(255,255,255,.07)',null));
+    [[14.4,2.9],[22.3,3.55]].forEach(([x,r])=>S.push(EL(x,12.7,r*.92,r,'#f3ead8',OL,.8),EL(x+.2,12.8,r*.78,r*.8,iris,null),EL(x+.35,13,r*.48,r*.49,'#1a1410',null),EL(x-.6,11.8,r*.22,r*.22,'#ffffff',null)));
+    S.push(EL(17.7,17.7,2.8,2.6,muz,null),EL(22.4,17.7,3.4,2.7,muz,null),EL(20.2,19.4,2.5,1.7,muz,null));
+    S.push(PT('M17.4 15Q20.2 14.2 23 15Q22.7 17 20.2 17.7Q17.7 17 17.4 15Z','#f07b2c',OL,.6));
+    S.push(PT('M18.1 18.7Q20.2 18.3 22.3 18.7Q21.9 21.3 20.2 21.5Q18.5 21.3 18.1 18.7Z','#d93a3f',OL,.55),EL(20.2,20.6,1.1,.6,'#ff8a8f',null));
+  }else{
+    S.push(EL(8.6,5.6,3.4,3.4,fur),EL(22.6,5.2,3.6,3.6,fur));
+    S.push(EL(26.4,16.6,2.3,2.5,muz,OL,.8),EL(15.6,13,11.2,9.6,fur),EL(12.6,8.2,4.6,2.3,'rgba(255,255,255,.07)',null),PT('M25.2 7.6Q27.8 10.4 26.9 15.6Q25.4 12 24.2 9Z','rgba(255,255,255,.06)',null));
+  }
+  return S;
+}
 function charShapes(c,d,f){
+  if(d==='fr'||d==='br'){if(c.species==='panther')return pantherQ(c,d==='fr',f);d=d==='fr'?'front':'back';}
   const S=[],side=d==='right',back=d==='back',front=d==='front';
   const sw=[0,1,0,-1][f];
   const isP=c.species==='panther';
@@ -359,7 +393,7 @@ function makeChar(cfg,h=3.2){return {cfg,h,cache:{},dir:'front',f:0};}
 // 角色畫面：先畫向量圖，再加一圈深色外框（從背景跳出來），受光那一側加一道亮邊（依太陽方向，傍晚偏暖）
 function charFrame(C,dir,f){const sxs=typeof SUNX==='number'&&SUNX>=0?'L':'R',dk=typeof DUSK==='number'&&DUSK>.35?'d':'',key=dir+f+sxs+dk;let cv=C.cache[key];if(cv)return cv;
   const H=Math.ceil(C.h*PPU),W=Math.ceil(H*32/48),pad=Math.max(2,Math.round(H*.03)),t=Math.max(1,H*.014);
-  const base=document.createElement('canvas');base.width=W+pad*2;base.height=H+pad*2;const b=base.getContext('2d');b.translate(pad,pad);b.scale(H/48,H/48);drawShapes(b,charShapes(C.cfg,dir==='left'?'right':dir,f),dir==='left');
+  const base=document.createElement('canvas');base.width=W+pad*2;base.height=H+pad*2;const b=base.getContext('2d');b.translate(pad,pad);b.scale(H/48,H/48);const MIR={left:'right',fl:'fr',bl:'br'};drawShapes(b,charShapes(C.cfg,MIR[dir]||dir,f),!!MIR[dir]);
   const sil=document.createElement('canvas');sil.width=base.width;sil.height=base.height;const si=sil.getContext('2d');si.drawImage(base,0,0);si.globalCompositeOperation='source-in';si.fillStyle='#211c33';si.fillRect(0,0,sil.width,sil.height);
   cv=document.createElement('canvas');cv.width=base.width;cv.height=base.height;const x=cv.getContext('2d');
   x.globalAlpha=.8;for(let a=0;a<8;a++){const r=a*Math.PI/4;x.drawImage(sil,Math.cos(r)*t,Math.sin(r)*t);}x.globalAlpha=1;
@@ -680,7 +714,7 @@ const THEATRE={x:44*K,z:9*K,r:9*K};
 const GTEXT=[['廣福路 Guangfu Rd.',...ROAD1.lab,'rgba(60,60,70,.85)'],['南工路 Nangong Rd.',...ROAD2.lab,'rgba(60,60,70,.85)'],['漳二光電球場（全區不開放）',-38*K,32*K,'rgba(60,60,70,.8)'],['漳二籃球場（C 集合場）',18*K,30*K,'rgba(60,60,70,.8)'],['🚌 校車停駐處',45*K,44*K,'rgba(200,140,20,.9)'],
   ['🅿️ 教師停車場',-55*K,18.4*K,'rgba(47,95,181,.9)'],['🅿️',-67.7*K,9*K,'rgba(47,95,181,.9)'],['🚌 校車車道（往漳二籃球場）',-38*K,25.6*K,'rgba(60,60,70,.85)'],['🗑️ 垃圾子母車',-65.6*K,-10.6*K,'rgba(60,90,60,.9)'],['中庭・全國最大圍棋圖案',-54*K,(4.8+6.6)*K,'rgba(60,60,70,.8)'],['天馬劇場・美術教室',44*K,(9+10)*K,'rgba(60,60,70,.8)'],['大草坪（A 集合場）',-20*K,-12.4*K,'rgba(47,107,90,.85)']];
 /* --- 樹 --- */
-const KEEP=[[-2,-6,3],[-53,2,3],[36,1.5,3],[-56,20,9],[-67.7,6,6],[-67.7,16,5],[-67.7,-4,5],[-67,-12,3],[58,37,3],[63,37,3],[68,37,3],[69,30,3],[69,20,3],[69,14,3],[-44.5,-14.5,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-13,-27,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],[-30,-6,2],[-6,-22,2],[-49,-11,2],[-12.5,-19.5,2],[9,2,2],[-42,-10,2],[-17.5,-2,2],[-50.5,8,2],
+const KEEP=[[8.5,34,3],[3.2,34,2],[-1.5,1.6,3],[-2,-6,3],[-53,2,3],[36,1.5,3],[-56,20,9],[-67.7,6,6],[-67.7,16,5],[-67.7,-4,5],[-67,-12,3],[58,37,3],[63,37,3],[68,37,3],[69,30,3],[69,20,3],[69,14,3],[-44.5,-14.5,3],[51.5,12,3],[50.5,19,3],[-38,-9.5,3],[-13,-27,3],[-52,-10.5,3],[-27,-12,2],[-56,-11,2],[47,15.5,2],[21,-14.5,2],[-4,-16,2],[-30,-6,2],[-6,-22,2],[-49,-11,2],[-12.5,-19.5,2],[9,2,2],[-42,-10,2],[-17.5,-2,2],[-50.5,8,2],
   [-59,-10.5,6],[-3,-19,3],[-34,-1.5,3],[-45,4.8,4],[22,1,3],[4,1,3],[-54,4.8,7],[-8.4,-12,5],[-12,-6,5],[13,1,8],[44,9,11],[14,4,6],[24,4,6],[34,4,6],[50.5,10,5],[-26,-17,9],[-14,0,5],[-30,0,5],[-41,0,4],[-46,-10,7],[5,-20,4],[-2,-12,4],[-62,-14,4],[-57,-12,4],[-50,19.5,4],[-10,-24,3],[12,-22,3],[-14,-15.6,4],[-63,-11,4],
   [-52,-10.5,3],[-35.6,-12.3,3],[-26.8,-17,3],[-31.2,-14.7,3],[-23,-1.5,3],[-41,13,3],[-8,-1.5,3],[-19.7,-20.8,3],[-23.2,-18.9,3],[50.5,0,3],[-41,24,3],[-41,34,3],[-46,-59,3],[-59,13,3],[-10.5,1,3],[24,1,3],
   [-25,-10,2],[32,6,2],[-48,-12,2],[46,20,2],[-30,-4,2],[-46,20,2],[0,16,2],[35,15,2],[48,18,2],[-66,-14,2],[-50,1,2],[-36,-6,2],[39,5,3],[5,-20,3],[-4,-1.5,3],[-2,-12,3],
@@ -1061,7 +1095,7 @@ const OFFICES=[
   chiefs:['出納組','庶務組','保管組','安維組']},
  {name:'教學資源中心',dir:'鄭淑慧主任',at:[-23,-1.5],where:'自強大樓七樓',help:'愛看書、愛藝術的你一定要來！圖書館借閱與閱讀活動、資訊設備維修，還有南山藝廊展覽、南山小舞台、音樂性社團和藝術服務團，都在這裡等你。',
   chiefs:['信息組','信息組副組長','出版典藏組','美育文創組']},
- {name:'外語中心',dir:'葛衍辰主任',at:[-34,-1.5],where:'自強大樓',help:'想把英文學得更好、想看看世界嗎？外語中心有外籍老師、雙語亮點課程和國際交流，還有暑期遊學團，帶你走出去看世界！',chiefs:[]},
+ {name:'外語中心',dir:'葛衍辰主任',at:[-34,-1.5],where:'自強大樓三樓',help:'想把英文學得更好、想看看世界嗎？外語中心有外籍老師、雙語亮點課程和國際交流，還有暑期遊學團，帶你走出去看世界！',chiefs:[]},
  {name:'秘書室',dir:'黃筠雅主任',at:[-8,-1.5],where:'自強大樓六樓',help:'秘書室幫全校安排行事曆、接待來訪的外賓，還負責《南山雜誌》、南山文學獎、校園場地借用和南山大事紀。有好作品，歡迎投稿南山文學獎喔！',chiefs:[]},
 ];
 // 各組業務說明（畫面只顯示「某某組 組長」，不放組長姓名）
@@ -1093,7 +1127,7 @@ const ICON_SCHOOL='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" w
 const ICON_CAL='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="88" height="88"><path d="M4 7h24v21H4Z" fill="#fffaf0" stroke="#1a1a24"/><path d="M4 7h24v6H4Z" fill="#d8343f" stroke="#1a1a24"/><path d="M10 4v6M22 4v6" stroke="#1a1a24" stroke-width="2" stroke-linecap="round"/><path d="M8 17h4v3H8ZM14 17h4v3h-4ZM20 17h4v3h-4ZM8 22h4v3H8ZM14 22h4v3h-4Z" fill="#2f6b5a"/></svg>';
 function officeDirectory(){
   if(paused)return;
-  const lead=LEADERS.map(l=>`${l.title}：${l.name}`).join('　');
+  const lead=LEADERS.map(l=>`【${l.title}】${l.name}${l.title==='校長'?'（校長室：自強大樓六樓）':''}\n${l.help}`).join('\n\n');
   dialog({title:'🏢 南山行政團隊：有困難找我們',por:ICON_SCHOOL,text:`${lead}\n\n`+OFFICES.map(o=>`【${o.name}】${o.dir}（${o.where}）\n${o.help}`+(o.chiefs.length?`\n各組：${o.chiefs.map(u=>/副組長$/.test(u)?u:u+'組長').join('、')}`:'')).join('\n\n'),btn:'知道了'});
 }
 
@@ -1353,8 +1387,8 @@ const BINFO=[
  {name:'曹俊大樓',at:[-32.5,-15.1],floors:[['7F','校史館・高三'],['6F','高三'],['5F','空中花園・閱覽室・高三・國三'],['2–4F','教務處（2F）・國三'],['1F','南山藝廊（西側）・服務中心'],['B1','停車場・資源回收'],['西側','精宏館・圓弧梯']]},
  {name:'正德大樓',at:[-24.6,-19.3],floors:[['4F','電腦教室 401／402・信息中心'],['3F','電腦教室 301／302・導師室'],['2F','E化教室・導師室・輔導處・應三'],['1F','總務處・輔導處・川堂']]},
  {name:'熊祥大樓',at:[-43,-9],floors:[['形狀','ㄈ字形，東側開口，可以直接走進中庭'],['2–3F','國一'],['1F','健康中心・外語教室 A–E・社團教室・陶藝教室・跑班教室'],['中庭','全國最大圍棋圖案']]},
- {name:'自強大樓',at:[-21.6,-.5],floors:[['8F','大閱覽室'],['7F','圖書館・教學資源中心'],['6F','校長室・秘書室・人事室・會計室'],['5F','第二閱覽室・國二'],['4F','第一閱覽室・國二'],['3F','專任辦公室・國一'],['2F','大講堂・國一']]},
- {name:'行健樓',at:[13.2,1],floors:[['','室內體育館・韻律教室・舞蹈教室・健身房'],['B1','羽球・桌球場']]},
+ {name:'自強大樓',at:[-21.6,-.5],floors:[['8F','大閱覽室'],['7F','圖書館・教學資源中心'],['6F','校長室・秘書室・人事室・會計室'],['5F','第二閱覽室・國二'],['4F','第一閱覽室・國二'],['3F','外語中心・專任辦公室・國一'],['2F','大講堂・國一'],['B1','與行健樓 B1 相通：桌球、羽球、棒球打擊專用道']]},
+ {name:'行健樓',at:[13.2,1],floors:[['','室內體育館・韻律教室・舞蹈教室・健身房'],['B1','桌球場・羽球場・棒球打擊專用道（與自強大樓 B1 相通）'],['B2','XBOX・手足球']]},
  {name:'大中至正樓',at:[20,3],floors:[['10F','生物實驗室 ×2・研究室'],['9F','化學實驗室・理化實驗室・研究室'],['8F','物理實驗室・地科實驗室・研究室'],['7F','實驗設備組辦公室・電子電路實習工廠・數位專題實習工廠'],['4–6F','高二'],['2–4F','高一'],['1F','鹿鳴書屋・社團教室']]},
  {name:'崇智樓',at:[51,6],floors:[['頂樓','地科教室・氣象觀測站・仙人掌溫室'],['6F','人文講堂'],['5F','創意教室 B／C・生活科技教室・創意庫・數理專科教室'],['3–4F','國三・國二・專任辦公室'],['1–2F','學務處（1F）・川堂（往南工門）・電氣室・國二']]},
  {name:'幼保樓',at:[2,-23],floors:[['','南山幼兒園・幼兒游泳池']]},
@@ -1401,8 +1435,8 @@ const pos={x:-60*K,y:0,z:-13*K};
 let vy=0,onGround=true,face=Math.PI,phase=0,moving=0,nearTalk=null;
 const R=.7;
 function blocked(x,z){for(const b of boxes)if(hitBox(b,x,z,R))return true;return false;}
-function jump(){if(!paused&&onGround){vy=11;onGround=false;sfx('jump');}}
-function talk(){if(paused||!nearTalk)return;if(nearTalk==='anthem')showAnthem();else if(nearTalk.guide)guideTalk();else if(nearTalk.buddy)talkBuddy(nearTalk);else openOffice(nearTalk);}
+function jump(){if(SHOT.on){shootRelease();return;}if(!paused&&onGround){vy=11;onGround=false;sfx('jump');}}
+function talk(){if(SHOT.on){shootRelease();return;}if(paused||!nearTalk)return;if(nearTalk.act)nearTalk.act.go();else if(nearTalk==='anthem')showAnthem();else if(nearTalk.guide)guideTalk();else if(nearTalk.buddy)talkBuddy(nearTalk);else openOffice(nearTalk);}
 const cam={x:pos.x,z:pos.z};
 
 /* ---------- 小地圖 ---------- */
@@ -1607,7 +1641,7 @@ const BS=()=>BUILD.slice().sort((a,b)=>a.key-b.key);let BSORT=null;
 function update(dt){
   clock+=dt;
   let ix=0,iy=0;
-  if(!paused){if(keys.KeyW||keys.ArrowUp)iy+=1;if(keys.KeyS||keys.ArrowDown)iy-=1;if(keys.KeyA||keys.ArrowLeft)ix-=1;if(keys.KeyD||keys.ArrowRight)ix+=1;ix+=joyV.x;iy+=joyV.y;}
+  if(!paused&&!SHOT.on){if(keys.KeyW||keys.ArrowUp)iy+=1;if(keys.KeyS||keys.ArrowDown)iy-=1;if(keys.KeyA||keys.ArrowLeft)ix-=1;if(keys.KeyD||keys.ArrowRight)ix+=1;ix+=joyV.x;iy+=joyV.y;}
   let l=Math.hypot(ix,iy);if(l>1){ix/=l;iy/=l;l=1;}
   const mx=ix,mz=-iy;
   const sprint=(!DRILL&&(keys.ShiftLeft||keys.ShiftRight||l>.95&&isTouch))?1.45:1,sp=10*sprint*l*(FAST()?1.3:1);
@@ -1615,7 +1649,7 @@ function update(dt){
     const nx=pos.x+mx/l*sp*dt,nz=pos.z+mz/l*sp*dt;
     if(!blocked(nx,pos.z))pos.x=nx;if(!blocked(pos.x,nz))pos.z=nz;
     face=Math.atan2(mx,mz);
-    P.dir=Math.abs(mx)>Math.abs(mz)*1.1?(mx>0?'right':'left'):(mz<0?'back':'front');
+    P.dir=['front','fl','left','bl','back','br','right','fr','front'][Math.round(Math.atan2(mx,-mz)/(Math.PI/4))+4]; // 8 方向
   }
   vy-=30*dt;pos.y+=vy*dt;if(pos.y<=0){pos.y=0;if(!onGround)onLand();vy=0;onGround=true;}
   moving+=((l>.05?1:0)-moving)*Math.min(1,dt*10);
@@ -1633,7 +1667,8 @@ function update(dt){
   let best=null,bd=3.4;OFFNPC.forEach(n=>{const d=Math.hypot(pos.x-n.x,pos.z-n.z);if(d<bd){bd=d;best=n;}});
   {const b=buddyNear(bd)||guideNear(bd);if(b)best=b;}
   if(Math.hypot(pos.x-ANTHEM.x,pos.z-ANTHEM.z)<3.4)best='anthem';
-  if(best!==nearTalk){nearTalk=best;$('talk').style.display=best&&!isTouch?'block':'none';$('talk').textContent=best==='anthem'?'🎵 E 聽校歌':best&&best.guide?'🧭 E 請學長姐帶路':best&&best.buddy?'💬 E 和'+best.name+'聊天':best?(best.kind==='leader'?'💬 E 和'+best.d.title+'說話':'💬 E 進'+best.d.name):'';$('jump').textContent=best?'💬':'跳';}
+  if(!SHOT.on)ACTS.forEach(a=>{if(Math.hypot(pos.x-a.x*K,pos.z-a.z*K)<3)best=a.N||(a.N={act:a});});
+  if(best!==nearTalk){nearTalk=best;$('talk').style.display=best&&!isTouch?'block':'none';$('talk').textContent=best==='anthem'?'🎵 E 聽校歌':best&&best.act?`${best.act.icon} E ${best.act.label}`:best&&best.guide?'🧭 E 請學長姐帶路':best&&best.buddy?'💬 E 和'+best.name+'聊天':best?(best.kind==='leader'?'💬 E 和'+best.d.title+'說話':'💬 E 進'+best.d.name):'';$('jump').textContent=best?'💬':'跳';}
   updateBinfo();HOOK.update.forEach(f=>f(dt));
   CLOUDS.forEach(c=>{c.x+=dt*2;if(c.x>140*K)c.x=-140*K;});
   for(let i=conf.length-1;i>=0;i--){const p=conf[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.r+=p.vr*dt;p.life-=dt;if(p.life<=0||p.y>canvas.height+20)conf.splice(i,1);}
@@ -1852,10 +1887,73 @@ if(DEMO){const IDLE=90,GRACE=10;let last=performance.now(),warn=null;
     if(idle<IDLE)return;const left=Math.ceil(IDLE+GRACE-idle);if(left<=0){location.reload();return;}
     if(!warn){warn=document.createElement('div');warn.id='idlew';document.body.appendChild(warn);}
     warn.innerHTML=`<div>👀 還有人在玩嗎？<br><b style="font-size:40px">${left}</b> 秒後回到開始畫面<br><span style="font-size:16px">點一下畫面就能繼續玩</span></div>`;},400);}
+/* ---------- 校園小動作：漳二籃球場投籃、行健／自強地下運動區 ---------- */
+const HOOPS=[{x:3.2,z:34,d:1},{x:32.8,z:34,d:-1}],RIM_H=3.7; // d：籃框朝向（1＝朝東）
+const SHOT={on:false,n:0,made:0,ph:0,pw:0,ball:null,wait:0,best:0};
+try{SHOT.best=+localStorage.getItem('nanshan-hoop')||0;}catch(e){}
+const ACTS=[
+ {id:'hoop',x:8.5,z:34,icon:'🏀',label:'投籃',go:()=>shootStart()},
+ {id:'b1',x:-1.5,z:1.6,icon:'⬇️',label:'到地下運動區',go:()=>underground()},
+];
+function shootStart(){if(SHOT.on||paused||DRILL||run)return;Object.assign(SHOT,{on:true,n:0,made:0,ph:0,ball:null,wait:.3});keys={};joyV.x=joyV.y=0;
+  pos.x=8.5*K;pos.z=34*K;P.dir='left';sfx('click');toast(isTouch?'🏀 力道條跑進綠色區時，點 💬 出手！一共 5 球':'🏀 力道條跑進綠色區時，按 E 或空白鍵出手！一共 5 球',3200);
+}
+function shootRelease(){if(!SHOT.on||SHOT.ball||SHOT.wait>0)return;const p=SHOT.pw,err=p-.7,good=Math.abs(err)<.08,rim=!good&&Math.abs(err)<.15;
+  const rx=HOOPS[0].x*K+.9;SHOT.ball={t:0,dur:.8,x0:pos.x-.7*K,x1:good||rim?rx:rx-err*9*K,h0:2,h1:good||rim?RIM_H:RIM_H-.3,make:good,rim,drop:0};sfx('jump');}
+function shootEnd(){const m=SHOT.made;SHOT.on=false;nearTalk=null;
+  if(m>SHOT.best){SHOT.best=m;try{localStorage.setItem('nanshan-hoop',m);}catch(e){}}
+  sfx(m>=3?'complete':'click');toast(`🏀 5 投 ${m} 中！${m===5?'百發百中，HBL 在等你！':m>=3?'手感不錯喔！':'再練練，下次會更好！'}（最佳 ${SHOT.best} 中）`,3400);}
+HOOK.update.push(dt=>{if(!SHOT.on)return;
+  if(SHOT.wait>0){SHOT.wait-=dt;return;}
+  const b=SHOT.ball;
+  if(!b){SHOT.ph+=dt*.9;SHOT.pw=1-Math.abs(SHOT.ph%2-1);return;}
+  if(b.t<b.dur){b.t+=dt;if(b.t>=b.dur){if(b.make){sfx('correct');fxPop(b.x1,34*K,'進了！','#ffd84a');SHOT.made++;}else if(b.rim){sfx('wrong');fxPop(b.x1,34*K,'打框！','#ffffff');}else{sfx('land');fxPop(b.x1,34*K,b.x1>HOOPS[0].x*K+.9?'太近了':'太遠了','#ffffff');}}return;}
+  b.drop+=dt;if(b.drop>.55){SHOT.ball=null;SHOT.n++;SHOT.ph=0;SHOT.wait=.35;if(SHOT.n>=5)shootEnd();}});
+function drawHoop(H){const X=PX(H.x*K),Y=PY(H.z*K),u=PPU,d=H.d;
+  ctx.fillStyle='rgba(28,30,72,.22)';ctx.beginPath();ctx.ellipse(X+u*.4,Y,u*.9,u*.3,0,0,7);ctx.fill();
+  ctx.fillStyle='#5a6070';ctx.fillRect(X-d*u*.5-u*.12,Y-RIM_H*u-u*.6,u*.24,RIM_H*u+u*.6);ctx.fillStyle='#3a3f4c';ctx.fillRect(X-d*u*.5-u*.2,Y-u*.2,u*.4,u*.2); // 柱子
+  ctx.fillStyle='#5a6070';ctx.fillRect(Math.min(X-d*u*.5,X),Y-RIM_H*u-u*.35,u*.5,u*.14);
+  ctx.fillStyle='#f6f6f2';ctx.strokeStyle='#2a2a38';ctx.lineWidth=Math.max(1,u*.06);ctx.beginPath();ctx.rect(X-u*.18,Y-RIM_H*u-u*1.25,u*.36,u*1.7);ctx.fill();ctx.stroke(); // 籃板
+  ctx.strokeStyle='#d8343f';ctx.strokeRect(X-u*.1,Y-RIM_H*u-u*.5,u*.2,u*.55);
+  const rx=X+d*u*.9,ry=Y-RIM_H*u;ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=Math.max(1,u*.04);
+  for(let i=-2;i<=2;i++){ctx.beginPath();ctx.moveTo(rx+i*u*.2,ry);ctx.lineTo(rx+i*u*.12,ry+u*.75);ctx.stroke();} // 籃網
+  ctx.beginPath();ctx.moveTo(rx-u*.38,ry+u*.4);ctx.lineTo(rx+u*.38,ry+u*.4);ctx.stroke();
+  ctx.strokeStyle='#e8762c';ctx.lineWidth=Math.max(1.5,u*.1);ctx.beginPath();ctx.ellipse(rx,ry,u*.5,u*.17,0,0,7);ctx.stroke();ctx.beginPath();ctx.moveTo(X,ry);ctx.lineTo(rx-d*u*.5,ry);ctx.stroke();}
+HOOK.actors.push(add=>HOOPS.forEach(H=>add(H.x*K,H.z*K,()=>drawHoop(H))));
+// 地下運動區入口（行健樓前、靠自強大樓）
+HOOK.ground.push(()=>{const x=-1.5*K,z=1.6*K,X=PX(x),Y=PY(z),w=2.6*K*PPU,h=1.6*K*PPU*TILT;
+  ctx.fillStyle='#8d8678';ctx.fillRect(X-w/2-PPU*.2,Y-h/2-PPU*.2,w+PPU*.4,h+PPU*.4);
+  for(let i=0;i<6;i++){const t=i/6;ctx.fillStyle=`rgb(${Math.round(190-t*120)},${Math.round(184-t*118)},${Math.round(170-t*110)})`;ctx.fillRect(X-w/2,Y-h/2+h*t,w,h/6+1);}
+  ctx.strokeStyle='rgba(255,216,74,.9)';ctx.lineWidth=Math.max(1,PPU*.08);ctx.strokeRect(X-w/2,Y-h/2,w,h);});
+HOOK.actors.push(add=>add(-1.5*K,.9*K,()=>{const X=PX(-1.5*K),Y=PY(.9*K);ctx.font=`bold ${Math.max(10,PPU*.62)}px ${FONT}`;plate(ctx,'⬇ B1・B2 地下運動區',X,Y-PPU*1.4,Math.max(10,PPU*.62),'rgba(47,107,90,.92)','#ffe9a8');}));
+HOOK.actors.push(add=>{if(nearTalk&&nearTalk.act&&!SHOT.on){const a=nearTalk.act;add(a.x*K,a.z*K+.02,()=>plate(ctx,isTouch?`點 💬 ${a.label}`:`按 E ${a.label}`,PX(a.x*K),PY(a.z*K)-PPU*4.6,PPU*.7,'rgba(255,216,74,.95)','#3a2a00','#2a2a38'));}});
+HOOK.overlay.push(()=>{if(!SHOT.on)return;const u=PPU;
+  if(!SHOT.ball&&SHOT.wait<=0){const X=PX(pos.x)+u*1.5,Y0=PY(pos.z)-u*4.6,H=u*3.4,W=u*.5; // 力道條
+    ctx.fillStyle='rgba(18,24,48,.8)';rr(ctx,X-W/2-u*.12,Y0-u*.12,W+u*.24,H+u*.24,u*.2);ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,.18)';ctx.fillRect(X-W/2,Y0,W,H);
+    ctx.fillStyle='#e0b13a';ctx.fillRect(X-W/2,Y0+H*(1-.85),W,H*.15*.5);ctx.fillRect(X-W/2,Y0+H*(1-.62),W,H*.07);
+    ctx.fillStyle='#8ff0a4';ctx.fillRect(X-W/2,Y0+H*(1-.78),W,H*.16);
+    const ny=Y0+H*(1-SHOT.pw);ctx.fillStyle='#ff4d5e';ctx.fillRect(X-W/2-u*.2,ny-u*.07,W+u*.4,u*.14);
+    ctx.font=`bold ${Math.max(10,u*.6)}px ${FONT}`;plate(ctx,`第 ${SHOT.n+1} / 5 球　進 ${SHOT.made}`,PX(pos.x),PY(pos.z)-u*5.4,Math.max(10,u*.6),'rgba(25,32,64,.9)');}
+  const b=SHOT.ball;if(!b)return;let x,h;
+  if(b.t<b.dur){const t=b.t/b.dur;x=b.x0+(b.x1-b.x0)*t;h=b.h0+(b.h1-b.h0)*t+3.2*4*t*(1-t);}
+  else{const t=b.drop/.55;x=b.x1+(b.make?0:b.rim?1.1*K*t:-.6*K*t);h=Math.max(.3,b.h1-t*b.h1*1.1+(b.rim?Math.sin(t*Math.PI)*.8:0));}
+  const X=PX(x),Y=PY(34*K);ctx.fillStyle='rgba(28,30,72,.2)';ctx.beginPath();ctx.ellipse(X,Y,u*.3,u*.12,0,0,7);ctx.fill();
+  ctx.fillStyle='#e8762c';ctx.strokeStyle='#3a1a00';ctx.lineWidth=Math.max(1,u*.05);ctx.beginPath();ctx.arc(X,Y-h*u,u*.3,0,7);ctx.fill();ctx.stroke();
+  ctx.beginPath();ctx.moveTo(X-u*.3,Y-h*u);ctx.lineTo(X+u*.3,Y-h*u);ctx.moveTo(X,Y-h*u-u*.3);ctx.lineTo(X,Y-h*u+u*.3);ctx.stroke();});
+function underground(){if(paused)return;sfx('page');
+  const L=[['tt','🏓 桌球對打','B1',{kind:'timing',title:'🏓 桌球對打',prompt:'球（紅線）飛進綠色區時按「回擊」，連續接住 4 球！',hits:4,zone:.2,speed:1.35,btn:'🏓 回擊！'},'好球！來回 4 拍，你是桌球小高手！'],
+    ['bd','🏸 羽球殺球','B1',{kind:'timing',title:'🏸 羽球殺球',prompt:'羽球（紅線）飛到綠色區時按「殺球」，命中 3 次！',hits:3,zone:.17,speed:1.2,btn:'🏸 殺球！'},'漂亮的殺球！'],
+    ['bb','⚾ 棒球打擊','B1',{kind:'timing',title:'⚾ 棒球打擊專用道',prompt:'球（紅線）進到綠色好球帶時按「揮棒」，擊出 3 支安打！',hits:3,zone:.15,speed:1.5,btn:'⚾ 揮棒！'},'鏗！三支安打，全壘打就在下一棒！'],
+    ['fb','⚽ 手足球','B2',{kind:'timing',title:'⚽ 手足球',prompt:'球（紅線）滾到綠色區時按「射門」，踢進 3 球！',hits:3,zone:.2,speed:1.25,btn:'⚽ 射門！'},'GOAL！手足球 3 比 0 完封！']];
+  dialog({title:'⬇️ 行健・自強地下運動區',por:ICON_SCHOOL,html:`<div class="oinfo">行健樓和自強大樓的地下一樓是相通的，有<b>桌球場、羽球場、棒球打擊專用道</b>；再往下到地下二樓，還有 <b>XBOX</b> 和<b>手足球</b>。下課、社團或體育課，都可以來這裡動一動！</div><div class="menu">${L.map(([k,n,f])=>`<button data-u="${k}">${n}（${f}）</button>`).join('')}</div>`,btn:'回到地面'});
+  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{const it=L.find(x=>x[0]===b.dataset.u);close();sfx('click');
+    miniGame(it[3],()=>{paused=false;canvas.focus();sfx('complete');fxPop(pos.x,pos.z,'🎉','#ffd84a');toast(`${it[1].split(' ')[0]} ${it[4]}`,2800);});});
+}
 /* ---------- 製作群 ---------- */
 function credits(){dialog({title:'🎬 製作群',por:ICON_SCHOOL,html:`<div class="gl">
 <div class="oinfo"><b>《我的校園生活就是這麼自強不息！～成為南山豹的我，這一年也太充實了吧～》</b><br>新北市南山高級中學・115 學年度 AI 導入數位教學示範學校</div>
-<div class="oinfo"><b>企劃・文字・遊戲設計</b><br>國文科召集人　闕宏宇老師</div>
+<div class="oinfo"><b>企劃・文字・遊戲設計</b><br>高中部國文科召集人　闕宏宇老師</div>
 <div class="oinfo"><b>AI 協作開發</b><br>Claude（Anthropic）<br>Gemini（Google）<br>老師規劃與審訂內容，AI 協助撰寫程式、繪製畫面與音效。</div>
 <div class="oinfo"><b>背景音樂</b><br>AI 生成（主題曲、校慶、段考、畢業）</div>
 <div class="oinfo"><b>字型</b><br>jf open 粉圓（Huninn）・SIL Open Font License</div>
@@ -2008,10 +2106,51 @@ function showCard(){
    for(let i=1;i<8;i++){const y=R[0][1]+(R[3][1]-R[0][1])*i/8;x.beginPath();x.moveTo(R[0][0],y);x.lineTo(R[1][0],y);x.stroke();}
    x.strokeStyle='rgba(20,25,40,.7)';poly(x,R);x.stroke();
    plate(x,'漳二光電球場（全區不開放）',(R[0][0]+R[1][0])/2,(R[0][1]+R[3][1])/2,Math.max(10,PPU*.8),'rgba(25,32,64,.85)');}});}
-function carTop(x,B,R){const c=R.reduce((a,p)=>[a[0]+p[0]/4,a[1]+p[1]/4],[0,0]),w=Math.abs(R[1][0]-R[0][0])*.32,h=Math.abs(R[3][1]-R[0][1])*.3;x.fillStyle='rgba(150,190,225,.9)';x.fillRect(c[0]-w,c[1]-h,w*2,h*2);x.strokeStyle='rgba(30,30,40,.4)';x.strokeRect(c[0]-w,c[1]-h,w*2,h*2);}
 // 教師停車場的汽車（熊祥南側一排、西側一排）與垃圾子母車（校門進來右轉、停車場前、靠廣福路）
-[['#d8343f',-63],['#f4f4f4',-59.5],['#2f5fb5',-56],['#3a3a46',-49],['#c9c9cf',-45.5]].forEach(([c,x])=>building('',x,19.6,2,3.4,.9,c,c,{nomap:1,nowin:1,nodoor:1,roofFx:carTop}));
-[['#f4f4f4',1],['#7b8a96',6],['#d8343f',11],['#2c3550',16]].forEach(([c,z])=>building('',-66.6,z,2,3.4,.9,c,c,{nomap:1,nowin:1,nodoor:1,roofFx:carTop}));
+const CARS=[...[['#d8343f',-63],['#f4f4f4',-59.5],['#2f5fb5',-56],['#3a3a46',-49],['#c9c9cf',-45.5]].map(([c,x])=>({c,x,z:19.6,tail:1})),
+  ...[['#f4f4f4',1],['#7b8a96',6],['#d8343f',11],['#2c3550',16]].map(([c,z])=>({c,x:-66.6,z,side:1}))];
+CARS.forEach(c=>addBox(c.x*K,c.z*K,(c.side?3.4:2)*K,(c.side?2:3.4)*K));
+function drawCarSide(c){ // 橫停的車：看得到側面（車窗、兩個輪子）
+  const x=c.x*K,z=c.z*K,hl=1.7*K,hw=.95*K,u=PPU,X=PX(x),L=hl*2*u,X0=X-hl*u;if(X<view.x0-L*2||X>view.x1+L*2)return;
+  const hb=1.05,hc=.8,Ys=PY(z+hw),Ysb=PY(z+hw,hb),Yt=PY(z-hw,hb),sx=typeof SUNX==='number'?SUNX:-1;
+  ctx.fillStyle='rgba(28,30,72,.25)';rr(ctx,X0-sx*u*.5-u*.15,PY(z-hw)+u*.1,L+u*.3,Ys-PY(z-hw)+u*.15,u*.5);ctx.fill();
+  ctx.fillStyle=shade(c.c,.8);rr(ctx,X0,Ysb-u*.05,L,Ys-Ysb+u*.05-u*.15,u*.35);ctx.fill(); // 側面
+  ctx.fillStyle='rgba(0,0,0,.18)';ctx.fillRect(X0+u*.2,Ys-u*.62,L-u*.4,u*.1);
+  [X0+L*.2,X0+L*.8].forEach(a=>{ctx.fillStyle='#1c1c24';ctx.beginPath();ctx.arc(a,Ys-u*.32,u*.42,0,7);ctx.fill();ctx.fillStyle='#b9bec8';ctx.beginPath();ctx.arc(a,Ys-u*.32,u*.18,0,7);ctx.fill();});
+  ctx.fillStyle='#fff3c4';rr(ctx,X0+L-u*.18,Ysb+u*.15,u*.16,u*.26,u*.06);ctx.fill();ctx.fillStyle='#e8343f';rr(ctx,X0+u*.02,Ysb+u*.15,u*.16,u*.26,u*.06);ctx.fill();
+  const g=ctx.createLinearGradient(0,Yt,0,Ysb);g.addColorStop(0,shade(c.c,1.1));g.addColorStop(1,shade(c.c,.95));ctx.fillStyle=g;rr(ctx,X0,Yt,L,Ysb-Yt,u*.5);ctx.fill();ctx.strokeStyle='rgba(20,20,30,.45)';ctx.lineWidth=Math.max(1,u*.05);ctx.stroke();
+  const ca=X0+L*.24,cb=X0+L*.7,Yr0=PY(z-hw*.78,hb+hc),Yr1=PY(z+hw*.78,hb+hc),Yw=PY(z+hw*.92,hb);
+  const gl=ctx.createLinearGradient(0,Yr1,0,Yw);gl.addColorStop(0,'#9cc6e8');gl.addColorStop(1,'#3d5f86');ctx.fillStyle=gl; // 側窗
+  ctx.beginPath();ctx.moveTo(ca+u*.25,Yr1);ctx.lineTo(cb-u*.1,Yr1);ctx.lineTo(cb+u*.55,Yw);ctx.lineTo(ca-u*.35,Yw);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=shade(c.c,.75);ctx.lineWidth=Math.max(1.5,u*.14);ctx.beginPath();ctx.moveTo((ca+cb)/2,Yr1);ctx.lineTo((ca+cb)/2+u*.05,Yw);ctx.stroke(); // 車門柱
+  ctx.fillStyle=shade(c.c,1.14);rr(ctx,ca+u*.25,Yr0,cb-ca-u*.35,Yr1-Yr0,u*.3);ctx.fill();ctx.strokeStyle='rgba(20,20,30,.35)';ctx.lineWidth=1;ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.32)';rr(ctx,ca+u*.45,Yr0+u*.1,(cb-ca)*.45,(Yr1-Yr0)*.35,u*.12);ctx.fill();
+}
+function drawCar(c){ // 汽車：車身、車窗、輪胎、車燈（停車格裡車頭朝北，看得到車尾或車頭）
+  if(c.side)return drawCarSide(c);
+  const x=c.x*K,z=c.z*K,hw=.95*K,hd=1.65*K,u=PPU,X=PX(x),W=hw*2*u,X0=X-hw*u;if(X<view.x0-W*2||X>view.x1+W*2)return;
+  const hb=1.05,hc=.8,Yb=PY(z+hd),Yt=PY(z-hd,hb),Yf=PY(z+hd,hb),sx=typeof SUNX==='number'?SUNX:-1;
+  ctx.fillStyle='rgba(28,30,72,.25)';rr(ctx,X0-sx*u*.5-u*.1,PY(z-hd)+u*.1,W+u*.4,PY(z+hd)-PY(z-hd)+u*.2,u*.5);ctx.fill();
+  ctx.fillStyle='#1c1c24';[[X0-u*.08,PY(z-hd*.62)],[X0+W-u*.3,PY(z-hd*.62)],[X0-u*.08,Yb-u*.55],[X0+W-u*.3,Yb-u*.55]].forEach(([a,b])=>{rr(ctx,a,b-u*.42,u*.38,u*.62,u*.12);ctx.fill();});
+  // 車尾（或車頭）立面
+  ctx.fillStyle=shade(c.c,.78);rr(ctx,X0,Yf-u*.05,W,Yb-Yf+u*.05,u*.28);ctx.fill();
+  ctx.fillStyle='#2a2a33';rr(ctx,X0+W*.1,Yb-u*.42,W*.8,u*.3,u*.1);ctx.fill(); // 保險桿
+  ctx.fillStyle=c.tail?'#e8343f':'#fff3c4';[X0+W*.08,X0+W*.92-W*.2].forEach(a=>{rr(ctx,a,Yf+u*.18,W*.2,u*.22,u*.08);ctx.fill();});
+  ctx.fillStyle='#f4f4f4';ctx.fillRect(X-W*.13,Yb-u*.78,W*.26,u*.2);ctx.strokeStyle='rgba(0,0,0,.35)';ctx.lineWidth=1;ctx.strokeRect(X-W*.13,Yb-u*.78,W*.26,u*.2); // 車牌
+  // 車身頂面
+  const g=ctx.createLinearGradient(X0,0,X0+W,0);g.addColorStop(0,shade(c.c,sx>0?1.08:.9));g.addColorStop(1,shade(c.c,sx>0?.9:1.08));
+  ctx.fillStyle=g;rr(ctx,X0,Yt,W,Yf-Yt,u*.55);ctx.fill();ctx.strokeStyle='rgba(20,20,30,.45)';ctx.lineWidth=Math.max(1,u*.05);ctx.stroke();
+  // 車艙：前後擋風玻璃＋車頂
+  const cz0=z-hd*.5,cz1=z+hd*.42,ci=W*.12,Yc0=PY(cz0,hb+hc),Yc1=PY(cz1,hb+hc),Yg=PY(cz1+hd*.18,hb);
+  ctx.fillStyle='#2b3a52';ctx.beginPath();ctx.moveTo(X0+ci*.6,PY(cz0-hd*.2,hb));ctx.lineTo(X0+W-ci*.6,PY(cz0-hd*.2,hb));ctx.lineTo(X0+W-ci,Yg);ctx.lineTo(X0+ci,Yg);ctx.closePath();ctx.fill();
+  const gl=ctx.createLinearGradient(0,Yc1,0,Yg);gl.addColorStop(0,'#9cc6e8');gl.addColorStop(1,'#3d5f86');ctx.fillStyle=gl;
+  ctx.beginPath();ctx.moveTo(X0+ci*1.4,Yc1);ctx.lineTo(X0+W-ci*1.4,Yc1);ctx.lineTo(X0+W-ci,Yg);ctx.lineTo(X0+ci,Yg);ctx.closePath();ctx.fill();
+  ctx.fillStyle=shade(c.c,1.12);rr(ctx,X0+ci*1.4,Yc0,W-ci*2.8,Yc1-Yc0,u*.3);ctx.fill();ctx.strokeStyle='rgba(20,20,30,.35)';ctx.stroke();
+  ctx.fillStyle='rgba(255,255,255,.35)';rr(ctx,X0+ci*1.9,Yc0+u*.12,(W-ci*3.8)*.35,Yc1-Yc0-u*.24,u*.15);ctx.fill(); // 車頂反光
+  ctx.fillStyle='rgba(255,255,255,.4)';ctx.beginPath();ctx.moveTo(X0+ci*1.8,Yc1+u*.08);ctx.lineTo(X0+ci*1.8+W*.18,Yc1+u*.08);ctx.lineTo(X0+ci*1.4+W*.06,Yg-u*.08);ctx.lineTo(X0+ci*1.3,Yg-u*.08);ctx.closePath();ctx.fill(); // 玻璃反光
+  ctx.fillStyle=shade(c.c,.7);[X0-u*.12,X0+W-u*.02].forEach(a=>{rr(ctx,a,PY(cz1,hb)-u*.1,u*.14,u*.22,u*.06);ctx.fill();}); // 後照鏡
+}
+HOOK.actors.push(add=>CARS.forEach(c=>add(c.x*K,c.z*K+(c.side?.95:1.65)*K,()=>drawCar(c))));
 [0,1].forEach(i=>building('',-67.6+i*1.9*Math.cos(TH),-12.3-i*1.9*Math.sin(TH),1.7,1.3,1.7,'#3a7d44','#2e6337',{rot:TH,nomap:1,nowin:1,nodoor:1}));
 // 校車停駐處的三輛校車
 [40,45,50].forEach(x=>building('',x,37,3.2,10,3.6,'#f2c230','#f5cf4a',{nomap:1,colw:1.6,win:'#9fc7e8',nodoor:1,roofFx:(x,B,R)=>{const c=[(R[0][0]+R[2][0])/2,(R[0][1]+R[2][1])/2];plate(x,'校車',c[0],c[1],Math.max(8,PPU*.55),'rgba(60,40,0,.85)','#ffe9a8','#ffe9a8');}}));
