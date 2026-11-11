@@ -24,6 +24,8 @@ html,body{margin:0;height:100%;background:#12182f;color:var(--paper);font-family
 #cap{position:fixed;left:16px;bottom:16px;z-index:12;max-width:min(560px,calc(100% - 32px));background:rgba(18,24,48,.86);border:2px solid rgba(255,216,74,.85);
   border-radius:16px;padding:12px 16px 12px;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:opacity .4s,transform .4s;pointer-events:none}
 #cap.hide{opacity:0;transform:translateY(12px)}
+#cap.mini{left:50%;bottom:auto;top:8px;transform:translateX(-50%);padding:5px 14px;max-width:min(520px,calc(100% - 200px));border-width:1.5px}
+#cap.mini .d,#cap.mini #dots{display:none}#cap.mini .t{font-size:15px;margin:0}#cap.mini .k{font-size:11px}
 #cap .k{font-size:13px;color:var(--gold);letter-spacing:1px}
 #cap .t{font-size:clamp(18px,2.4vw,24px);margin:2px 0 4px}
 #cap .d{font-size:clamp(13px,1.6vw,16px);line-height:1.6;opacity:.92}
@@ -57,23 +59,24 @@ html,body{margin:0;height:100%;background:#12182f;color:var(--paper);font-family
 const $=id=>document.getElementById(id);
 const GAME_URL='index.html';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-let SRC=null,frame=null,W=null,D=null,A=null,RUN=0;
+let SRC=null,frame=null,W=null,D=null,A=null,RUN=0,cur=0;
 
-/* ---------- 1. 載入遊戲：抓 index.html，在遊戲程式最後加一段「展示用的介面」（只在這一頁，不改原檔） ---------- */
+/* ---------- 1. 載入遊戲：抓 index.html，在遊戲程式最後加一段「展示用的介面」（只在這一頁的記憶體裡，不改原檔） ---------- */
 const API=`
 ;window.TOUR_API={
   start:(g,x)=>{pickL='quick';start(g,x);},
-  pos:()=>pos, K, T, paused:()=>paused, month:()=>month,
+  pos:()=>pos, K, T, paused:()=>paused, month:()=>month, typing:()=>!!TYPING,
   setJoy:(x,y)=>{joyV.x=x;joyV.y=y;}, setKey:(c,v)=>{keys[c]=v;}, stop:()=>{keys={};joyV.x=joyV.y=0;},
   teleport:(x,z)=>{pos.x=x*K;pos.z=z*K;pos.y=0;cam.x=pos.x;cam.z=pos.z;},
   blocked:(x,z)=>blocked(x*K,z*K),
   enterMonth, monthTasks, trigger, task:id=>TASKS.find(t=>t.id===id), complete,
   talk:()=>talk(), near:()=>nearTalk, closeDlg:()=>close(),
-  bigMap, stampBook, achBook, historyBook, showCard, openOffice, OFFNPC, LEADERS, HISTORY, coins,
+  bigMap, stampBook, achBook, historyBook, showCard, openOffice, courseBook, glossary, floorGuide, OFFNPC, HISTORY, coins, STALLS:()=>STALLS_(),
   nav:()=>NAV, setNav:(label,x,z)=>{NAV={label,where:'',x:x*K,z:z*K};}, clearNav:()=>{NAV=null;},
   drill:()=>DRILL, abortDrill:()=>{if(DRILL){DRILL.t.cool=true;}DRILL=null;NAV=null;$('timer').style.display='none';},
-  mgKey:()=>{if(mgOn)mgOn.key();}, mgOn:()=>!!mgOn,
-  toast, sfx:n=>sfx(n), tod:null, setNick:n=>{NICK=n;}
+  mgKey:()=>{if(mgOn)mgOn.key();},
+  toast, tod:null,
+  step:dt=>update(dt) // 只給測試用：不靠畫面更新也能推進遊戲
 };
 saveGame=()=>{};clearSave=()=>{};tutWanted=()=>false; // 展示不存檔、不出現新手引導，也不會動到玩家原本的存檔
 HOOK.update.push(()=>{if(window.TOUR_API.tod!=null)TOD=window.TOUR_API.tod;});
@@ -82,8 +85,7 @@ async function loadSrc(){
   const r=await fetch(GAME_URL,{cache:'no-store'});if(!r.ok)throw new Error('讀不到 '+GAME_URL);
   let h=await r.text();const i=h.lastIndexOf('})();');if(i<0)throw new Error('遊戲檔格式不同');
   h=h.slice(0,i)+API+h.slice(i);
-  const base=new URL('.',location.href).href;
-  h=h.replace(/<head>/i,`<head><base href="${base}">`);
+  h=h.replace(/<head>/i,`<head><base href="${new URL('.',location.href).href}">`);
   return h;
 }
 function mkFrame(){
@@ -95,133 +97,193 @@ function mkFrame(){
 }
 
 /* ---------- 2. 自動操作的小工具 ---------- */
+const alive=()=>RUN===cur;
 const vis=id=>{const e=D&&D.getElementById(id);return !!e&&!e.classList.contains('hidden')&&e.style.display!=='none';};
 const dlgOn=()=>vis('dlg'),mgOpen=()=>vis('mg');
 const intro=()=>!!(D&&D.getElementById('mintro'));
-async function until(fn,ms=8000,step=120){const t0=performance.now();while(performance.now()-t0<ms){if(alive()&&fn())return true;await sleep(step);if(!alive())throw 'stop';}return false;}
-function alive(){return RUN===cur;}let cur=0;
+async function until(fn,ms=8000,step=120){const t0=performance.now();while(performance.now()-t0<ms){if(!alive())throw 'stop';if(fn())return true;await sleep(step);}return false;}
 function click(el){if(!el)return;el.dispatchEvent(new W.PointerEvent('pointerdown',{bubbles:true}));el.click();}
-async function dismiss(max=5){ // 把對話框關掉（打字中會先顯示全文）
-  for(let k=0;k<max&&dlgOn();k++){click(D.getElementById('dB'));await sleep(380);}
+// 閱讀時間：等打字效果跑完，再依字數停留（約每秒 8～9 個字），讓觀眾讀得完
+function readMs(){const t=(D.getElementById('dP')||{}).textContent||'';const n=t.replace(/\s/g,'').length;return Math.max(2600,Math.min(13000,1400+n*115));}
+async function read(extra=0){await until(()=>!A.typing(),9000);await sleep(readMs()+extra);}
+async function dismiss(max=6){for(let k=0;k<max&&dlgOn();k++){click(D.getElementById('dB'));await sleep(420);}}
+async function waitDialog(ms=7000){return until(()=>!intro()&&dlgOn(),ms);}
+async function readThenClose(ms=7000){if(await waitDialog(ms)){await read();await dismiss();}}
+async function jumpTo(x,z){if(A.blocked(x,z)){for(let r=.5;r<4;r+=.5){const c=[[r,0],[-r,0],[0,r],[0,-r]].find(([a,b])=>!A.blocked(x+a,z+b));if(c){x+=c[0];z+=c[1];break;}}}const f=$('fadeLayer');f.style.opacity=1;await sleep(320);A.teleport(x,z);A.stop();await sleep(200);f.style.opacity=0;await sleep(250);}
+
+// 走路：朝目標走；前面被擋住就試著往左右轉一點繞過去（會記住往哪邊繞，避免左右抖動）。
+// 超過時間還沒到，就淡出直接移過去，保證不會卡在原地。
+function steer(p,tx,tz,side,blk){
+  const a0=Math.atan2(tz-p.z,tx-p.x),dist=Math.hypot(tx-p.x,tz-p.z),look=Math.min(1.6,Math.max(.6,dist));
+  const free=a=>[.45,1,look].every(L=>!blk(p.x+Math.cos(a)*L,p.z+Math.sin(a)*L));
+  if(free(a0))return {a:a0,side:0};
+  const order=side?[side,-side]:[1,-1];
+  for(let k=1;k<=8;k++)for(const s of order){const a=a0+s*k*Math.PI/12;if(free(a))return {a,side:s};}
+  return {a:a0+Math.PI,side:side||1};
 }
-async function waitDialog(ms=7000){await until(()=>!intro()&&dlgOn(),ms);}
-async function readThenClose(ms=2600){await waitDialog();await sleep(ms);await dismiss();}
-function fade(on){const f=$('fadeLayer');f.style.opacity=on?1:0;}
-async function jumpTo(x,z){fade(1);await sleep(320);A.teleport(x,z);await sleep(200);fade(0);await sleep(250);}
-// 走到某個點（未放大座標）：用虛擬搖桿，卡住就換個角度，最多走 ms 毫秒
-async function walk(x,z,{ms=9000,near=1.4,sprint=true}={}){
-  const K=A.K;let last=null,stuck=0,side=0;const t0=performance.now();
+async function walk(x,z,{ms=9000,near=1.2,sprint=true}={}){
+  let side=0,lock=0,act=0,last=performance.now();
   A.setKey('ShiftLeft',sprint);
   try{
-    while(performance.now()-t0<ms){
+    while(true){
       if(!alive())throw 'stop';
-      if(A.paused()){A.setJoy(0,0);await sleep(150);if(dlgOn()||mgOpen())return false;continue;}
-      const p=A.pos(),dx=x*K-p.x,dz=z*K-p.z,d=Math.hypot(dx,dz);
-      if(d<near*K)return true;
-      let ux=dx/d,uz=dz/d;
-      if(side){const s=side;[ux,uz]=[ux*.4-uz*s*.92,uz*.4+ux*s*.92];}
-      A.setJoy(ux,-uz);
-      await sleep(90);
-      const q=A.pos();if(last&&Math.hypot(q.x-last.x,q.z-last.z)<.05){if(++stuck>4){side=side?-side:(Math.random()<.5?1:-1);stuck=0;}}else{if(side&&Math.random()<.15)side=0;}
-      last={x:q.x,z:q.z};
+      const now=performance.now(),gap=now-last;last=now;
+      if(A.paused()){A.setJoy(0,0);if(dlgOn()||mgOpen())return false;await sleep(150);continue;}
+      act+=Math.min(gap,200); // 逾時只算真的在走的時間
+      const P=A.pos(),K=A.K,p={x:P.x/K,z:P.z/K};
+      const dd=Math.hypot(x-p.x,z-p.z);if(dd<Math.max(.7,near))return true;
+      if(act>ms){A.setJoy(0,0);await jumpTo(x,z);return true;}
+      const r=steer(p,x,z,lock>0?side:0,A.blocked);if(r.side){side=r.side;lock=8;}else if(lock>0)lock--;
+      const mag=dd<2.5?Math.max(.35,dd/2.5):1;A.setKey('ShiftLeft',sprint&&dd>4); // 快到了就放慢，避免衝過頭來回晃
+      A.setJoy(Math.cos(r.a)*mag,-Math.sin(r.a)*mag);
+      await sleep(70);
     }
-    return false;
   }finally{A.setJoy(0,0);A.setKey('ShiftLeft',false);}
 }
-async function path(pts,o){for(const [x,z] of pts){await walk(x,z,o);if(dlgOn()||mgOpen())return;}}
-// 小遊戲自動玩：連打條就一直按；有指針和綠色區就等指針進綠區再按
-async function autoMG(ms=20000){
+async function walkTask(t,o={}){ // 走到任務點；如果沒有自動跳出任務，就直接開始
+  await walk(A.T(t.x),A.T(t.z),Object.assign({near:.5,sprint:false},o));
+  if(!dlgOn()&&!mgOpen()){await sleep(1200);if(!dlgOn()&&!mgOpen()&&!t.done)A.trigger(t);}
+}
+async function path(pts,o){for(const [x,z] of pts){if(!await walk(x,z,o))return false;}return true;}
+// 小遊戲自動玩：連打條就一直按；有指針和綠色區就等指針進到綠區中間再按
+async function autoMG(ms=24000){
   const t0=performance.now();
   while(mgOpen()&&performance.now()-t0<ms){
     if(!alive())throw 'stop';
-    const A_=D.getElementById('mgA'),nd=A_.querySelector('.needle'),zn=A_.querySelector('.zone'),fill=A_.querySelector('.fill');
-    const show=e=>e&&e.style.display!=='none'&&e.offsetWidth>=0;
-    if(nd&&zn&&show(nd)&&zn.style.display!=='none'&&zn.offsetWidth){
+    const box=D.getElementById('mgA'),nd=box.querySelector('.needle'),zn=box.querySelector('.zone'),fill=box.querySelector('.fill');
+    const on=e=>e&&e.style.display!=='none';
+    if(on(nd)&&on(zn)&&zn.offsetWidth){
       const a=nd.getBoundingClientRect(),b=zn.getBoundingClientRect(),c=a.left+a.width/2;
-      if(c>b.left+b.width*.2&&c<b.right-b.width*.2){A.mgKey();await sleep(260);}else await sleep(16);
-    }else if(fill&&show(fill)){A.mgKey();await sleep(75);}
-    else{const ord=A_.querySelector('.ord');if(ord){await sleep(500);break;}await sleep(100);}
+      if(c>b.left+b.width*.25&&c<b.right-b.width*.25){A.mgKey();await sleep(300);}else await sleep(16);
+    }else if(on(fill)){A.mgKey();await sleep(70);}
+    else await sleep(120);
   }
 }
-async function answerCorrect(t){ // 問答：直接點正確答案（任務資料裡有正解）
-  await waitDialog();await sleep(2200);
+async function answerCorrect(t){ // 問答：讀完題目，點正確答案，再讀解說
+  if(!await waitDialog())return;await read(-600);
   const O=D.getElementById('dO'),b=O&&O.children[A.T(t.ans)];
-  if(b){click(b);await sleep(2300);}
+  if(b){click(b);await sleep(800);await sleep(Math.min(7000,1500+(D.getElementById('dF').textContent.length)*110));}
   await dismiss();
 }
+async function scrollRead(steps,ms){ // 內容很長的對話框：慢慢往下捲，讓觀眾看得到後面
+  const box=D.querySelector('#dlg .box');if(!box)return;const sc=[box,...box.querySelectorAll('*')].find(e=>e.scrollHeight>e.clientHeight+20&&/(auto|scroll)/.test(W.getComputedStyle(e).overflowY));
+  if(!sc)return;for(let k=1;k<=steps;k++){sc.scrollTo({top:(sc.scrollHeight-sc.clientHeight)*k/steps,behavior:'smooth'});await sleep(ms);}}
+async function monthIntroRead(){await readThenClose(9000);} // 每個月一開始的活動說明
+async function goMonth(i){if(A.month()!==i){A.enterMonth(i);await monthIntroRead();}}
+async function afterComplete(){ // 完成本月任務：蓋章動畫，接著自動進到下個月
+  await sleep(2600);await monthIntroRead();
+}
 
-/* ---------- 3. 亮點劇本（每一步都很快接下一步） ---------- */
+/* ---------- 3. 亮點劇本 ---------- */
 const SCENES=[
  {k:'開場',t:'三種身分，一年的校園生活',d:'小六生可以「小六體驗」走一趟國中部，國一、高一新生各有自己的課程路線；還有約 15 分鐘的快速體驗。',
   go:async()=>{
-   await sleep(1200);click(D.querySelector('[data-g="v"]'));await sleep(900);click(D.querySelector('[data-l="quick"]'));await sleep(1100);
-   click(D.getElementById('go'));await waitDialog(6000);await sleep(2600);await dismiss();}},
+   await sleep(1500);click(D.querySelector('[data-g="v"]'));await sleep(1200);click(D.querySelector('[data-l="quick"]'));await sleep(1300);
+   click(D.getElementById('go'));await monthIntroRead();}},
  {k:'任務',t:'走進發光圈圈，接下任務',d:'每個月依真實行事曆安排任務：問答、小遊戲、收集、逛攤位。完成本月任務就能蓋一個章。',
   go:async()=>{
-   const t=A.task('gate');await walk(A.T(t.x),A.T(t.z),{near:.6,sprint:false});
-   await answerCorrect(t);
-   await sleep(1500);await waitDialog(6000);await sleep(2200);await dismiss();}},
+   const t=A.task('gate');await walkTask(t);
+   await answerCorrect(t);await afterComplete();}},
  {k:'探索',t:'撿豹爪幣、找校史時光碑',d:'校園裡藏著金色豹爪幣，撿到就解鎖一項南山榮譽；13 座時光碑，走近就讀到一段南山校史。',
   go:async()=>{
-   const c=A.coins.find(k=>!k.got&&Math.hypot(k.x/A.K+66,k.z/A.K+14)<1);if(c)await walk(c.x/A.K,c.z/A.K,{near:.5});
-   await sleep(900);
-   await walk(-56,-11,{near:.8});await waitDialog(3500);await sleep(2600);await dismiss();}},
- {k:'師長',t:'校長、董事長與七位處室主任都在校園裡',d:'靠近按 E 就能聊天，認識各處室在做什麼、遇到問題可以找誰。',
+   const c=A.coins.find(k=>!k.got&&Math.hypot(k.x/A.K+66,k.z/A.K+14)<1);if(c)await walk(c.x/A.K,c.z/A.K,{near:.4});
+   await sleep(2000);
+   await walk(-56,-11,{near:.5});await readThenClose(4000);}},
+ {k:'師長',t:'校長、董事長與處室主任都在校園裡',d:'靠近按 E 就能聊天。走進處室，還能認識每一組在做什麼，有問題知道找誰。',
   go:async()=>{
-   await jumpTo(-14,4.2);await walk(-14,2.2,{near:.4,sprint:false});await sleep(500);
+   await jumpTo(-14,4.4);await walk(-14,2.3,{near:.3,sprint:false});await sleep(500);
    if(A.near())A.talk();else A.openOffice(A.OFFNPC.find(n=>n.d&&n.d.title==='校長')||A.OFFNPC[0]);
-   await waitDialog(3000);await sleep(3600);await dismiss();}},
+   await readThenClose(3000);
+   const o=A.OFFNPC.find(n=>n.d&&n.d.name==='學務處');if(o){await jumpTo(o.x/A.K,o.z/A.K+3);await walk(o.x/A.K,o.z/A.K+1.6,{near:.3,sprint:false});await sleep(400);
+     if(A.near())A.talk();else A.openOffice(o);await waitDialog(3000);await read(1500);
+     await scrollRead(2,3200);
+     await dismiss();}}},
  {k:'防災演練',t:'9/21 防災演練：趴下、掩護、穩住',d:'警報響起、畫面搖晃，依正確順序保護自己，再跟著地上的導引光線走到集合場。',
   go:async()=>{
-   if(A.month()!==1){A.enterMonth(1);await waitDialog(6000);await sleep(1600);await dismiss();}
+   await goMonth(1);
    const t=A.task('drill');await jumpTo(A.T(t.x)+3,A.T(t.z));await sleep(400);
-   A.trigger(t);await waitDialog();await sleep(2200);await dismiss();
-   await until(mgOpen,4000);await sleep(1300);
-   for(const w of ['趴下','掩護','穩住']){const b=[...D.querySelectorAll('#mgA .ord button')].find(x=>x.textContent.startsWith(w));click(b);await sleep(900);}
-   await waitDialog(4000);await sleep(2000);await dismiss();
-   const t0=performance.now();while(performance.now()-t0<6500&&A.drill()){const n=A.nav();if(!n)break;await walk(n.x/A.K,n.z/A.K,{ms:1500,near:1,sprint:false});}
-   A.abortDrill();}},
- {k:'小遊戲',t:'80 週年校慶大隊接力',d:'先連打衝刺，再抓準時機交棒！各月還有快門挑戰、排球發球、HBL 應援等小遊戲。',
+   A.trigger(t);if(await waitDialog()){await read();await dismiss();}
+   await until(mgOpen,4000);await sleep(2200);
+   for(const w of ['趴下','掩護','穩住']){const b=[...D.querySelectorAll('#mgA .ord button')].find(x=>x.textContent.startsWith(w));click(b);await sleep(1300);}
+   if(await waitDialog(4000)){await read();await dismiss();}
+   const t0=performance.now();while(performance.now()-t0<9000&&A.drill()){const n=A.nav();if(!n)break;await walk(n.x/A.K,n.z/A.K,{ms:4000,near:1,sprint:false});}
+   if(await waitDialog(2500)){await read(-800);const O=D.getElementById('dO');if(O&&O.children[0]){click(O.children[0]);await sleep(800);await sleep(Math.min(7000,1500+D.getElementById('dF').textContent.length*110));}click(D.getElementById('dB'));await sleep(500);if(await waitDialog(2000)){await read();await dismiss();}} // 到達集合場的問題，接著是「演練完成」
+   A.abortDrill();await sleep(600);}},
+ {k:'社團博覽會',t:'9 月社團博覽會：逛攤位、選社團',d:'大草坪擺滿社團攤位，國中部、高中部的社團不一樣。逛滿 5 攤，再選出最想參加的社團。',
   go:async()=>{
-   if(A.month()!==2){A.enterMonth(2);await waitDialog(6000);await sleep(1500);await dismiss();}
-   const t=A.task('relay');await jumpTo(A.T(t.x),A.T(t.z)+5);await walk(A.T(t.x),A.T(t.z),{near:.6,sprint:false});
-   await waitDialog();await sleep(1800);await dismiss();
-   await until(mgOpen,3000);await sleep(700);await autoMG(26000);
-   await waitDialog(4000);await sleep(1600);await dismiss();
-   await sleep(1600);await waitDialog(6000);await sleep(2000);await dismiss();}},
+   await goMonth(1);
+   const t=A.task('clubfair');await jumpTo(-13,-6);await walkTask(t);
+   if(await waitDialog()){await read();await dismiss();}
+   const S=A.STALLS().slice(0,5);
+   for(const s of S){await walk(s.x,s.z+1.2,{near:.6,sprint:false,ms:7000});
+     if(await waitDialog(2500)){await read();if(/選出/.test(D.getElementById('dB').textContent)){click(D.getElementById('dB'));await sleep(1500);break;}await dismiss();}}
+   if(await waitDialog(3000)){await sleep(2500);const b=D.querySelector('[data-club]');click(b);await sleep(600);await read();await dismiss();}
+   await afterComplete();}},
+ {k:'小遊戲',t:'80 週年校慶大隊接力',d:'先連打衝刺，再抓準時機交棒！其他月份還有快門挑戰、排球發球、HBL 應援等小遊戲。',
+  go:async()=>{
+   await goMonth(2);
+   const t=A.task('relay');await jumpTo(-13,-6);await walkTask(t);
+   if(await waitDialog()){await read();await dismiss();}
+   await until(mgOpen,3000);await sleep(2500);await autoMG(26000);
+   if(await waitDialog(4000)){await read();await dismiss();}
+   await afterComplete();}},
+ {k:'地下運動區',t:'行健 B1、大中至正 B2：運動小遊戲',d:'走到樓梯口按 E 就能下去：桌球、羽球、棒球、高爾夫、手足球、電子飛鏢，每一個都能玩。',
+  go:async()=>{
+   await jumpTo(18.5,1.6);await walk(22.1,1.6,{near:.5,sprint:false});await sleep(600);
+   if(A.near())A.talk();await waitDialog(3000);await sleep(3500);
+   const b=D.querySelector('[data-u="tt"]');if(b){click(b);await until(mgOpen,3000);await sleep(2200);await autoMG(20000);await sleep(2500);}
+   else await dismiss();}},
  {k:'校園地圖',t:'找地點：地上出現導引光線',d:'校園依「地震避難疏散路線圖」配置。打開大地圖或搜尋處室、專科教室，跟著光線就走得到。',
   go:async()=>{
-   await jumpTo(-2,0);A.bigMap();await sleep(3400);await dismiss();
+   await jumpTo(-2,0);A.bigMap();await sleep(5000);await dismiss();
    A.setNav('天馬劇場',44,9);A.toast('🧭 跟著地上的光線走到「天馬劇場」',2600);
-   await path([[12,0],[30,1.8],[44,9]]);await sleep(2000);}},
+   await path([[12,0],[30,1.8],[44,9]],{ms:8000});await sleep(2600);await dismiss();}},
+ {k:'課程',t:'特色課程與南山小辭典',d:'童軍教育、戶外教育、科學實驗、外師英文、才藝與運動選修……看不懂的名詞，小辭典都有解釋。',
+  go:async()=>{
+   A.courseBook();await waitDialog(2000);await sleep(5000);await scrollRead(3,3200);
+   await dismiss();A.glossary();await waitDialog(2000);await sleep(4500);await scrollRead(2,3000);await dismiss();}},
+ {k:'HBL 應援',t:'南山男籃 8 座 HBL 冠軍，一起應援！',d:'2 月 HBL 應援練習：8 秒內把應援值喊滿。完成後蓋章，接著進入 3 月。',
+  go:async()=>{
+   await goMonth(6);
+   const t=A.task('hbl');await jumpTo(16,-1);await walkTask(t);
+   if(await waitDialog()){await read();await dismiss();}
+   await until(mgOpen,3000);await sleep(2000);await autoMG(14000);
+   if(await waitDialog(4000)){await read();await dismiss();}
+   await afterComplete();}},
  {k:'天氣與時段',t:'春雨、傍晚、路燈亮起',d:'3 月春雨、5 月梅雨會下雨；完成任務時天色從早晨變成傍晚，窗戶和路燈一盞盞亮起。',
   go:async()=>{
-   A.enterMonth(7);await waitDialog(6000);await sleep(1400);await dismiss();
-   await jumpTo(-24,3.5);await walk(-6,3.5,{sprint:false,ms:4500});
-   A.tod=.98;await walk(3,4.5,{sprint:false,ms:5000});await sleep(1500);A.tod=null;}},
- {k:'收藏',t:'集章冊與紀念卡',d:'每完成一個月就蓋一個章；最後可以寫上名字，下載自己的南山紀念卡。',
+   await goMonth(7);
+   await jumpTo(-28,.8);await sleep(2500);await path([[-10,1.5],[-4,-4]],{sprint:false,ms:7000}); // 注意：自強大樓一樓中間偏北是電梯樓梯間，起點不能放在那裡
+   A.tod=.98;await sleep(2500);await path([[-2,-7],[7,-7],[4,3]],{sprint:false,ms:7000});await sleep(3000);A.tod=null;}},
+ {k:'畢業',t:'6 月：回到校長室，完成這一年',d:'走完一整年，校長會說一段話，並送上集章冊；寫上名字就能做出自己的南山紀念卡。',
   go:async()=>{
-   A.stampBook();await sleep(2800);
-   const n=D.getElementById('nick');if(n){n.value='南山豹';n.dispatchEvent(new W.Event('input'));}await sleep(900);
-   click(D.getElementById('mkcard'));await sleep(4200);await dismiss();}},
+   await goMonth(10);
+   const t=A.task('final');await jumpTo(A.T(t.x)-3,A.T(t.z)+3);await walkTask(t);
+   if(await waitDialog()){await read(800);await dismiss();}
+   await until(dlgOn,5000);await sleep(2500);
+   const n=D.getElementById('nick');if(n){n.value='南山豹';n.dispatchEvent(new W.Event('input'));}await sleep(1300);
+   click(D.getElementById('mkcard'));await sleep(6500);await dismiss();}},
 ];
 
 /* ---------- 4. 字幕與流程 ---------- */
 function caption(i){const s=SCENES[i];$('capK').textContent=`亮點 ${i+1} / ${SCENES.length}・${s.k}`;$('capT').textContent=s.t;$('capD').textContent=s.d;
-  $('dots').innerHTML=SCENES.map((_,j)=>`<i class="${j<=i?'on':''}"></i>`).join('');$('cap').classList.remove('hide');}
+  $('dots').innerHTML=SCENES.map((_,j)=>`<i class="${j<=i?'on':''}"></i>`).join('');}
+// 遊戲有對話框或小遊戲時，字幕縮到上方角落，不擋住要閱讀的文字
+setInterval(()=>{const c=$('cap');if(!c.dataset.on)return;const busy=D&&(dlgOn()||mgOpen()||intro());c.classList.toggle('mini',!!busy);c.classList.remove('hide');},200);
 async function tour(){
   const me=++RUN;cur=me;
-  $('end').style.display='none';$('badge').style.display='flex';
-  await mkFrame();await sleep(800);
+  $('end').style.display='none';$('badge').style.display='flex';$('cap').dataset.on='';$('cap').classList.add('hide');
+  await mkFrame();await sleep(800);$('cap').dataset.on='1';
   for(let i=0;i<SCENES.length;i++){
     if(!alive())return;
     caption(i);
-    try{await dismiss();await SCENES[i].go();}catch(e){if(e==='stop')return;console.warn('展示步驟略過：',SCENES[i].k,e);try{await dismiss();if(mgOpen())click(D.getElementById('mgQ'));A.abortDrill();A.stop();}catch(_){} }
-    await sleep(500);
+    try{if(i)await dismiss();await SCENES[i].go();}
+    catch(e){if(e==='stop')return;console.warn('展示步驟略過：',SCENES[i].k,e);try{await dismiss();if(mgOpen())click(D.getElementById('mgQ'));A.abortDrill();A.stop();}catch(_){} }
+    await sleep(600);
   }
   if(!alive())return;
-  $('cap').classList.add('hide');$('end').style.display='flex';
-  await sleep(7000);
+  $('cap').dataset.on='';$('cap').classList.add('hide');$('end').style.display='flex';
+  await sleep(8000);
   if(alive())tour(); // 重新開始一輪
 }
 const play=()=>window.open(GAME_URL,'_blank');
@@ -231,7 +293,8 @@ $('go').onclick=async()=>{
   try{if(!SRC)SRC=await loadSrc();}catch(e){$('err').style.display='block';$('err').textContent='⚠️ 無法載入遊戲：'+e.message+'。請用網址開啟（GitHub Pages 或本機伺服器），直接雙擊檔案打開時瀏覽器不允許讀取。';return;}
   $('cover').style.display='none';tour();
 };
-// 換頁或看不到時暫停字幕動畫不需要處理；網址加 #auto 可省略按鈕直接開始（例如開機自動啟動，但瀏覽器可能先靜音）
+window.SHOWCASE={steer,SCENES,loadSrc}; // 給測試用
+// 網址加 #auto 可省略按鈕直接開始（例如開機自動啟動；瀏覽器可能先靜音）
 if(location.hash==='#auto')$('go').click();
 })();
 </script>
