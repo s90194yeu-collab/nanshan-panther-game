@@ -104,7 +104,7 @@ const intro=()=>!!(D&&D.getElementById('mintro'));
 async function until(fn,ms=8000,step=120){const t0=performance.now();while(performance.now()-t0<ms){if(!alive())throw 'stop';if(fn())return true;await sleep(step);}return false;}
 function click(el){if(!el)return;el.dispatchEvent(new W.PointerEvent('pointerdown',{bubbles:true}));el.click();}
 // 閱讀時間：等打字效果跑完，再依字數停留（約每秒 8～9 個字），讓觀眾讀得完
-function readMs(){const t=(D.getElementById('dP')||{}).textContent||'';const n=t.replace(/\s/g,'').length;return Math.max(2600,Math.min(13000,1400+n*115));}
+function readMs(){const t=(D.getElementById('dP')||{}).textContent||'';const n=t.replace(/\s/g,'').length;return Math.max(2000,Math.min(6000,1000+n*60));}
 async function read(extra=0){await until(()=>!A.typing(),9000);await sleep(readMs()+extra);}
 async function dismiss(max=6){for(let k=0;k<max&&dlgOn();k++){click(D.getElementById('dB'));await sleep(420);}}
 async function waitDialog(ms=7000){return until(()=>!intro()&&dlgOn(),ms);}
@@ -162,7 +162,7 @@ async function autoMG(ms=24000){
 async function answerCorrect(t){ // 問答：讀完題目，點正確答案，再讀解說
   if(!await waitDialog())return;await read(-600);
   const O=D.getElementById('dO'),b=O&&O.children[A.T(t.ans)];
-  if(b){click(b);await sleep(800);await sleep(Math.min(7000,1500+(D.getElementById('dF').textContent.length)*110));}
+  if(b){click(b);await sleep(800);await sleep(Math.min(6000,1500+(D.getElementById('dF').textContent.length)*110));}
   await dismiss();
 }
 async function scrollRead(steps,ms){ // 內容很長的對話框：慢慢往下捲，讓觀眾看得到後面
@@ -195,7 +195,7 @@ const SCENES=[
    if(A.near())A.talk();else A.openOffice(A.OFFNPC.find(n=>n.d&&n.d.title==='校長')||A.OFFNPC[0]);
    await readThenClose(3000);
    const o=A.OFFNPC.find(n=>n.d&&n.d.name==='學務處');if(o){await jumpTo(o.x/A.K,o.z/A.K+3);await walk(o.x/A.K,o.z/A.K+1.6,{near:.3,sprint:false});await sleep(400);
-     if(A.near())A.talk();else A.openOffice(o);await waitDialog(3000);await read(1500);
+     if(A.near())A.talk();else A.openOffice(o);await waitDialog(3000);await read();
      await scrollRead(2,3200);
      await dismiss();}}},
  {k:'防災演練',t:'9/21 防災演練：趴下、掩護、穩住',d:'警報響起、畫面搖晃，依正確順序保護自己，再跟著地上的導引光線走到集合場。',
@@ -207,7 +207,7 @@ const SCENES=[
    for(const w of ['趴下','掩護','穩住']){const b=[...D.querySelectorAll('#mgA .ord button')].find(x=>x.textContent.startsWith(w));click(b);await sleep(1300);}
    if(await waitDialog(4000)){await read();await dismiss();}
    const t0=performance.now();while(performance.now()-t0<9000&&A.drill()){const n=A.nav();if(!n)break;await walk(n.x/A.K,n.z/A.K,{ms:4000,near:1,sprint:false});}
-   if(await waitDialog(2500)){await read(-800);const O=D.getElementById('dO');if(O&&O.children[0]){click(O.children[0]);await sleep(800);await sleep(Math.min(7000,1500+D.getElementById('dF').textContent.length*110));}click(D.getElementById('dB'));await sleep(500);if(await waitDialog(2000)){await read();await dismiss();}} // 到達集合場的問題，接著是「演練完成」
+   if(await waitDialog(2500)){await read(-800);const O=D.getElementById('dO');if(O&&O.children[0]){click(O.children[0]);await sleep(800);await sleep(Math.min(6000,1500+D.getElementById('dF').textContent.length*110));}click(D.getElementById('dB'));await sleep(500);if(await waitDialog(2000)){await read();await dismiss();}} // 到達集合場的問題，接著是「演練完成」
    A.abortDrill();await sleep(600);}},
  {k:'社團博覽會',t:'9 月社團博覽會：逛攤位、選社團',d:'大草坪擺滿社團攤位，國中部、高中部的社團不一樣。逛滿 5 攤，再選出最想參加的社團。',
   go:async()=>{
@@ -259,7 +259,7 @@ const SCENES=[
   go:async()=>{
    await goMonth(10);
    const t=A.task('final');await jumpTo(A.T(t.x)-3,A.T(t.z)+3);await walkTask(t);
-   if(await waitDialog()){await read(800);await dismiss();}
+   if(await waitDialog()){await read();await dismiss();}
    await until(dlgOn,5000);await sleep(2500);
    const n=D.getElementById('nick');if(n){n.value='南山豹';n.dispatchEvent(new W.Event('input'));}await sleep(1300);
    click(D.getElementById('mkcard'));await sleep(6500);await dismiss();}},
