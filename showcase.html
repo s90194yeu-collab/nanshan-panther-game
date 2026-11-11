@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>南山豹自動展示</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Huninn&display=swap" rel="stylesheet">
+<style>
+/* 自動展示頁：載入遊戲本體（index.html），由電腦自動操作，依序展示亮點。遊戲程式不需要改。 */
+:root{--ink:#1d1d28;--paper:#fffaf0;--green:#2f6b5a;--gold:#ffd84a;--red:#d8343f}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#12182f;color:var(--paper);font-family:Huninn,"PingFang TC","Noto Sans TC",sans-serif;overflow:hidden}
+#game{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#12182f}
+#cover{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;
+  background:radial-gradient(circle at 30% 20%,#2f6b5a 0,#1a2a44 55%,#12182f 100%)}
+#cover .box{max-width:640px;text-align:center}
+#cover h1{font-size:clamp(24px,4.4vw,42px);line-height:1.35;margin:0 0 6px;color:var(--gold);text-shadow:0 3px 0 rgba(0,0,0,.35)}
+#cover h2{font-size:clamp(15px,2.2vw,20px);margin:0 0 22px;font-weight:normal;opacity:.9}
+#cover p{font-size:15px;line-height:1.7;opacity:.85;margin:14px 0 0}
+.btn{font:inherit;font-size:20px;border:3px solid var(--ink);border-radius:16px;padding:12px 26px;background:var(--gold);color:var(--ink);cursor:pointer;box-shadow:0 5px 0 var(--ink);margin:6px}
+.btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--ink)}
+.btn.sub{background:var(--paper);font-size:16px;padding:9px 18px}
+#cap{position:fixed;left:16px;bottom:16px;z-index:12;max-width:min(560px,calc(100% - 32px));background:rgba(18,24,48,.86);border:2px solid rgba(255,216,74,.85);
+  border-radius:16px;padding:12px 16px 12px;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:opacity .4s,transform .4s;pointer-events:none}
+#cap.hide{opacity:0;transform:translateY(12px)}
+#cap .k{font-size:13px;color:var(--gold);letter-spacing:1px}
+#cap .t{font-size:clamp(18px,2.4vw,24px);margin:2px 0 4px}
+#cap .d{font-size:clamp(13px,1.6vw,16px);line-height:1.6;opacity:.92}
+#dots{display:flex;gap:5px;margin-top:8px}
+#dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.3)}
+#dots i.on{background:var(--gold)}
+#badge{position:fixed;right:16px;bottom:16px;z-index:12;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+#badge .live{background:var(--red);color:#fff;border-radius:999px;padding:5px 12px;font-size:13px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+#play{font-size:17px}
+#end{position:fixed;inset:0;z-index:15;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(18,24,48,.82);text-align:center}
+#end h1{color:var(--gold);font-size:clamp(24px,4vw,40px);margin:0 0 10px}
+#end p{font-size:clamp(15px,2vw,19px);line-height:1.7;margin:0 0 18px}
+#err{display:none;color:#ffb4b4;margin-top:14px;font-size:15px;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="cover"><div class="box">
+  <h1>我的校園生活就是這麼自強不息！</h1>
+  <h2>～成為南山豹的我，這一年也太充實了吧～</h2>
+  <button class="btn" id="go">▶ 開始自動展示</button><br>
+  <button class="btn sub" id="goPlay">🎮 直接開始玩</button>
+  <p>電腦會自己操作，依序展示遊戲亮點，展示完自動重來。<br>建議接上喇叭；按下開始後會切換成全螢幕（按 Esc 離開）。</p>
+  <div id="err"></div>
+</div></div>
+<div id="cap" class="hide"><div class="k" id="capK"></div><div class="t" id="capT"></div><div class="d" id="capD"></div><div id="dots"></div></div>
+<div id="badge" style="display:none"><span class="live">● 自動展示中</span><button class="btn" id="play">🎮 換我玩！</button></div>
+<div id="end"><div><h1>這一年，換你來體驗！</h1><p>新北市南山高級中學・校園探索網頁遊戲<br>小六體驗、國一新生、高一新生三種身分</p>
+  <button class="btn" id="play2">🎮 開始玩</button></div></div>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const GAME_URL='index.html';
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let SRC=null,frame=null,W=null,D=null,A=null,RUN=0;
+
+/* ---------- 1. 載入遊戲：抓 index.html，在遊戲程式最後加一段「展示用的介面」（只在這一頁，不改原檔） ---------- */
+const API=`
+;window.TOUR_API={
+  start:(g,x)=>{pickL='quick';start(g,x);},
+  pos:()=>pos, K, T, paused:()=>paused, month:()=>month,
+  setJoy:(x,y)=>{joyV.x=x;joyV.y=y;}, setKey:(c,v)=>{keys[c]=v;}, stop:()=>{keys={};joyV.x=joyV.y=0;},
+  teleport:(x,z)=>{pos.x=x*K;pos.z=z*K;pos.y=0;cam.x=pos.x;cam.z=pos.z;},
+  blocked:(x,z)=>blocked(x*K,z*K),
+  enterMonth, monthTasks, trigger, task:id=>TASKS.find(t=>t.id===id), complete,
+  talk:()=>talk(), near:()=>nearTalk, closeDlg:()=>close(),
+  bigMap, stampBook, achBook, historyBook, showCard, openOffice, OFFNPC, LEADERS, HISTORY, coins,
+  nav:()=>NAV, setNav:(label,x,z)=>{NAV={label,where:'',x:x*K,z:z*K};}, clearNav:()=>{NAV=null;},
+  drill:()=>DRILL, abortDrill:()=>{if(DRILL){DRILL.t.cool=true;}DRILL=null;NAV=null;$('timer').style.display='none';},
+  mgKey:()=>{if(mgOn)mgOn.key();}, mgOn:()=>!!mgOn,
+  toast, sfx:n=>sfx(n), tod:null, setNick:n=>{NICK=n;}
+};
+saveGame=()=>{};clearSave=()=>{};tutWanted=()=>false; // 展示不存檔、不出現新手引導，也不會動到玩家原本的存檔
+HOOK.update.push(()=>{if(window.TOUR_API.tod!=null)TOD=window.TOUR_API.tod;});
+`;
+async function loadSrc(){
+  const r=await fetch(GAME_URL,{cache:'no-store'});if(!r.ok)throw new Error('讀不到 '+GAME_URL);
+  let h=await r.text();const i=h.lastIndexOf('})();');if(i<0)throw new Error('遊戲檔格式不同');
+  h=h.slice(0,i)+API+h.slice(i);
+  const base=new URL('.',location.href).href;
+  h=h.replace(/<head>/i,`<head><base href="${base}">`);
+  return h;
+}
+function mkFrame(){
+  if(frame)frame.remove();
+  frame=document.createElement('iframe');frame.id='game';frame.allow='autoplay; fullscreen';frame.title='南山豹遊戲（自動展示）';
+  document.body.prepend(frame);frame.srcdoc=SRC;
+  return new Promise(res=>{frame.onload=async()=>{W=frame.contentWindow;D=frame.contentDocument;
+    for(let k=0;k<60&&!W.TOUR_API;k++)await sleep(100);A=W.TOUR_API;res();};});
+}
+
+/* ---------- 2. 自動操作的小工具 ---------- */
+const vis=id=>{const e=D&&D.getElementById(id);return !!e&&!e.classList.contains('hidden')&&e.style.display!=='none';};
+const dlgOn=()=>vis('dlg'),mgOpen=()=>vis('mg');
+const intro=()=>!!(D&&D.getElementById('mintro'));
+async function until(fn,ms=8000,step=120){const t0=performance.now();while(performance.now()-t0<ms){if(alive()&&fn())return true;await sleep(step);if(!alive())throw 'stop';}return false;}
+function alive(){return RUN===cur;}let cur=0;
+function click(el){if(!el)return;el.dispatchEvent(new W.PointerEvent('pointerdown',{bubbles:true}));el.click();}
+async function dismiss(max=5){ // 把對話框關掉（打字中會先顯示全文）
+  for(let k=0;k<max&&dlgOn();k++){click(D.getElementById('dB'));await sleep(380);}
+}
+async function waitDialog(ms=7000){await until(()=>!intro()&&dlgOn(),ms);}
+async function readThenClose(ms=2600){await waitDialog();await sleep(ms);await dismiss();}
+function fade(on){const f=$('fadeLayer');f.style.opacity=on?1:0;}
+async function jumpTo(x,z){fade(1);await sleep(320);A.teleport(x,z);await sleep(200);fade(0);await sleep(250);}
+// 走到某個點（未放大座標）：用虛擬搖桿，卡住就換個角度，最多走 ms 毫秒
+async function walk(x,z,{ms=9000,near=1.4,sprint=true}={}){
+  const K=A.K;let last=null,stuck=0,side=0;const t0=performance.now();
+  A.setKey('ShiftLeft',sprint);
+  try{
+    while(performance.now()-t0<ms){
+      if(!alive())throw 'stop';
+      if(A.paused()){A.setJoy(0,0);await sleep(150);if(dlgOn()||mgOpen())return false;continue;}
+      const p=A.pos(),dx=x*K-p.x,dz=z*K-p.z,d=Math.hypot(dx,dz);
+      if(d<near*K)return true;
+      let ux=dx/d,uz=dz/d;
+      if(side){const s=side;[ux,uz]=[ux*.4-uz*s*.92,uz*.4+ux*s*.92];}
+      A.setJoy(ux,-uz);
+      await sleep(90);
+      const q=A.pos();if(last&&Math.hypot(q.x-last.x,q.z-last.z)<.05){if(++stuck>4){side=side?-side:(Math.random()<.5?1:-1);stuck=0;}}else{if(side&&Math.random()<.15)side=0;}
+      last={x:q.x,z:q.z};
+    }
+    return false;
+  }finally{A.setJoy(0,0);A.setKey('ShiftLeft',false);}
+}
+async function path(pts,o){for(const [x,z] of pts){await walk(x,z,o);if(dlgOn()||mgOpen())return;}}
+// 小遊戲自動玩：連打條就一直按；有指針和綠色區就等指針進綠區再按
+async function autoMG(ms=20000){
+  const t0=performance.now();
+  while(mgOpen()&&performance.now()-t0<ms){
+    if(!alive())throw 'stop';
+    const A_=D.getElementById('mgA'),nd=A_.querySelector('.needle'),zn=A_.querySelector('.zone'),fill=A_.querySelector('.fill');
+    const show=e=>e&&e.style.display!=='none'&&e.offsetWidth>=0;
+    if(nd&&zn&&show(nd)&&zn.style.display!=='none'&&zn.offsetWidth){
+      const a=nd.getBoundingClientRect(),b=zn.getBoundingClientRect(),c=a.left+a.width/2;
+      if(c>b.left+b.width*.2&&c<b.right-b.width*.2){A.mgKey();await sleep(260);}else await sleep(16);
+    }else if(fill&&show(fill)){A.mgKey();await sleep(75);}
+    else{const ord=A_.querySelector('.ord');if(ord){await sleep(500);break;}await sleep(100);}
+  }
+}
+async function answerCorrect(t){ // 問答：直接點正確答案（任務資料裡有正解）
+  await waitDialog();await sleep(2200);
+  const O=D.getElementById('dO'),b=O&&O.children[A.T(t.ans)];
+  if(b){click(b);await sleep(2300);}
+  await dismiss();
+}
+
+/* ---------- 3. 亮點劇本（每一步都很快接下一步） ---------- */
+const SCENES=[
+ {k:'開場',t:'三種身分，一年的校園生活',d:'小六生可以「小六體驗」走一趟國中部，國一、高一新生各有自己的課程路線；還有約 15 分鐘的快速體驗。',
+  go:async()=>{
+   await sleep(1200);click(D.querySelector('[data-g="v"]'));await sleep(900);click(D.querySelector('[data-l="quick"]'));await sleep(1100);
+   click(D.getElementById('go'));await waitDialog(6000);await sleep(2600);await dismiss();}},
+ {k:'任務',t:'走進發光圈圈，接下任務',d:'每個月依真實行事曆安排任務：問答、小遊戲、收集、逛攤位。完成本月任務就能蓋一個章。',
+  go:async()=>{
+   const t=A.task('gate');await walk(A.T(t.x),A.T(t.z),{near:.6,sprint:false});
+   await answerCorrect(t);
+   await sleep(1500);await waitDialog(6000);await sleep(2200);await dismiss();}},
+ {k:'探索',t:'撿豹爪幣、找校史時光碑',d:'校園裡藏著金色豹爪幣，撿到就解鎖一項南山榮譽；13 座時光碑，走近就讀到一段南山校史。',
+  go:async()=>{
+   const c=A.coins.find(k=>!k.got&&Math.hypot(k.x/A.K+66,k.z/A.K+14)<1);if(c)await walk(c.x/A.K,c.z/A.K,{near:.5});
+   await sleep(900);
+   await walk(-56,-11,{near:.8});await waitDialog(3500);await sleep(2600);await dismiss();}},
+ {k:'師長',t:'校長、董事長與七位處室主任都在校園裡',d:'靠近按 E 就能聊天，認識各處室在做什麼、遇到問題可以找誰。',
+  go:async()=>{
+   await jumpTo(-14,4.2);await walk(-14,2.2,{near:.4,sprint:false});await sleep(500);
+   if(A.near())A.talk();else A.openOffice(A.OFFNPC.find(n=>n.d&&n.d.title==='校長')||A.OFFNPC[0]);
+   await waitDialog(3000);await sleep(3600);await dismiss();}},
+ {k:'防災演練',t:'9/21 防災演練：趴下、掩護、穩住',d:'警報響起、畫面搖晃，依正確順序保護自己，再跟著地上的導引光線走到集合場。',
+  go:async()=>{
+   if(A.month()!==1){A.enterMonth(1);await waitDialog(6000);await sleep(1600);await dismiss();}
+   const t=A.task('drill');await jumpTo(A.T(t.x)+3,A.T(t.z));await sleep(400);
+   A.trigger(t);await waitDialog();await sleep(2200);await dismiss();
+   await until(mgOpen,4000);await sleep(1300);
+   for(const w of ['趴下','掩護','穩住']){const b=[...D.querySelectorAll('#mgA .ord button')].find(x=>x.textContent.startsWith(w));click(b);await sleep(900);}
+   await waitDialog(4000);await sleep(2000);await dismiss();
+   const t0=performance.now();while(performance.now()-t0<6500&&A.drill()){const n=A.nav();if(!n)break;await walk(n.x/A.K,n.z/A.K,{ms:1500,near:1,sprint:false});}
+   A.abortDrill();}},
+ {k:'小遊戲',t:'80 週年校慶大隊接力',d:'先連打衝刺，再抓準時機交棒！各月還有快門挑戰、排球發球、HBL 應援等小遊戲。',
+  go:async()=>{
+   if(A.month()!==2){A.enterMonth(2);await waitDialog(6000);await sleep(1500);await dismiss();}
+   const t=A.task('relay');await jumpTo(A.T(t.x),A.T(t.z)+5);await walk(A.T(t.x),A.T(t.z),{near:.6,sprint:false});
+   await waitDialog();await sleep(1800);await dismiss();
+   await until(mgOpen,3000);await sleep(700);await autoMG(26000);
+   await waitDialog(4000);await sleep(1600);await dismiss();
+   await sleep(1600);await waitDialog(6000);await sleep(2000);await dismiss();}},
+ {k:'校園地圖',t:'找地點：地上出現導引光線',d:'校園依「地震避難疏散路線圖」配置。打開大地圖或搜尋處室、專科教室，跟著光線就走得到。',
+  go:async()=>{
+   await jumpTo(-2,0);A.bigMap();await sleep(3400);await dismiss();
+   A.setNav('天馬劇場',44,9);A.toast('🧭 跟著地上的光線走到「天馬劇場」',2600);
+   await path([[12,0],[30,1.8],[44,9]]);await sleep(2000);}},
+ {k:'天氣與時段',t:'春雨、傍晚、路燈亮起',d:'3 月春雨、5 月梅雨會下雨；完成任務時天色從早晨變成傍晚，窗戶和路燈一盞盞亮起。',
+  go:async()=>{
+   A.enterMonth(7);await waitDialog(6000);await sleep(1400);await dismiss();
+   await jumpTo(-24,3.5);await walk(-6,3.5,{sprint:false,ms:4500});
+   A.tod=.98;await walk(3,4.5,{sprint:false,ms:5000});await sleep(1500);A.tod=null;}},
+ {k:'收藏',t:'集章冊與紀念卡',d:'每完成一個月就蓋一個章；最後可以寫上名字，下載自己的南山紀念卡。',
+  go:async()=>{
+   A.stampBook();await sleep(2800);
+   const n=D.getElementById('nick');if(n){n.value='南山豹';n.dispatchEvent(new W.Event('input'));}await sleep(900);
+   click(D.getElementById('mkcard'));await sleep(4200);await dismiss();}},
+];
+
+/* ---------- 4. 字幕與流程 ---------- */
+function caption(i){const s=SCENES[i];$('capK').textContent=`亮點 ${i+1} / ${SCENES.length}・${s.k}`;$('capT').textContent=s.t;$('capD').textContent=s.d;
+  $('dots').innerHTML=SCENES.map((_,j)=>`<i class="${j<=i?'on':''}"></i>`).join('');$('cap').classList.remove('hide');}
+async function tour(){
+  const me=++RUN;cur=me;
+  $('end').style.display='none';$('badge').style.display='flex';
+  await mkFrame();await sleep(800);
+  for(let i=0;i<SCENES.length;i++){
+    if(!alive())return;
+    caption(i);
+    try{await dismiss();await SCENES[i].go();}catch(e){if(e==='stop')return;console.warn('展示步驟略過：',SCENES[i].k,e);try{await dismiss();if(mgOpen())click(D.getElementById('mgQ'));A.abortDrill();A.stop();}catch(_){} }
+    await sleep(500);
+  }
+  if(!alive())return;
+  $('cap').classList.add('hide');$('end').style.display='flex';
+  await sleep(7000);
+  if(alive())tour(); // 重新開始一輪
+}
+const play=()=>window.open(GAME_URL,'_blank');
+$('play').onclick=play;$('play2').onclick=play;$('goPlay').onclick=()=>location.href=GAME_URL;
+$('go').onclick=async()=>{
+  const d=document.documentElement;try{await (d.requestFullscreen||d.webkitRequestFullscreen||(()=>{})).call(d);}catch(_){}
+  try{if(!SRC)SRC=await loadSrc();}catch(e){$('err').style.display='block';$('err').textContent='⚠️ 無法載入遊戲：'+e.message+'。請用網址開啟（GitHub Pages 或本機伺服器），直接雙擊檔案打開時瀏覽器不允許讀取。';return;}
+  $('cover').style.display='none';tour();
+};
+// 換頁或看不到時暫停字幕動畫不需要處理；網址加 #auto 可省略按鈕直接開始（例如開機自動啟動，但瀏覽器可能先靜音）
+if(location.hash==='#auto')$('go').click();
+})();
+</script>
+<div id="fadeLayer" style="position:fixed;inset:0;z-index:11;background:#12182f;opacity:0;transition:opacity .3s;pointer-events:none"></div>
+</body>
+</html>

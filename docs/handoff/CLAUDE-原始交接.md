@@ -134,6 +134,7 @@
 | 校園小動作 | 地上有可互動的地點（`ACTS`），靠近按 E（手機點 💬）：**漳二籃球場投籃**（力道條跑進綠色區時出手，5 球，最佳成績記在本機 `nanshan-hoop`）；**地下運動區入口**（行健樓前、靠自強大樓）：B1 桌球、羽球、棒球打擊，B2 手足球，各是一個小遊戲。要加新動作，在 `ACTS` 加一筆 `{x,z,icon,label,go}` | `ACTS`、`shootStart()`、`HOOPS`、`underground()` |
 | 停車場汽車 | 教師停車場的車改成畫出來的汽車：南側一排車頭朝北（看得到車尾燈、車牌、後擋風玻璃），西側一排橫停（看得到側窗、兩個輪子） | `CARS`、`drawCar()`、`drawCarSide()` |
 | 展示模式 | 招生說明會、校慶擺攤用：網址加 `?demo=1`（或開場最下面點「🏫 展示模式」）。預設小六體驗＋快速體驗、每次都有新手引導、不存檔、有全螢幕按鈕；遊戲中 90 秒沒人操作跳出 10 秒倒數，沒人碰就回到開始畫面 | `DEMO` |
+| 自動展示 | 另一個檔案 `showcase.html`（開始畫面最下面「🎬 自動展示（另開視窗）」會另開這一頁）。按「▶ 開始自動展示」後全螢幕，電腦自己操作、左下角字幕說明，依序展示 9 個亮點：三種身分→走進任務圈答題與集章→撿豹爪幣與時光碑→校長對話→9/21 防災演練→校慶大隊接力（小遊戲自動玩）→大地圖與導引光線→春雨與傍晚路燈→集章冊與紀念卡，結束畫面停 7 秒後自動重來；右下「🎮 換我玩！」另開遊戲。網址加 `#auto` 可省略按鈕直接開始（瀏覽器可能先靜音）。做法：抓 `index.html`，只在這一頁的記憶體裡於主程式最後加上 `window.TOUR_API`，用 iframe 載入，**不改 index.html**；展示時不存檔、不出新手引導，不會動到玩家的存檔。要改劇本就改 `SCENES`。必須用網址開（GitHub Pages 或本機伺服器），直接雙擊檔案打不開。**瀏覽器分頁或視窗藏起來時遊戲畫面會暫停**，擺攤時要讓它保持在前景 | `showcase.html` 的 `SCENES`、`TOUR_API` |
 | 製作群 | 選單「🎬 製作群」與開場最下面的連結：企劃闕宏宇老師、AI 協作 Claude（Anthropic）與 Gemini（Google）、背景音樂 AI 生成、字型、資料來源、特別感謝；結局後提示可看製作群 | `credits()` |
 | 集章冊與紀念卡 | 完成每月所有**必做**任務蓋一個章；可輸入名字，產生 1080×1350 的 PNG 紀念卡 | `STAMPS`、`stampBook()`、`makeCard()`、`showCard()` |
 | 紀念卡下載 | 在 claude.ai 頁面用平台下載功能（已宣告 `downloads`）；其他環境改用一般下載連結；手機可長按圖片儲存 | `showCard()` 的 `dlcard` |
@@ -252,7 +253,7 @@
 ## 同步到 GitHub（2026-11-03 起）
 - **在這個雲端硬碟資料夾直接修改**，這裡是主檔。不要在這裡執行 `git init`；Git repo 放在本機 `~/Projects/nanshan-panther-game`。
 - 改完、確認沒有 JS 錯誤後，執行：`bash tools/sync-to-github.sh "這次改了什麼"`。
-  - 會把 `index.html`、`tools/`、本檔（存成 `docs/handoff/CLAUDE-原始交接.md`）複製進 repo，commit 到 `claude` 分支，再合併到 `main` 並推送。
+  - 會把 `index.html`、`showcase.html`、`tools/`、本檔（存成 `docs/handoff/CLAUDE-原始交接.md`）複製進 repo，commit 到 `claude` 分支，再合併到 `main` 並推送。
   - GitHub：https://github.com/s90194yeu-collab/nanshan-panther-game（public）
   - 遊戲網址約 1 分鐘後更新：https://s90194yeu-collab.github.io/nanshan-panther-game/
 - 腳本會自動停下來的情況：GitHub 上的 `index.html` 在上次同步後被別的工具改過（避免互相覆蓋）、變更裡疑似有金鑰或 token。
