@@ -35,6 +35,8 @@ cp "$SRC/index.html" index.html
 rsync -a --exclude 'shots/' --exclude '.DS_Store' "$SRC/tools/" tools/
 [ -d "$SRC/assets" ] && rsync -a --exclude '.DS_Store' "$SRC/assets/" assets/  # 學校提供的圖片、照片
 [ -f "$SRC/CLAUDE.md" ] && cp "$SRC/CLAUDE.md" "docs/handoff/CLAUDE-原始交接.md"
+[ -f "$SRC/GEMINI.md" ] && cp "$SRC/GEMINI.md" "docs/handoff/GEMINI-交接給Antigravity.md"
+[ -f "$SRC/AGENTS.md" ] && cp "$SRC/AGENTS.md" "docs/handoff/AGENTS.md"
 
 git add -A
 if git diff --cached --quiet; then

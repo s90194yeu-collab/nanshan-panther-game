@@ -253,9 +253,10 @@
 ## 同步到 GitHub（2026-11-03 起）
 - **在這個雲端硬碟資料夾直接修改**，這裡是主檔。不要在這裡執行 `git init`；Git repo 放在本機 `~/Projects/nanshan-panther-game`。
 - 改完、確認沒有 JS 錯誤後，執行：`bash tools/sync-to-github.sh "這次改了什麼"`。
-  - 會把 `index.html`、`showcase.html`、`tools/`、本檔（存成 `docs/handoff/CLAUDE-原始交接.md`）複製進 repo，commit 到 `claude` 分支，再合併到 `main` 並推送。
+  - 會把 `index.html`、`showcase.html`、`tools/`、本檔（存成 `docs/handoff/CLAUDE-原始交接.md`）、`GEMINI.md`、`AGENTS.md`複製進 repo，commit 到 `claude` 分支，再合併到 `main` 並推送。
   - GitHub：https://github.com/s90194yeu-collab/nanshan-panther-game（public）
   - 遊戲網址約 1 分鐘後更新：https://s90194yeu-collab.github.io/nanshan-panther-game/
 - 腳本會自動停下來的情況：GitHub 上的 `index.html` 在上次同步後被別的工具改過（避免互相覆蓋）、變更裡疑似有金鑰或 token。
 - Gemini Antigravity、ChatGPT 也請改這個資料夾，不要直接改 GitHub 上的檔案。
+- **給 Gemini Antigravity 的交接檔**（2026-11-13）：`GEMINI.md`（交接重點、測試的坑、待辦、榮譽榜出處查找進度）、`AGENTS.md`（簡短入口）、`.agent/rules/nanshan-handoff.md`（Antigravity 工作區規則，永遠套用）。設計決定仍以本檔為主，各工具改完都寫回本檔。
 - 金鑰一律放 Apps Script「指令碼屬性」，不得寫進程式碼；學生資料不得放進這個資料夾。
