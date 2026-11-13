@@ -932,7 +932,7 @@ const TASKS=[
   win:J('演出成功，掌聲如雷！誠實的故事最動人。','全對！平安上學，平安回家。')},
  // 1 月
  {m:5,id:'lantern',name:'民俗季點燈儀式',x:-12,z:-6,type:'collect',title:'🏮 民俗季點燈儀式',items:'lantern',time:60,
-  intro:'學務處老師：1/7 民俗季點燈儀式快開始了，有 4 盞小燈籠被風吹走！40 秒內把它們找回來。',
+  intro:'學務處老師：1/7 民俗季點燈儀式快開始了，有 4 盞小燈籠被風吹走！60 秒內把它們找回來。',
   win:'燈籠全部歸位，點燈！民俗季還有音樂晚會和元宵燈會，南山的冬天很熱鬧。'},
  {m:5,id:'luming',name:'期末衝刺：閱覽室自習',x:-30,z:-1,type:'quiz',title:'📖 自強大樓八樓・大閱覽室',
   q:'圖書館老師：1/18 期末考加油！先來一題暖身：「呦呦鹿鳴，食野之苹」出自哪一部經典？',
@@ -957,7 +957,7 @@ const TASKS=[
   text:J('導師：今晚是國一學校日，爸媽會來教室聽課程說明。記得把聯絡簿整理好！','導師：今晚是高一學校日，會說明選組與學習歷程。請爸媽一起來聽！')},
  // 4 月
  {m:8,id:'april',name:J('烘爐地徒步旅行','國高一班際羽球賽'),x:J(-59,13),z:J(-10.5,1),type:J('mg','collect'),title:J('🥾 國一烘爐地徒步旅行','🏸 國高一班際羽球賽'),
-  intro:J('導師：4/8 全班走上中和的烘爐地！最後一段是陡坡，一口氣衝上去！','體育股長：4/11 班際羽球賽！先把館內 4 顆球收回器材室，30 秒內完成！'),
+  intro:J('導師：4/8 全班走上中和的烘爐地！最後一段是陡坡，一口氣衝上去！','體育股長：4/11 班際羽球賽！先把館內 4 顆球收回器材室，50 秒內完成！'),
   mg:{kind:'mash',title:'🥾 衝上烘爐地',prompt:'快速連打「爬！」（鍵盤可連按空白鍵），9 秒內爬到山頂。',need:42,time:9,decay:3,btn:'🥾 爬！'},
   items:'ball',time:50,
   win:J('登頂！整個中和的街景都在腳下。','器材歸位，比賽準時開打！')},
@@ -1583,7 +1583,8 @@ function drawGround(){
      if(i){ctx.save();fan(R);ctx.clip();ctx.strokeStyle='rgba(60,50,40,.35)';ctx.lineWidth=PPU*.5;ctx.beginPath();ctx.ellipse(X,Y-PPU*.22,R*PPU,R*PPU*TILT*ZS,0,Math.PI/2-a,Math.PI/2+a);ctx.stroke();ctx.restore();}}
    {const g=ctx.createRadialGradient(X,Y,0,X,Y,r*PPU*.8);g.addColorStop(0,'rgba(40,30,20,.3)');g.addColorStop(1,'rgba(40,30,20,0)');ctx.fillStyle=g;fan(r);ctx.fill();}
    ctx.beginPath();ctx.ellipse(X,Y,r0*PPU,r0*PPU*TILT*ZS,0,0,Math.PI);ctx.closePath();ctx.fillStyle='#b9b0a0';ctx.fill();
-   {const fs=Math.max(9,PPU*.7),ty=PY(z+r*.86);ctx.font=`bold ${fs}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=fs*.22;ctx.strokeStyle='rgba(70,50,20,.75)';ctx.strokeText('飛吧！思想，乘著金色的翅膀。',X,ty);ctx.fillStyle='#ffd45a';ctx.fillText('飛吧！思想，乘著金色的翅膀。',X,ty);} // 扇形下方的題字ctx.strokeStyle='rgba(90,80,70,.5)';ctx.lineWidth=Math.max(1,PPU*.08);ctx.stroke();
+   {const fs=Math.max(9,PPU*.7),ty=PY(z+r*.86);ctx.font=`bold ${fs}px ${FONT}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.lineWidth=fs*.22;ctx.strokeStyle='rgba(70,50,20,.75)';ctx.strokeText('飛吧！思想，乘著金色的翅膀。',X,ty);ctx.fillStyle='#ffd45a';ctx.fillText('飛吧！思想，乘著金色的翅膀。',X,ty);} // 扇形下方的題字
+   ctx.strokeStyle='rgba(90,80,70,.5)';ctx.lineWidth=Math.max(1,PPU*.08);ctx.stroke();
    ctx.strokeStyle='rgba(120,105,85,.5)';ctx.lineWidth=PPU*.14;[-1,1].forEach(sd=>{const t=Math.PI/2+sd*a*.5;ctx.beginPath();ctx.moveTo(X+Math.cos(t)*r0*PPU,Y+Math.sin(t)*r0*PPU*TILT*ZS);ctx.lineTo(X+Math.cos(t)*r*PPU,Y+Math.sin(t)*r*PPU*TILT*ZS);ctx.stroke();});} // 走道
   // 大範圍深淺變化
   if(QLV>=2)MACRO.forEach(m=>{const X=PX(m.x),Y=PY(m.z),R=m.r*PPU;if(X+R<view.x0||X-R>view.x1||Y+R*TILT<view.y0||Y-R*TILT>view.y1)return;
@@ -1747,7 +1748,8 @@ function render(dt){
   coins.forEach(k=>{if(!k.got)add(k.x,k.z,()=>drawCoin(k));});
   flags.forEach(f=>{if(f.vis&&!f.got)add(f.x,f.z,()=>f.kind==='ball'?drawBall(f):drawLanternItem(f));});
   TASKS.forEach(t=>{if(inMonth(t)&&!t.done)add(t.X,t.Z+.02,()=>drawBeam(t));});
-  add(-8.4*K,(-15.6-3)*K,()=>drawFlagpole(0));add(-8.4*K,(-15.6-2.6)*K,()=>drawFlagpole(2));add(-8.4*K,-15.6*K,()=>drawFlagpole(1)); // 司令台可以走上去：底座、旗桿排在後面，拱門依中線排序add(ANTHEM.x,ANTHEM.z,drawAnthem);
+  add(-8.4*K,(-15.6-3)*K,()=>drawFlagpole(0));add(-8.4*K,(-15.6-2.6)*K,()=>drawFlagpole(2));add(-8.4*K,-15.6*K,()=>drawFlagpole(1)); // 司令台可以走上去：底座、旗桿排在後面，拱門依中線排序
+  add(ANTHEM.x,ANTHEM.z,drawAnthem);
   if(decoL)for(let i=0;i<4;i++)add(-11*K,(-12+i*4)*K,()=>drawLanternRow(i));
   HOOK.actors.forEach(f=>f(add));
   items.sort((a,b)=>a.s-b.s||a.z-b.z);
